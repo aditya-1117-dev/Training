@@ -27,7 +27,7 @@ function printText(s: string, alignment: "left" | "right" | 1) {
     console.log(s, typeof alignment)
 }
 printText("Hello, world", 1);
-printText("G'day, mate", "centre");
+// printText("G'day, mate", "centre");
 // Argument of type '"centre"' is not assignable to parameter of type '"left" | "right" | "center"'.
 
 type DescribableFunction = {
@@ -44,7 +44,6 @@ function myFunc(someArg: number) {
 myFunc.description = "default description";
 
 doSomething(myFunc);
-
 
 function firstElement<Type>(arr: Type[]): Type | undefined {
     return arr[0];
@@ -97,14 +96,6 @@ const f1: voidFunc = () => {
 const v1 = f1();
 console.log(typeof v1, v1, typeof f1)
 
-
-function map<Input, Output>(arr: Input[], func: (arg: Input) => Output): Output[] {
-    return arr.map(func);
-}
-
-// const parsed = map(["1", "2", "3"], (n) => parseInt(n));
-// console.log(parsed, typeof parsed)
-
 function combine<Type>(arr1: Type[], arr2: Type[]): Type[] {
     return arr1.concat(arr2);
 }
@@ -112,9 +103,9 @@ function combine<Type>(arr1: Type[], arr2: Type[]): Type[] {
 const arr = combine<string | number>([1, 2, 3], ["hello"]);
 console.log(arr)
 
-function firstElement<Type>(arr: Type[]): Type | undefined {
-    // console.log( typeof arr[0]) ;
-    return arr[0]
-}
+// function firstElement<Type>(arr: Type[]): Type | undefined {
+//     // console.log( typeof arr[0]) ;
+//     return arr[0]
+// }
 
 console.log(typeof firstElement([ "hel", 1]))
