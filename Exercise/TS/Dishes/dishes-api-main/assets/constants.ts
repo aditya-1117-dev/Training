@@ -1,0 +1,17 @@
+export const ingredientList = {
+    tomato: { min: 10, max: 15 },
+    potato: { min: 10, max: 15 },
+    onion: { min: 5, max: 15 },
+    cauliflower: { min: 5, max: 10 },
+    ladyfinger: { min: 5, max: 10 },
+    water: { min: 500, max: 750 },
+    salt: { min: 5, max: 15 },
+    pepper: { min: 5, max: 15 },
+    turmeric: { min: 5, max: 15 },
+    garlic: { min: 5, max: 20 },
+    ginger: { min: 5, max: 20 },
+    carrot: { min: 5, max: 10 },
+    cumin: { min: 5, max: 15 },
+    coriander: { min: 5, max: 15 },
+    parsley: { min: 5, max: 15 },
+} as const;
