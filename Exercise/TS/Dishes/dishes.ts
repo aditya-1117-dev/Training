@@ -25,32 +25,29 @@ async function fetchData(): Promise<[Dish[],Ingredient]> {
 
 fetchData().then(([dishes, ingredients])=> {
 
-    const [creatableDishes, mapIdAndIngredients, totalIngredients, missingIngredients] : [Dish[], Record<number, number>, Ingredient, Dish[]] = findCreatableDishes(dishes, ingredients);
+    const creatableDishes: Dish[] = findCreatableDishes(dishes, ingredients);
     console.log("Creatable Dishes Are : ", creatableDishes);
 
-    const topDishes: Dish[] = creatableDishes.filter( (dish) => dish.id in mapIdAndIngredients);
+    const dishIdAndIngredientsQuantity: Record<number, number> = findDishIdAndIngredientsQuantity(creatableDishes);
+    const topDishes: Dish[] = creatableDishes.filter( (dish) => dish.id in dishIdAndIngredientsQuantity);
     console.log("Top 3 easiest dishes are : ", topDishes);
 
+    const totalIngredients: Ingredient = findTotalQuantityRequiredPerIngredient(creatableDishes);
     console.log("Total amount of each ingredients used : ", totalIngredients);
 
+    const  missingIngredients : Dish[] = findMissingIngredients(dishes, ingredients);
     console.log("Dishes with missing ingredients are : ", missingIngredients);
 });
 
-function findCreatableDishes(dishes : Dish[], ingredients: Ingredient): [Dish[], Record<number, number>, Ingredient, Dish[]] {
+function findCreatableDishes(dishes : Dish[], ingredients: Ingredient): Dish[]{
     const creatableDishes : Dish[] = [];
-    let mapIdAndIngredients : Record<number, number> = {};
-    let totalIngredients : Ingredient = {};
-    let missingIngredients : Dish[] = [];
-
     for (let i=0; i < dishes.length; i++) {
         const dish : Dish = dishes[i];
         let flag : boolean = true;
-        let totalIngredientCount = 0;
 
         for (const ingredient in dish.ingredients) {
             const requiredQuantity : number = dish.ingredients[ingredient];
             const availableQuantity : number = ingredients[ingredient] || 0;
-            totalIngredientCount += requiredQuantity;
             if (availableQuantity < requiredQuantity) {
                 flag = false;
                 break;
@@ -58,13 +55,58 @@ function findCreatableDishes(dishes : Dish[], ingredients: Ingredient): [Dish[],
         }
         if (flag) {
             creatableDishes.push(dish);
-            mapIdAndIngredients[dish.id] = totalIngredientCount;
+        }
+    }
+    return creatableDishes;
+}
 
-            for (const ingredient in dish.ingredients) {
-                if (!totalIngredients[ingredient]) totalIngredients[ingredient] = 0;
-                totalIngredients[ingredient] += dish.ingredients[ingredient];
+function findDishIdAndIngredientsQuantity(creatableDishes : Dish[]):  Ingredient {
+    let dishIdAndIngredientsQuantity : Record<number, number> = {};
+    for (let i=0; i < creatableDishes.length; i++) {
+        const dish : Dish = creatableDishes[i];
+        let flag : boolean = true;
+        let totalIngredientSum = 0;
+        for (const ingredient in dish.ingredients) {
+            const requiredQuantity : number = dish.ingredients[ingredient];
+            totalIngredientSum += requiredQuantity;
+        }
+        dishIdAndIngredientsQuantity[dish.id] = totalIngredientSum;
+    }
+    dishIdAndIngredientsQuantity = Object.fromEntries(
+        Object.entries(dishIdAndIngredientsQuantity)
+            .sort(([ a], [ b]) => a - b)
+            .slice(0, 3)
+    );
+    return dishIdAndIngredientsQuantity;
+}
+
+function findTotalQuantityRequiredPerIngredient(creatableDishes : Dish[] ):  Ingredient {
+    let totalIngredients : Ingredient = {};
+    for (let i=0; i < creatableDishes.length; i++) {
+        const dish: Dish = creatableDishes[i];
+        for (const ingredient in dish.ingredients) {
+            if (!totalIngredients[ingredient]) totalIngredients[ingredient] = 0;
+            totalIngredients[ingredient] += dish.ingredients[ingredient];
+        }
+    }
+    return totalIngredients;
+}
+
+function findMissingIngredients(dishes : Dish[], ingredients: Ingredient): Dish[] {
+    let missingIngredients : Dish[] = [];
+    for (let i=0; i < dishes.length; i++) {
+        const dish : Dish = dishes[i];
+        let flag : boolean = true;
+
+        for (const ingredient in dish.ingredients) {
+            const requiredQuantity : number = dish.ingredients[ingredient];
+            const availableQuantity : number = ingredients[ingredient] || 0;
+            if (availableQuantity < requiredQuantity) {
+                flag = false;
+                break;
             }
-        }else{
+        }
+        if (!flag) {
             let missingIngredientsObject : Ingredient = {};
             for (const ingredient in dish.ingredients) {
                 const requiredQuantity: number = dish.ingredients[ingredient];
@@ -73,7 +115,6 @@ function findCreatableDishes(dishes : Dish[], ingredients: Ingredient): [Dish[],
                 if (availableQuantity < requiredQuantity) missingIngredientsObject[ingredient] = requiredQuantity - availableQuantity;
                 else missingIngredientsObject[ingredient] = 0;
             }
-
             missingIngredients.push({
                 id: dish.id,
                 name : dish.name,
@@ -82,10 +123,5 @@ function findCreatableDishes(dishes : Dish[], ingredients: Ingredient): [Dish[],
             })
         }
     }
-    mapIdAndIngredients = Object.fromEntries(
-        Object.entries(mapIdAndIngredients)
-            .sort(([ a], [ b]) => a - b)
-            .slice(0, 3)
-    );
-    return [ creatableDishes, mapIdAndIngredients, totalIngredients, missingIngredients];
+    return missingIngredients;
 }
