@@ -1,13 +1,37 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title> Dish Exercise</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <h1>Dish and Ingredient</h1>
+  <div>
+    <h2>Creatable Dishes</h2>
+    <ul id="creatable-dishes-list"></ul>
+  </div>
+
+  <div>
+    <h2>Top Dishes</h2>
+    <ul id="top-dishes-list"></ul>
+  </div>
+
+  <div>
+    <h2>Total Ingredients</h2>
+    <ul id="total-ingredients-list"></ul>
+  </div>
+
+  <div>
+    <h2>Missing Ingredients</h2>
+    <select id="missing-dish-dropdown">
+    </select>
+    <div id="missing-ingredients">
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
 </html>
