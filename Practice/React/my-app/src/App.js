@@ -4,7 +4,7 @@ import ProductListing from "./components/productListing";
 import React from "react";
 import { BrowserRouter , Route, Routes, Link } from 'react-router-dom';
 import Game from "./components/game";
-import Profile, {DomHandling} from "./components/pracctice";
+import Profile, {DomHandling, KeyForm} from "./components/pracctice";
 import ComponentLifecycle from "./components/componentLifecycle";
 import Parent from "./components/parent-child-re-rendering";
 import RecipeList from "./components/pracctice";
@@ -36,6 +36,7 @@ function App() {
         <Link to="/product-listing">Go to Product Listing</Link> <br/>
         <Link to="/tic-tac-toe">Tic-Tac-Toe Game</Link> <br/>
         <Link to="/practice">Go to Practice Page</Link> <br/>
+        <Link to="/key">Go to key form Page</Link> <br/>
         <Link to="/domHandling">Go to Practice DOM handling Page</Link> <br/>
         <Link to="/lifecycle">Go to Lifecycle Page</Link> <br/>
         <Link to="/parent-child-re-rendering">Go to Parent Child Re-Rendering Page</Link> <br/>
@@ -48,6 +49,7 @@ function App() {
         <Route path="/domHandling" element={<DomHandling />} />
           <Route path="/tic-tac-toe" element={<Game />} />
           <Route path="/practice" element={<Profile />} />
+          <Route path="/key" element={<KeyForm />} />
           <Route path="/lifecycle" element={<ComponentLifecycle />} />
       </Routes>
     {/*</div>*/}
