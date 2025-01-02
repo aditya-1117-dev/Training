@@ -8,6 +8,7 @@ import Profile, {DomHandling, KeyForm} from "./components/pracctice";
 import ComponentLifecycle from "./components/componentLifecycle";
 import Parent from "./components/parent-child-re-rendering";
 import RecipeList from "./components/pracctice";
+import {Counter, Counter2, ParentH} from "./components/hooks";
 
 function Welcome(props) {
     return <h1>Hello {props.name}</h1>;
@@ -39,6 +40,8 @@ function App() {
         <Link to="/key">Go to key form Page</Link> <br/>
         <Link to="/domHandling">Go to Practice DOM handling Page</Link> <br/>
         <Link to="/lifecycle">Go to Lifecycle Page</Link> <br/>
+        <Link to="/hooks">Go to Hooks Page</Link> <br/>
+        <Link to="/hooks/additional">Go to Additional Hooks Page</Link> <br/>
         <Link to="/parent-child-re-rendering">Go to Parent Child Re-Rendering Page</Link> <br/>
       {/*</header>*/}
 
@@ -50,6 +53,8 @@ function App() {
           <Route path="/tic-tac-toe" element={<Game />} />
           <Route path="/practice" element={<Profile />} />
           <Route path="/key" element={<KeyForm />} />
+          <Route path="/hooks" element={<Counter />} />
+          <Route path="/hooks/additional" element={<> <ParentH /> <br/> <Counter2/> </>} />
           <Route path="/lifecycle" element={<ComponentLifecycle />} />
       </Routes>
     {/*</div>*/}
