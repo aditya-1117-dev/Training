@@ -9,6 +9,7 @@ import React, {
     memo,
     useMemo
 } from 'react';
+import {Link} from "react-router-dom";
 
 const ThemeContext = createContext(null);
 
@@ -74,17 +75,23 @@ function Button({ children }) {
 export function Counter() {
     const countRef = useRef(0);
     useEffect(() => {
-        countRef.current += 1;
-        // also we can perform dom manipulations directly in react as :
-        countRef.current.style.backgroundColor = "yellow";
-        countRef.current.focus();
+            // countRef.current += 1;
+        if (countRef.current) {
+            // also we can perform dom manipulations directly in react as :
+            countRef.current.style.backgroundColor = "yellow";
+            countRef.current.focus();
+        }
     });// gets called after every render
+
     const [search, setSearch] = useState("");
     return (
         <>
             <input type="text" ref={countRef} value={search} onChange={e => setSearch(e.target.value)}/><br/>
-            <p>number of re-renders are : {countRef}</p>
+            <input type="text" ref={countRef} value={search} onChange={e => setSearch(e.target.value)}/>
+            <p>number of re-renders are : {countRef.current}</p>
             <Stopwatch/>
+
+            <Link to="additional">Go to Additionl Hooks Page</Link>
         </>
     )
 }

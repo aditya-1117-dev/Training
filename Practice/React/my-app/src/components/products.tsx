@@ -1,7 +1,9 @@
+import React from "react";
+
 interface IProductProp {
     arr : number[]
 }
-function Products(props: IProductProp){ // other way to give types
+function Products(props: IProductProp): React.JSX.element{ // other way to give types
     return (
         <>
             <div>
@@ -12,7 +14,9 @@ function Products(props: IProductProp){ // other way to give types
     )
 }
 
-function Home(){
+type homePropType = object;
+
+const Home : React.FC<homePropType> = (props) =>{
     return (
         <>
             <div>

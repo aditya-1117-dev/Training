@@ -9,6 +9,7 @@ import ComponentLifecycle from "./components/componentLifecycle";
 import Parent from "./components/parent-child-re-rendering";
 import RecipeList from "./components/pracctice";
 import {Counter, Counter2, ParentH} from "./components/hooks";
+import {EnhancedComponent} from "./components/HOC";
 
 function Welcome(props) {
     return <h1>Hello {props.name}</h1>;
@@ -35,6 +36,7 @@ function App() {
         {/*  Learn React*/}
         {/*</a>*/}
         <Link to="/product-listing">Go to Product Listing</Link> <br/>
+        <Link to="/HOC">Go to Higher Order Components</Link> <br/>
         <Link to="/tic-tac-toe">Tic-Tac-Toe Game</Link> <br/>
         <Link to="/practice">Go to Practice Page</Link> <br/>
         <Link to="/key">Go to key form Page</Link> <br/>
@@ -47,6 +49,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Welcome name="Home" />} />
+          <Route path="/HOC" element={<EnhancedComponent render={(obj)=> <div> {Object.entries(obj).map(([key,val])=><div>{key} : {val}</div> )} </div> } wrappedComponentProps={{name:"Adi", age:12}} hocPops={{hocName:"Enhanced-HOC"}} stateVariables={{counterValue:0, inputValue:""}} />} />
         <Route path="/product-listing" element={<ProductListing />} />
         <Route path="/parent-child-re-rendering" element={<Parent />} />
         <Route path="/domHandling" element={<DomHandling />} />
@@ -55,7 +58,15 @@ function App() {
           <Route path="/key" element={<KeyForm />} />
           <Route path="/hooks" element={<Counter />} />
           <Route path="/hooks/additional" element={<> <ParentH /> <br/> <Counter2/> </>} />
-          <Route path="/lifecycle" element={<ComponentLifecycle />} />
+          {/*<Route path="hooks" element={<Counter />} >*/}
+          {/*    <Route path="additional" element={<> <ParentH /> <br/> <Counter2/> </>} /> /!* Not Working*!/*/}
+          {/*</Route>*/} // Expired
+          <Route
+              loader={({ params }) => {
+                  setTimeout(()=> console.log("its loader"), 10000)
+                  return "Hello";
+              }}
+              path="/lifecycle" element={<ComponentLifecycle />} />
       </Routes>
     {/*</div>*/}
       </BrowserRouter>
