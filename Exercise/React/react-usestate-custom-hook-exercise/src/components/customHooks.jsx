@@ -1,7 +1,19 @@
-import {useCallback, useState} from "react";
+import {useCallback, useReducer} from "react";
+
+function reducer(state, action) {
+    switch (action.type) {
+        case "SET" : {
+            return {
+                ...state,
+                [action.key] : action.value
+            }
+        }
+        default : throw Error("Wrong Action : ", action.type );
+    }
+}
 
 export function useCustomStates(initialValue){
-    const [state, setState] = useState(initialValue || {});
+    const [state, dispatch] = useReducer( reducer, initialValue || {});
 
     const get = useCallback((key) => {
         console.log("getter called : ", key);
@@ -9,9 +21,8 @@ export function useCustomStates(initialValue){
     }, [state]);
 
     const set = useCallback( (key, value) => {
-        const newState = {...state, [key]:value}
         console.log("setter called :",key);
-        setState(newState);
+        dispatch({type: "SET", key:key, value});
     }, [state]);
 
     return [get, set];
