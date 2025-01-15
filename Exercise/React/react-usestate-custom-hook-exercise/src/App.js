@@ -10,14 +10,15 @@ function App() {
         <button onClick={()=> set("count", get("count")+1)}>Increment Value</button>
           <br/><br/>
 
-        <input type="text" name="name" value={get("name")} onChange={e => set("name", e.target.value)}/>
-        <input type="text" name="age" value={get("age")} onChange={e => set("age", e.target.value)}/>
+          <InputComponent get={get} set={set} Key="name"/>
+          <InputComponent get={get} set={set} Key="age"/>
+        {/*<input type="text" name="age" value={get("age")} onChange={e => set("age", e.target.value)}/>*/}
       </div>
   );
 }
 
-function InputComponent() {
-    
+function InputComponent({get, set, Key}) {
+    return <input type="text" name={Key} value={get(Key)} onChange={e => set(Key, e.target.value)}/>
 }
 
 export default App;
