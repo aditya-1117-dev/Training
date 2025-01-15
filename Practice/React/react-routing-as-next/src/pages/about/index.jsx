@@ -1,7 +1,7 @@
 import React from 'react';
 
 const About = () => {
-    console.log("About page")
+    console.log("inside About page")
     return <h1>About Page</h1>;
 };
 
