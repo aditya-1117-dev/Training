@@ -1,11 +1,9 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {
-    createBrowserRouter,
-    RouterProvider,
-} from "react-router-dom";
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Home from "./Components/Pages/Home/Home.tsx";
 import Cart from "./Components/Pages/Cart/Cart.tsx";
+import NavbarComponent from "./Components/Utility/Navbar.tsx";
 
 const router = createBrowserRouter([
     {
@@ -24,6 +22,7 @@ function App() {
 
   return (
     <>
+        <NavbarComponent />
         <RouterProvider router={router} />
     </>
   )
