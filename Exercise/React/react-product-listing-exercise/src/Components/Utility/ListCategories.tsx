@@ -1,10 +1,10 @@
 
-export default function ListCategories({categoryData}) {
+export default function ListCategories({categories}) {
 
     return (
         <>
             <option value="all">Select Categories</option>
-            {categoryData && categoryData.map((category, index) => (
+            {categories && categories.map((category, index) => (
                 <option key={index} value={category}>{category}</option>
             ))}
         </>

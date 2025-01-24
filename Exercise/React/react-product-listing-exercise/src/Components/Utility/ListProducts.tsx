@@ -1,10 +1,10 @@
 
-export default function ListProducts({productData}) {
+export default function ListProducts({products}) {
 
     return (
         <div className="product-list">
-            {productData &&
-                productData.map((product) => {
+            {products &&
+                products.map((product) => {
                     return (
                         <div key={product.id} className="product-item">
                             <img src={product.thumbnail} alt={product.title} className="product-img"/>
