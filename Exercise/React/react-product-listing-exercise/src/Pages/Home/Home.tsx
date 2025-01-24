@@ -15,7 +15,12 @@ const Home = () =>{
     const productData = useFetch(`https://dummyjson.com/products/${query}`);
     const categoryData = useFetch(`https://dummyjson.com/products/category-list`);
 
-    // const productDataByCategories = useFetch(`https://dummyjson.com/products/category/${category}`);
+    const productDataByCategories = useFetch(`https://dummyjson.com/products/category/${category}`);
+    const filterProductsBySearchAndCategory = productDataByCategories?.data?.products?.length > 0?
+                                                productDataByCategories?.data?.products?.filter((product)=>{
+                                                    return productData?.data?.products?.some((searchProduct)=> searchProduct.id === product.id)
+                                                })
+                                                : productData?.data?.products ;
 
     return (
         <>
@@ -25,15 +30,14 @@ const Home = () =>{
                     <input type="text" placeholder="Search for products" value={search.value} onChange={search.onChange} className="search-input"/>
                     <div className="category-cart">
                         <select value={category} onChange={(e) => setCategory(e.target.value)} className="category-select">
-                            <ListCategories categoryData={categoryData}/>
+                            <ListCategories categoryData={categoryData?.data}/>
                         </select>
                         <Link to={'cart'}> <h2 className="cart-heading"> <span>User</span>'s Cart</h2> </Link>
                     </div>
                 </div>
             </div>
-
-            <Suspense fallback={<div> ... loading</div>}>
-                <ListProducts productData={productData}/>
+            <Suspense fallback={<div> ...loading</div>}>
+                <ListProducts productData={filterProductsBySearchAndCategory}/>
             </Suspense>
         </>
     )
