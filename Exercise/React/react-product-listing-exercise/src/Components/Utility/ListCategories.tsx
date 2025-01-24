@@ -1,11 +1,11 @@
+import {DropdownItem} from "reactstrap";
+import { Dispatch, SetStateAction} from "react";
 
-export default function ListCategories({categories}) {
-
+export default function ListCategories({categories, setCategory} : {categories: string[] | object | null, setCategory : Dispatch<SetStateAction<string>>}) {
     return (
         <>
-            <option value="all">Select Categories</option>
             {categories && categories.map((category, index) => (
-                <option key={index} value={category}>{category}</option>
+                <DropdownItem key={index} value={category} onClick={(e) => setCategory(e.target.value)}>{category}</DropdownItem>
             ))}
         </>
     )

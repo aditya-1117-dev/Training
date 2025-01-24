@@ -1,6 +1,8 @@
 import { Spinner } from 'reactstrap';
+import {FC} from "react";
+import {Ispinner} from "../../Types/UtilityTypes.tsx";
 
-const LoadingComponent = ({ height, width }: {height:number, width : number}) =>{
+export const LoadingComponent: FC<Ispinner> = ({ height, width }: Ispinner) : JSX.Element =>{
     return(
         <div className="Spinner">
             <Spinner style={{ width: width, height: height }} />
