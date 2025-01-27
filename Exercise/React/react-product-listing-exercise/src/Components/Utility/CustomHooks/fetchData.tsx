@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 const useFetch = (url : string) => {
     const [data, setData] = useState(null);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
 
     useEffect( () => {
@@ -14,8 +14,13 @@ const useFetch = (url : string) => {
                 }
                 const data = await res.json();
                 setData(data);
-            } catch (err) {
-                setError(err.message);
+            } catch (err : unknown) {
+                if (err instanceof Error) {
+                    setError(err?.message);
+                } else {
+                    console.error('An unknown error occurred');
+                }
+
             } finally {
                 setLoading(false);
             }

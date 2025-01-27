@@ -6,7 +6,7 @@ export default function NavbarComponent() {
             <NavbarBrand href="/">Product Listing</NavbarBrand>
             <Nav className="ms-auto" navbar>
                 <NavItem>
-                    <NavLink href="/">Home</NavLink>
+                    <NavLink href="/" active>Home</NavLink>
                 </NavItem>
                 <NavItem>
                     <NavLink href="/cart">Cart</NavLink>
