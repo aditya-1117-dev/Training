@@ -1,6 +1,6 @@
 import { Spinner } from 'reactstrap';
 import {FC} from "react";
-import {Ispinner} from "../../Types/UtilityTypes.tsx";
+import {Ispinner} from "../Types/UtilityTypes.tsx";
 
 export const LoadingComponent: FC<Ispinner> = ({ height, width }: Ispinner) : JSX.Element =>{
     return(
