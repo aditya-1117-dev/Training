@@ -1,11 +1,11 @@
 import {DropdownItem} from "reactstrap";
-import { Dispatch, SetStateAction, MouseEvent} from "react";
+import {  MouseEvent} from "react";
 
-export default function ListCategories({categories, setCategory} : {categories: string[] | object | null, setCategory : Dispatch<SetStateAction<string>>}) {
+export default function ListCategories({categories, handleSelect} : {categories: string[] | object | null, handleSelect : (e : MouseEvent) => void }) {
     return (
         <>
             {categories && Array.isArray(categories) && categories.map((category : string, index : number) => (
-                <DropdownItem key={index} value={category} onClick={(e: MouseEvent) => setCategory((e.target as HTMLButtonElement).value)}>{category}</DropdownItem>
+                <DropdownItem key={index} value={category} onClick={handleSelect}>{category}</DropdownItem>
             ))}
         </>
     )

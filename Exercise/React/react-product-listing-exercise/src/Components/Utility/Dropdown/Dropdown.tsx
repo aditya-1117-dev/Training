@@ -6,13 +6,20 @@ const DropdownComponent : FC<{list: string[] | object | null, setter : Dispatch<
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+    const [selectedCategory, setSelectedCategory] = useState("Select the Category");
+
+    const handleCategorySelect = (e: MouseEvent) => {
+        const value = (e.target as HTMLButtonElement).value;
+        setSelectedCategory(value==="all"? "Select the Category": value);
+        setter(value);
+    };
 
     return (
         <Dropdown direction="down" isOpen={dropdownOpen} toggle={toggleDropdown}>
-            <DropdownToggle caret>Select the category</DropdownToggle>
+            <DropdownToggle caret> {selectedCategory} </DropdownToggle>
             <DropdownMenu>
-                <DropdownItem  value="all" onClick={(e : MouseEvent) =>setter((e.target as HTMLButtonElement).value)}> Select Categories</DropdownItem>
-                <ListCategories setCategory={setter} categories={list}/>
+                <DropdownItem  value="all" onClick={handleCategorySelect} > Select Categories</DropdownItem>
+                <ListCategories handleSelect={handleCategorySelect} categories={list}/>
             </DropdownMenu>
         </Dropdown>
     )
