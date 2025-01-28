@@ -4,13 +4,30 @@ export interface IuseFromInput {
     value : string,
     onChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
-export interface IuseFetch {
-    data : object | null,
+
+export interface IFetchedCategories {
+    data : null | {
+        data : string[],
+        error : string,
+        loading : boolean
+    },
     error : string | null,
     loading: boolean
 }
+export interface IFetchedProducts {
+    data : null | {
+        limit : number | undefined,
+        skip : number | undefined,
+        total : number | undefined,
+        products : IProduct[] | undefined
+    },
+    error : string | null,
+    loading: boolean
+}
+
 export interface Ispinner{
-    height:number, width : number
+    height:number,
+    width : number
 }
 
 interface IReview {
