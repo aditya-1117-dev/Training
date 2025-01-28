@@ -1,25 +1,18 @@
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
 import ListCategories from "../ProductListing/ListCategories.tsx";
-import {Dispatch, FC, SetStateAction, useState, MouseEvent} from "react";
+import {FC, useState, MouseEvent, Dispatch, SetStateAction} from "react";
 
-const DropdownComponent : FC<{list: string[] | object | null, setter : Dispatch<SetStateAction<string>>}>  = ({list, setter} ) => {
+const DropdownComponent : FC<{list: string[] | object | null, selectedItem : string, setSelectedItem : Dispatch<SetStateAction<string>>}>  = ({ list, selectedItem, setSelectedItem } ) => {
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-    const [selectedCategory, setSelectedCategory] = useState("Select the Category");
-
-    const handleCategorySelect = (e: MouseEvent) => {
-        const value = (e.target as HTMLButtonElement).value;
-        setSelectedCategory(value==="all"? "Select the Category": value);
-        setter(value);
-    };
 
     return (
         <Dropdown direction="down" isOpen={dropdownOpen} toggle={toggleDropdown}>
-            <DropdownToggle caret> {selectedCategory} </DropdownToggle>
+            <DropdownToggle caret> {selectedItem===""? "Select the Category": selectedItem} </DropdownToggle>
             <DropdownMenu>
-                <DropdownItem  value="all" onClick={handleCategorySelect} > Select Categories</DropdownItem>
-                <ListCategories handleSelect={handleCategorySelect} categories={list}/>
+                <DropdownItem  value="" onClick={(e: MouseEvent) => setSelectedItem( (e.target as HTMLButtonElement).value )} > Select Categories</DropdownItem>
+                <ListCategories handleSelect={(e: MouseEvent) => setSelectedItem( (e.target as HTMLButtonElement).value )} categories={list}/>
             </DropdownMenu>
         </Dropdown>
     )

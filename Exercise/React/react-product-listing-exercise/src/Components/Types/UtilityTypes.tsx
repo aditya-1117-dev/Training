@@ -5,7 +5,7 @@ export interface IuseFromInput {
     onChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
 export interface IuseFetch {
-    data : Object | null,
+    data : object | null,
     error : string | null,
     loading: boolean
 }
