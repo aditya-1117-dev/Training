@@ -15,7 +15,10 @@ const Home : FC = () =>{
     const { debounceValue : debouncedSearch, loading : typing} = useDebounce(search.value);
     const query : string = debouncedSearch.length > 0 ? `/search?q=${debouncedSearch}` : '';
     const [selectedCategory, setSelectedCategory] = useState("");
-    const products : IuseFetch= useFetch(`https://dummyjson.com/products${query}`);
+    const baseUrl = 'https://dummyjson.com/products';
+    const url = query? `${baseUrl}${query}`
+        : `${baseUrl}${ selectedCategory? `/category/${selectedCategory}` : ''}`;
+    const products : IuseFetch= useFetch(url);
     const categories : IuseFetch = useFetch(`https://dummyjson.com/products/category-list`);
     const [limit, setLimit] = useState("10");
 
