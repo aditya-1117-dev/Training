@@ -5,7 +5,7 @@ import DropdownComponent from "../../Utility/Dropdown/Dropdown.tsx";
 import LoadingComponent from "../../Utility/Loader/Spinner.tsx";
 import ListProducts from "../../Utility/ProductListing/ListProducts.tsx";
 
-const Cart = () =>{
+const Cart = (  ) =>{
     const [loading, setLoading] = useState(false);
     const [currentUser, setCurrentUser] = useState("");
     const users = useFetch(`https://dummyjson.com/users`, updateLoadingStatus);
@@ -14,19 +14,28 @@ const Cart = () =>{
         acc[user.username] = user.id;
         return acc;
     }, {} );
-
-    const userCartUrl = currentUser !== ""
-        ? `https://dummyjson.com/users/${usersByUsername[currentUser]}/carts`
-        : ``;
-
-    const userCart = useFetch(userCartUrl, updateLoadingStatus);
     const usernames = users?.data?.users.map(user => user.username)
 
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState("5");
 
-    const totalPages = userCart? (Math.ceil( Object.keys(userCart).length / Number(limit)) ) : 0;
-    const showProducts = userCart?.data?.carts[0]?.products;
+    const userCart = currentUser !== ""
+        ? useFetch(`https://dummyjson.com/users/${usersByUsername[currentUser]}/carts`, updateLoadingStatus)
+        : useFetch(``, updateLoadingStatus);
+
+    const showProducts = userCart?.data === null
+        ? JSON.parse( localStorage.getItem(`${0}`) as string )
+        : userCart?.data?.carts[0]?.products;
+
+    // console.log(showProducts.slice((currentPage-1)*Number(limit), (currentPage-1)*Number(limit) + Number(limit) ) )
+    // console.log(userCart ,showProducts);
+    // console.log(JSON.parse( localStorage.getItem(`${0}`) as string ));
+
+    const totalPages = currentUser !== ""
+        ? (Math.ceil( Object.keys(userCart).length / Number(limit)) )
+        : (Math.ceil( (showProducts?.length) || 0 / Number(limit) ));
+
+    // console.log(userCart ,totalPages, limit, showProducts.length, Math.ceil( showProducts.length / Number(limit) ))
 
     function updateLoadingStatus(status: boolean){
         setLoading(status);
@@ -42,10 +51,12 @@ const Cart = () =>{
                     setSelectedItem={setCurrentUser} />
             </Container>
 
-            {!userCart
+            {!userCart && showProducts && showProducts.length === 0
                 ? <LoadingComponent width={100} height={100}/>
                 : <ListProducts
-                    showProducts={showProducts}
+                    showProducts={ currentUser === ""
+                        ? showProducts?.slice( (currentPage-1)*Number(limit), (currentPage-1)*Number(limit) + Number(limit) )
+                        : showProducts}
                     totalPages={totalPages}
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}

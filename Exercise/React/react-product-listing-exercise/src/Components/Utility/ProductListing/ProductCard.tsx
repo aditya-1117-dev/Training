@@ -1,7 +1,52 @@
-import {Button, Card, CardBody, CardImg, CardText, CardTitle, Col, Row} from "reactstrap";
+import {Button, ButtonGroup, Card, CardBody, CardImg, CardText, CardTitle, Col, Row} from "reactstrap";
 import {IProduct} from "../../Types/UtilityTypes.tsx";
+import {useEffect, useState} from "react";
 
 export default function ProductCard({product}:{product: IProduct}){
+    const [quantity, setQuantity] = useState(product.quantity || 0);
+    useEffect(() => {
+        const storedCart = JSON.parse(localStorage.getItem(`${0}`) || "[]");
+        const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
+        if(existingProduct)
+            setQuantity( existingProduct.quantity);
+    }, []);
+
+    function handleAddToCart() {
+        const storedCart = JSON.parse(localStorage.getItem(`${0}`) || "[]");
+        const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
+
+        if(existingProduct)
+            existingProduct.quantity += 1;
+        else
+            storedCart.push({ ...product, quantity: 1 });
+
+        localStorage.setItem(`${0}`, JSON.stringify(storedCart));
+        setQuantity(prev => prev+1);
+    }
+
+    function handleDecreaseFromCart() {
+        const storedCart = JSON.parse(localStorage.getItem(`${0}`) || "[]");
+        const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
+
+        if(existingProduct){
+            existingProduct.quantity -= 1;
+            if (existingProduct.quantity === 0){
+                handleRemoveItemFromCart();
+                return;
+            }
+        }
+        else
+            return
+        setQuantity(prev => prev-1);
+    }
+    
+    function handleRemoveItemFromCart() {
+        const storedCart = JSON.parse(localStorage.getItem(`${0}`) || "[]")
+            ?.filter(cart => cart.id != product.id);
+        localStorage.setItem(`${0}`, JSON.stringify(storedCart));
+        setQuantity(0);
+    }
+
 
     return (
         <Card key={product.id} className="mb-3">
@@ -16,7 +61,7 @@ export default function ProductCard({product}:{product: IProduct}){
                             <small className="text-muted">{product.category}</small>
                         </CardText>
                         <CardText>
-                            {product.description.slice(0, 90)}{product.description.length > 90 ? "..." : ""}
+                            {product?.description?.slice(0, 90)}{product?.description?.length > 90 ? "..." : ""}
                         </CardText>
                     </CardBody>
                 </Col>
@@ -25,7 +70,18 @@ export default function ProductCard({product}:{product: IProduct}){
                         <CardText>
                             <strong>${(product.price - (product.price * product.discountPercentage) / 100).toFixed(3)}</strong>{" "}<s>(${product.price})</s>
                         </CardText>
-                        <Button color="primary">Add to Cart</Button>
+                        {quantity > 0 ? (
+                            <Col>
+                                <ButtonGroup>
+                                    <Button color="danger" onClick={handleDecreaseFromCart} size="sm">-</Button>
+                                    <Button color="primary" outline disabled> {quantity} </Button>
+                                    <Button color="success" onClick={handleAddToCart} size="sm">+</Button>
+                                </ButtonGroup>
+                                <Button color="danger" onClick={handleRemoveItemFromCart} className="mt-1" size="sm">Remove Item</Button>
+                            </Col>
+                        ) : (
+                            <Button onClick={handleAddToCart} color="primary">Add to Cart</Button>
+                        )}
                     </CardBody>
                 </Col>
             </Row>
