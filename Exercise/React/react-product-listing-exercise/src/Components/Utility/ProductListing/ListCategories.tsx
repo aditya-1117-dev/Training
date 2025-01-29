@@ -1,5 +1,5 @@
 import {DropdownItem} from "reactstrap";
-import {  MouseEvent} from "react";
+import {MouseEvent} from "react";
 
 export default function ListCategories({categories, handleSelect} : {categories: string[] | object | null, handleSelect : (e : MouseEvent) => void }) {
     return (

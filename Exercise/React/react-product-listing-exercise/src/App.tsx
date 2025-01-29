@@ -8,7 +8,10 @@ import NavbarComponent from "./Components/Utility/Navbar/Navbar.tsx";
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <><NavbarComponent/> <Outlet /> </>,
+        element: <>
+            <NavbarComponent />
+            <Outlet />
+        </>,
         children: [
             {
                 path: '/',
