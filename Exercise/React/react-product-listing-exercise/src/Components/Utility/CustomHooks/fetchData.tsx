@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
-const useFetch = (url : string) => {
+const useFetch = (url : string, updateLoadingStatus: (status:boolean)=> void) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
 
     useEffect( () => {
         const fetchData = async () => {
             try {
+                updateLoadingStatus(true);
                 const res = await fetch(url);
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
@@ -22,13 +22,12 @@ const useFetch = (url : string) => {
                 }
 
             } finally {
-                setLoading(false);
+                updateLoadingStatus(false);
             }
         };
         fetchData();
     }, [url]);
-
-    return { data, error, loading };
+    return { data, error };
 };
 
 export default useFetch;

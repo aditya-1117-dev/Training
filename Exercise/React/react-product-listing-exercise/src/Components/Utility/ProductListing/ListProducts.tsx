@@ -6,10 +6,7 @@ import DropdownComponent from "../Dropdown/Dropdown.tsx";
 import LoadingComponent from "../Loader/Spinner.tsx";
 import {IListProducts} from "../../Types/returnTypes.tsx";
 
-export default function ListProducts({ paginatedProducts, currentPage, setCurrentPage, selectedItem, limit, setLimit} : IListProducts ) {
-    const totalPages = Math.ceil( (paginatedProducts?.data?.total?? 0) / limit );
-    const showProducts : IProduct[] | undefined = ( selectedItem==="" )? paginatedProducts?.data?.products :
-        paginatedProducts?.data?.products?.filter((product : IProduct )=> product.category ===selectedItem);
+export default function ListProducts({ loading, totalPages, showProducts, currentPage, setCurrentPage, limit, setLimit} : IListProducts ) {
 
     function onPageChange(page : number) {
         setCurrentPage(page % (totalPages+1));
@@ -24,7 +21,7 @@ export default function ListProducts({ paginatedProducts, currentPage, setCurren
                 <PaginationComponent currentPage={currentPage  % (totalPages+1)} onPageChange={onPageChange} totalPages={totalPages}/>
                 <DropdownComponent baseValue="Select Number of Products to show" list={setLimitArray} selectedItem={limit} setSelectedItem={setLimit} />
             </Row>
-            {paginatedProducts.loading? <LoadingComponent height={100} width={100} /> :
+            {loading? <LoadingComponent height={100} width={100} /> :
                 !showProducts || showProducts.length === 0 ? <Row className="bold justify-content-center"> No Products Available</Row> :
                 showProducts.map((product : IProduct) =><ProductCard key={product.id} product={product} /> )
             }

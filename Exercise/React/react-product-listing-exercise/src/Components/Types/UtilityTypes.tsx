@@ -12,7 +12,6 @@ export interface IFetchedCategories {
         loading : boolean
     },
     error : string | null,
-    loading: boolean
 }
 export interface IFetchedProducts {
     data : null | {
@@ -22,7 +21,6 @@ export interface IFetchedProducts {
         products : IProduct[] | undefined
     },
     error : string | null,
-    loading: boolean
 }
 
 export interface Ispinner{
@@ -44,6 +42,7 @@ interface IMeta {
     qrCode: string;
 }
 export interface IProduct {
+    quantity? : number;
     id: number;
     title: string;
     brand: string;
