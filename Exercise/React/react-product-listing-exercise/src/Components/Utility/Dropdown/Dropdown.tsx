@@ -10,7 +10,7 @@ const DropdownComponent : FC<{list: string[] | object | null, selectedItem : str
     return (
         <Dropdown direction="down" isOpen={dropdownOpen} toggle={toggleDropdown}>
             <DropdownToggle caret> {selectedItem===""? baseValue : selectedItem} </DropdownToggle>
-            <DropdownMenu>
+            <DropdownMenu style={{ maxHeight : "280px",overflowY : "scroll" }}>
                 <DropdownItem value="" onClick={(e: MouseEvent) => setSelectedItem( (e.target as HTMLButtonElement).value )} > {baseValue} </DropdownItem>
                 <ListCategories handleSelect={(e: MouseEvent) => setSelectedItem( (e.target as HTMLButtonElement).value )} categories={list}/>
             </DropdownMenu>
