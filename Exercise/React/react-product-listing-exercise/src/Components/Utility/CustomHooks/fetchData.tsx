@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 
-const useFetch = (url : string, updateLoadingStatus: (status:boolean)=> void) => {
+const useFetch = (url : string) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState("");
-
+    const [loading, setLoading] = useState(true);
     useEffect( () => {
         const fetchData = async () => {
             try {
-                updateLoadingStatus(true);
                 const res = await fetch(url);
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
@@ -20,14 +19,13 @@ const useFetch = (url : string, updateLoadingStatus: (status:boolean)=> void) =>
                 } else {
                     console.error('An unknown error occurred');
                 }
-
             } finally {
-                updateLoadingStatus(false);
+                setLoading(false);
             }
         };
         fetchData();
     }, [url]);
-    return { data, error };
+    return { data, error, loading };
 };
 
 export default useFetch;
