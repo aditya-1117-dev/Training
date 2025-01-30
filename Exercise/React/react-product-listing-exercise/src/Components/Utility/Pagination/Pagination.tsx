@@ -5,7 +5,7 @@ export default function PaginationComponent({currentPage, totalPages, onPageChan
 
     if(currentPage>2){
         pageItems.push(
-            <PaginationItem key="first-dots" disabled={currentPage===1}>
+            <PaginationItem key="first-dots" disabled={currentPage<=1}>
                 <PaginationLink onClick={() => onPageChange(currentPage-2) }>...</PaginationLink>
             </PaginationItem>
         )
@@ -21,7 +21,7 @@ export default function PaginationComponent({currentPage, totalPages, onPageChan
     }
     if(currentPage < totalPages-1){
         pageItems.push(
-            <PaginationItem key="last-dots" disabled={currentPage===totalPages}>
+            <PaginationItem key="last-dots" disabled={currentPage>=totalPages}>
                 <PaginationLink onClick={() => onPageChange(currentPage+2) }>...</PaginationLink>
             </PaginationItem>
         )

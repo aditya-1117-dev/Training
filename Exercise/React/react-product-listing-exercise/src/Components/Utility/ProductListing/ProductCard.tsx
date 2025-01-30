@@ -1,18 +1,23 @@
 import {Button, ButtonGroup, Card, CardBody, CardImg, CardText, CardTitle, Col, Row} from "reactstrap";
 import {IProduct} from "../../Types/UtilityTypes.tsx";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
+import {UserContext} from "../../../App.tsx";
 
 export default function ProductCard({product}:{product: IProduct}){
     const [quantity, setQuantity] = useState(product.quantity || 0);
+    const [,, userID] = useContext(UserContext);
+
     useEffect(() => {
-        const storedCart = JSON.parse(localStorage.getItem(`${0}`) || "[]");
+        const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
         if(existingProduct)
             setQuantity( existingProduct.quantity);
-    }, []);
+        else
+            setQuantity(0);
+    }, [userID]);
 
     function handleAddToCart() {
-        const storedCart = JSON.parse(localStorage.getItem(`${0}`) || "[]");
+        const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
 
         if(existingProduct)
@@ -20,16 +25,17 @@ export default function ProductCard({product}:{product: IProduct}){
         else
             storedCart.push({ ...product, quantity: 1 });
 
-        localStorage.setItem(`${0}`, JSON.stringify(storedCart));
+        localStorage.setItem(`${userID}`, JSON.stringify(storedCart));
         setQuantity(prev => prev+1);
     }
 
     function handleDecreaseFromCart() {
-        const storedCart = JSON.parse(localStorage.getItem(`${0}`) || "[]");
+        const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
 
         if(existingProduct){
             existingProduct.quantity -= 1;
+            localStorage.setItem(`${userID}`, JSON.stringify(storedCart));
             if (existingProduct.quantity === 0){
                 handleRemoveItemFromCart();
                 return;
@@ -41,9 +47,9 @@ export default function ProductCard({product}:{product: IProduct}){
     }
     
     function handleRemoveItemFromCart() {
-        const storedCart = JSON.parse(localStorage.getItem(`${0}`) || "[]")
+        const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]")
             ?.filter(cart => cart.id != product.id);
-        localStorage.setItem(`${0}`, JSON.stringify(storedCart));
+        localStorage.setItem(`${userID}`, JSON.stringify(storedCart));
         setQuantity(0);
     }
 
