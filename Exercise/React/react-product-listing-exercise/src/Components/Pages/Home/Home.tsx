@@ -12,8 +12,7 @@ import useDebounce from "../../Utility/CustomHooks/debounce.tsx";
 const baseUrl = 'https://dummyjson.com/products';
 
 const Home : FC = () =>{
-    const [loading, setLoading] = useState(false);
-    const categories : IFetchedCategories = useFetch(`https://dummyjson.com/products/category-list`, updateLoadingStatus);
+    const categories : IFetchedCategories = useFetch(`https://dummyjson.com/products/category-list`);
     const [selectedCategory, setSelectedCategory] = useState("");
 
     const search : IuseFromInput  = useFormInputBox("");
@@ -25,24 +24,28 @@ const Home : FC = () =>{
     const limitAndSkip = `limit=${limit}&skip=${(currentPage-1)*Number(limit)}`;
 
     const url = query !== ""
-        ? `${baseUrl}${query}&limit=${limit}&skip=${0}`
+        ? `${baseUrl}${query}&${limitAndSkip}`
         : (selectedCategory === ""
             ? `${baseUrl}?${limitAndSkip}`
             : `${baseUrl}/category/${selectedCategory}`) ;
 
-    const paginatedProducts : IFetchedProducts = useFetch(url, updateLoadingStatus);
+    // console.log(url, currentPage, (currentPage-1)*Number(limit))
+
+    const paginatedProducts : IFetchedProducts = useFetch(url);
 
     const totalPages = Math.ceil( (paginatedProducts?.data?.total?? 0) / Number(limit) );
-    const showProducts : IProduct[] | undefined = ( selectedCategory==="" )? paginatedProducts?.data?.products :
-        paginatedProducts?.data?.products?.filter((product : IProduct )=> product.category ===selectedCategory);
+    const showProducts : IProduct[] | undefined = ( selectedCategory==="" )
+        ? paginatedProducts?.data?.products
+        : paginatedProducts?.data?.products?.filter((product : IProduct )=> product.category ===selectedCategory);
+
+    // console.log(paginatedProducts, showProducts);
 
     function handleInputChange(e : ChangeEvent<HTMLInputElement>) {
         search.onChange(e);
         setCurrentPage(1)
     }
-    function updateLoadingStatus(status: boolean){
-        setLoading(status);
-    }
+
+    console.log("Hii");
 
     return (
         <>
@@ -50,7 +53,7 @@ const Home : FC = () =>{
                 <Input className="search-input" placeholder="Search for products" value={search.value} onChange={handleInputChange} />
                 <DropdownComponent baseValue="Select the Category" list={categories?.data} selectedItem={selectedCategory} setSelectedItem={setSelectedCategory} />
             </Container>
-            {typing
+            {typing || paginatedProducts?.loading
                 ? <LoadingComponent width={100} height={100}/>
                 : <ListProducts
                     showProducts={showProducts}
@@ -59,7 +62,7 @@ const Home : FC = () =>{
                     setCurrentPage={setCurrentPage}
                     limit={Number(limit)}
                     setLimit={setLimit}
-                    loading={loading}
+                    loading={paginatedProducts?.loading}
                 />
             }
         </>

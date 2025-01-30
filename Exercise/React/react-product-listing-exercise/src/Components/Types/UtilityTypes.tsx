@@ -21,6 +21,7 @@ export interface IFetchedProducts {
         products : IProduct[] | undefined
     },
     error : string | null,
+    loading : boolean
 }
 
 export interface Ispinner{
