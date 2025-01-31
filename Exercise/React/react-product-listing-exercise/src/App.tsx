@@ -8,7 +8,7 @@ import {Context, createContext, Dispatch, SetStateAction, useEffect, useState} f
 import useFetch from "./Components/Utility/CustomHooks/fetchData.tsx";
 import LoadingComponent from "./Components/Utility/Loader/Spinner.tsx";
 
-export const UserContext : Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>("");
+export const UserContext : Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", undefined, 0]);
 
 function App() {
     const [currentUser, setCurrentUser] = useState("");
@@ -24,12 +24,13 @@ function App() {
 
     useEffect(() => {
         const currID =  currentUser? usersByUsername[currentUser] : 0;
-        setUserID( currID);
+        setUserID( () => currID);
     }, [currentUser]);
 
     useEffect( () => {
-        if (currentUser !== "" && userID===userCart?.data?.carts[0]?.userId && userCart?.data?.carts[0]?.products ) {
-            localStorage.setItem(`${userID}`, JSON.stringify(userCart.data.carts[0].products) );
+        if (currentUser !== "" && userID=== usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID) {
+            const products = userCart?.data?.carts[0]?.products ? userCart?.data?.carts[0]?.products : userCart?.data?.carts;
+            localStorage.setItem(`${userID}`, JSON.stringify(products?? []) );
         }
     }, [userID, userCart]);
 
@@ -52,7 +53,7 @@ function App() {
                         <>
                             {userCart?.loading
                                 ?  <LoadingComponent width={100} height={100}/>
-                                :<Cart loading={userCart?.loading}/>
+                                :   <Cart key={userID} loading={userCart?.loading}/>
                             }
                         </>,
                 },

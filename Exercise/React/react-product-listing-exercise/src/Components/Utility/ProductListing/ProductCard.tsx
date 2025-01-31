@@ -7,19 +7,19 @@ export default function ProductCard({product}:{product: IProduct}){
     const [quantity, setQuantity] = useState(product.quantity || 0);
     const [,, userID] = useContext(UserContext);
 
+    const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
     useEffect(() => {
-        const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
-        if(existingProduct)
+        if(existingProduct){
             setQuantity( existingProduct.quantity);
-        else
+        }
+        else{
             setQuantity(0);
+        }
     }, [userID]);
 
     function handleAddToCart() {
-        const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
-
         if(existingProduct)
             existingProduct.quantity += 1;
         else
@@ -30,9 +30,7 @@ export default function ProductCard({product}:{product: IProduct}){
     }
 
     function handleDecreaseFromCart() {
-        const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
-
         if(existingProduct){
             existingProduct.quantity -= 1;
             localStorage.setItem(`${userID}`, JSON.stringify(storedCart));
@@ -47,9 +45,7 @@ export default function ProductCard({product}:{product: IProduct}){
     }
     
     function handleRemoveItemFromCart() {
-        const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]")
-            ?.filter(cart => cart.id != product.id);
-        localStorage.setItem(`${userID}`, JSON.stringify(storedCart));
+        localStorage.setItem(`${userID}`, JSON.stringify(storedCart?.filter(cart => cart.id != product.id)));
         setQuantity(0);
     }
 
@@ -76,11 +72,11 @@ export default function ProductCard({product}:{product: IProduct}){
                         <CardText>
                             <strong>${(product.price - (product.price * product.discountPercentage) / 100).toFixed(3)}</strong>{" "}<s>(${product.price})</s>
                         </CardText>
-                        {quantity > 0 ? (
+                        {quantity > 0 || product?.quantity > 0 ? (
                             <Col>
                                 <ButtonGroup>
                                     <Button color="danger" onClick={handleDecreaseFromCart} size="sm">-</Button>
-                                    <Button color="primary" outline disabled> {quantity} </Button>
+                                    <Button color="primary" outline disabled> {quantity || product?.quantity} </Button>
                                     <Button color="success" onClick={handleAddToCart} size="sm">+</Button>
                                 </ButtonGroup>
                                 <Button color="danger" onClick={handleRemoveItemFromCart} className="mt-1" size="sm">Remove Item</Button>

@@ -16,7 +16,7 @@ export default function NavbarComponent({users}) {
                     <NavLink to="/" className="nav-link">Home</NavLink>
                 </NavItem>
                 <NavItem>
-                    <NavLink to="/cart" className="nav-link">Cart</NavLink>
+                    <NavLink to="/cart" className="nav-link">{currentUser!=="" && currentUser+`'s`}  Cart</NavLink>
                 </NavItem>
 
                 <DropdownComponent
