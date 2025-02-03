@@ -20,7 +20,9 @@ function App() {
         return acc;
     }, {} );
 
-    const userCart = useFetch(currentUser !== "" && userID !== 0 ?`https://dummyjson.com/users/${userID}/carts` : ``)
+    const localstorageValue = JSON.parse( localStorage.getItem(`${userID}`) as string );
+    const userCart = useFetch(currentUser !== "" && userID !== 0 && !localstorageValue
+        ?`https://dummyjson.com/users/${userID}/carts` : ``);
 
     useEffect(() => {
         const currID =  currentUser? usersByUsername[currentUser] : 0;
@@ -28,9 +30,13 @@ function App() {
     }, [currentUser]);
 
     useEffect( () => {
-        if (currentUser !== "" && userID=== usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID) {
+        const localstorageValue = JSON.parse( localStorage.getItem(`${userID}`) as string );
+        console.log(localstorageValue)
+        if (currentUser !== "" && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID ) {
             const products = userCart?.data?.carts[0]?.products ? userCart?.data?.carts[0]?.products : userCart?.data?.carts;
             localStorage.setItem(`${userID}`, JSON.stringify(products?? []) );
+        }else if( currentUser !== "" && !localstorageValue && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts && !userCart?.data?.carts[0]?.userId){
+            localStorage.setItem(`${userID}`, JSON.stringify([]) );
         }
     }, [userID, userCart]);
 
