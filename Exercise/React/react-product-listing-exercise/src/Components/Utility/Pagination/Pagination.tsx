@@ -1,49 +1,26 @@
-import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import { Pagination } from "reactstrap";
+import PaginateItem from "./PaginateItem.tsx";
 
 export default function PaginationComponent({currentPage, totalPages, onPageChange}: { currentPage: number, totalPages: number, onPageChange: (page: number) => void; }) {
     const pageItems = [];
-
     if(currentPage>2){
-        pageItems.push(
-            <PaginationItem key="first-dots" disabled={currentPage<=1}>
-                <PaginationLink onClick={() => onPageChange(currentPage-2) }>...</PaginationLink>
-            </PaginationItem>
-        )
+        pageItems.push(<PaginateItem key="first-dots" value="..." disabled={currentPage<=1} onClick={() => onPageChange(currentPage-2)}/>)
     }
     for (let i = currentPage - 1; i <= currentPage+1; i++) {
         if(i>0 && i<=totalPages){
-            pageItems.push(
-                <PaginationItem key={i} active={i === currentPage}>
-                    <PaginationLink onClick={() => onPageChange(i)}> {i} </PaginationLink>
-                </PaginationItem>
-            );
+            pageItems.push(<PaginateItem key={i} value={i} active={i === currentPage} onClick={() => onPageChange(i)} />);
         }
     }
     if(currentPage < totalPages-1){
-        pageItems.push(
-            <PaginationItem key="last-dots" disabled={currentPage>=totalPages}>
-                <PaginationLink onClick={() => onPageChange(currentPage+2) }>...</PaginationLink>
-            </PaginationItem>
-        )
+        pageItems.push(<PaginateItem key="last-dots" value="..." disabled={currentPage>=totalPages} onClick={() => onPageChange(currentPage+2)}/>)
     }
-
     return (
         <Pagination>
-            <PaginationItem key="first" disabled={currentPage===1}>
-                <PaginationLink first onClick={() => onPageChange(1)} />
-            </PaginationItem>
-            <PaginationItem key="previous" disabled={currentPage==1}>
-                <PaginationLink previous onClick={() => onPageChange(currentPage-1)}/>
-            </PaginationItem>
-
+            <PaginateItem key="first" disabled={currentPage===1}  onClick={() => onPageChange(1)} linkProp="first"/>
+            <PaginateItem key="previous" disabled={currentPage===1}  onClick={() => onPageChange(currentPage-1)} linkProp="previous"/>
             {pageItems}
-
-            <PaginationItem key="next" disabled={currentPage===totalPages}>
-                <PaginationLink next onClick={() => onPageChange(currentPage+1)} />
-            </PaginationItem>
-            <PaginationItem key="last" disabled={currentPage===totalPages}>
-                <PaginationLink last onClick={() => onPageChange(totalPages)}/>
-            </PaginationItem>
+            <PaginateItem key="next" disabled={currentPage===totalPages}  onClick={() => onPageChange(currentPage+1)} linkProp="next"/>
+            <PaginateItem key="last" disabled={currentPage===totalPages}  onClick={() => onPageChange(totalPages)} linkProp="last"/>
         </Pagination>
     );
 }
