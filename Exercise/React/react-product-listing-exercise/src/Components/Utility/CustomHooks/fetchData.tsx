@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const useFetch = (url : string) => {
+const useFetch = (url : string, delay : number = 0 ) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
@@ -27,7 +27,12 @@ const useFetch = (url : string) => {
                 setLoading(false);
             }
         };
-        fetchData();
+        if (delay > 0) {
+            const timer = setTimeout(() => fetchData(), delay);
+            return () => clearTimeout(timer);
+        } else {
+            fetchData();
+        }
     }, [url]);
     return { data, error, loading };
 };

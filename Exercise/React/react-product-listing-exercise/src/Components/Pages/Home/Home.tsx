@@ -7,45 +7,43 @@ import LoadingComponent from "../../Utility/Loader/Spinner.tsx";
 import {IFetchedCategories, IFetchedProducts, IProduct, IuseFromInput} from "../../Types/UtilityTypes.tsx";
 import {Container, Input} from "reactstrap";
 import DropdownComponent from "../../Utility/Dropdown/Dropdown.tsx";
-import useDebounce from "../../Utility/CustomHooks/debounce.tsx";
 
 const baseUrl = 'https://dummyjson.com/products';
 
 const Home : FC = () =>{
     const categories : IFetchedCategories = useFetch(`https://dummyjson.com/products/category-list`);
-    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState<string>("");
 
     const search : IuseFromInput  = useFormInputBox("");
-    const { debounceValue : debouncedSearch, loading : typing} = useDebounce(search.value);
-    const query : string = debouncedSearch.length > 0 ? `/search?q=${debouncedSearch}` : '';
+
+    const query : string = search.value.length > 0 ? `/search?q=${search.value}` : '';
 
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState("20");
     const limitAndSkip = `limit=${limit}&skip=${(currentPage-1)*Number(limit)}`;
 
     const url = query !== ""
-        ? `${baseUrl}${query}&${limitAndSkip}`
+        ? selectedCategory !==""? `${baseUrl}${query}`
+            : `${baseUrl}${query}&${limitAndSkip}`
         : (selectedCategory === ""
             ? `${baseUrl}?${limitAndSkip}`
             : `${baseUrl}/category/${selectedCategory}`) ;
 
-    // console.log(url, currentPage, (currentPage-1)*Number(limit))
-
-    const paginatedProducts : IFetchedProducts = useFetch(url);
+    const paginatedProducts : IFetchedProducts = useFetch(url, query !== ""? 3000 : 0);
 
     const totalPages = Math.ceil( (paginatedProducts?.data?.total?? 0) / Number(limit) );
+
+    // limit=n,skip=0 - filter
+
     const showProducts : IProduct[] | undefined = ( selectedCategory==="" )
         ? paginatedProducts?.data?.products
         : paginatedProducts?.data?.products?.filter((product : IProduct )=> product.category ===selectedCategory);
 
-    // console.log(paginatedProducts, showProducts);
 
     function handleInputChange(e : ChangeEvent<HTMLInputElement>) {
         search.onChange(e);
         setCurrentPage(1)
     }
-
-    console.log("Hii");
 
     return (
         <>
@@ -53,7 +51,7 @@ const Home : FC = () =>{
                 <Input className="search-input" placeholder="Search for products" value={search.value} onChange={handleInputChange} />
                 <DropdownComponent baseValue="Select the Category" list={categories?.data} selectedItem={selectedCategory} setSelectedItem={setSelectedCategory} />
             </Container>
-            {typing || paginatedProducts?.loading
+            {paginatedProducts?.loading
                 ? <LoadingComponent width={100} height={100}/>
                 : <ListProducts
                     showProducts={showProducts}
