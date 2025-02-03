@@ -2,11 +2,9 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap"
 import ListCategories from "../ProductListing/ListCategories.tsx";
 import {FC, useState, MouseEvent, Dispatch, SetStateAction} from "react";
 
-const DropdownComponent : FC<{list: string[] | object | null, selectedItem : string | number, setSelectedItem : Dispatch<SetStateAction<string>>, baseValue : string}>  = ({ list, selectedItem, setSelectedItem, baseValue } ) => {
-
+const DropdownItems : FC<{list: string[] | object | null, selectedItem : string | number, setSelectedItem : Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<number>>, baseValue : string}>  = ({ list, selectedItem, setSelectedItem, baseValue } ) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-
     return (
         <Dropdown direction="down" isOpen={dropdownOpen} toggle={toggleDropdown}>
             <DropdownToggle caret> {selectedItem===""? baseValue : selectedItem} </DropdownToggle>
@@ -17,4 +15,4 @@ const DropdownComponent : FC<{list: string[] | object | null, selectedItem : str
         </Dropdown>
     )
 }
-export default DropdownComponent;
+export default DropdownItems;

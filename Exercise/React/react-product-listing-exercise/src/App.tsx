@@ -6,9 +6,9 @@ import Cart from "./Components/Pages/Cart/Cart.tsx";
 import NavbarComponent from "./Components/Utility/Navbar/Navbar.tsx";
 import {Context, createContext, Dispatch, SetStateAction, useEffect, useState} from "react";
 import useFetch from "./Components/Utility/CustomHooks/fetchData.tsx";
-import LoadingComponent from "./Components/Utility/Loader/Spinner.tsx";
+import Loader from "./Components/Utility/Loader/Loader.tsx";
 
-export const UserContext : Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", undefined, 0]);
+export const UserContext : Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", ()=>{}, 0]);
 
 function App() {
     const [currentUser, setCurrentUser] = useState("");
@@ -58,7 +58,7 @@ function App() {
                     element:
                         <>
                             {userCart?.loading
-                                ?  <LoadingComponent width={100} height={100}/>
+                                ?  <Loader width={100} height={100}/>
                                 :   <Cart key={userID} loading={userCart?.loading}/>
                             }
                         </>,

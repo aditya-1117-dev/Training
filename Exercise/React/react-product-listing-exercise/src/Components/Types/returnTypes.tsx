@@ -1,12 +1,11 @@
 import {Dispatch, SetStateAction} from "react";
 import {IProduct} from "./UtilityTypes.tsx";
-// import {IFetchedProducts} from "./UtilityTypes.tsx";
 
 export interface IListProducts {
     limit : number;
-    setLimit : Dispatch<SetStateAction<string>>;
+    setLimit : Dispatch<SetStateAction<number>>;
     totalPages : number,
-    showProducts : IProduct[] | undefined,
+    products : IProduct[] | undefined,
     currentPage : number;
     setCurrentPage : Dispatch<SetStateAction<number>>;
     loading : boolean
