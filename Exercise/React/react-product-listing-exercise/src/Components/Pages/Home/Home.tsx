@@ -5,7 +5,6 @@ import useFetch from "../../Utility/CustomHooks/fetchData.tsx";
 import ListProducts from "../../Utility/ProductListing/ListProducts.tsx";
 import {IFetchedCategories, IFetchedProducts, IProduct, IuseFromInput} from "../../Types/UtilityTypes.tsx";
 import {Container, Input} from "reactstrap";
-import Loader from "../../Utility/Loader/Loader.tsx";
 import DropdownItems from "../../Utility/Dropdown/DropdownItems.tsx";
 
 const baseUrl = 'https://dummyjson.com/products';
@@ -16,7 +15,7 @@ function findUrl(query : string, category : string, limitAndSkip? : string) {
             : `${baseUrl}${query}&${limitAndSkip}`
         : (category === ""
             ? `${baseUrl}?${limitAndSkip}`
-            : `${baseUrl}/category/${category}`) ;
+            : `${baseUrl}/category/${category}?${limitAndSkip}`) ;
 }
 
 function filterByKey( array1 : IProduct[] | undefined, key: keyof IProduct, value : string) {
@@ -49,20 +48,15 @@ const Home : FC = () =>{
                 <Input className="search-input" placeholder="Search for products" value={search.value} onChange={handleInputChange} />
                 <DropdownItems baseValue="Select the Category" list={categories?.data} selectedItem={selectedCategory} setSelectedItem={setSelectedCategory} />
             </Container>
-            {paginatedProducts?.loading
-                ? <Loader width={100} height={100}/>
-                : <ListProducts
-                    products={products}
-                    totalPages={selectedCategory !== ""
-                        ? Math.ceil( (products?.length?? 0) / limit)
-                        : totalPages}
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    limit={limit}
-                    setLimit={setLimit}
-                    loading={paginatedProducts?.loading}
-                />
-            }
+            <ListProducts
+                products={products}
+                totalPages={totalPages}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                limit={limit}
+                setLimit={setLimit}
+                loading={paginatedProducts?.loading}
+            />
         </>
     )
 }

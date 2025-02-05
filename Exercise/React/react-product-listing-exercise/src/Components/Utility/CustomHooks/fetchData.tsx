@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 const useFetch = (url : string, delay : number = 0 ) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     useEffect( () => {
         if (!url) {
-            setLoading(false);
-            return
+            return;
         };
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const res = await fetch(url);
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);

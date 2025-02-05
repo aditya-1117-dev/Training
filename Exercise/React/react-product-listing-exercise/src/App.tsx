@@ -6,7 +6,6 @@ import Cart from "./Components/Pages/Cart/Cart.tsx";
 import NavbarComponent from "./Components/Utility/Navbar/Navbar.tsx";
 import {Context, createContext, Dispatch, SetStateAction, useEffect, useState} from "react";
 import useFetch from "./Components/Utility/CustomHooks/fetchData.tsx";
-import Loader from "./Components/Utility/Loader/Loader.tsx";
 
 export const UserContext : Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", ()=>{}, 0]);
 
@@ -31,7 +30,7 @@ function App() {
 
     useEffect( () => {
         const localstorageValue = JSON.parse( localStorage.getItem(`${userID}`) as string );
-        console.log(localstorageValue)
+
         if (currentUser !== "" && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID ) {
             const products = userCart?.data?.carts[0]?.products ? userCart?.data?.carts[0]?.products : userCart?.data?.carts;
             localStorage.setItem(`${userID}`, JSON.stringify(products?? []) );
@@ -57,10 +56,7 @@ function App() {
                     path: '/cart',
                     element:
                         <>
-                            {userCart?.loading
-                                ?  <Loader width={100} height={100}/>
-                                :   <Cart key={userID} loading={userCart?.loading}/>
-                            }
+                            <Cart key={userID} loading={userCart?.loading}/>
                         </>,
                 },
             ]
