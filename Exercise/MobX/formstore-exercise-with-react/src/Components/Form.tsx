@@ -19,7 +19,7 @@ function ReactForm( { showSaveButton, showResetButton} : IReactForm){
                 <Row>
                     <Col>
                         { (!formStore.isSubmitted || showSaveButton)
-                            && <Button onSubmit={() => formStore.submitForm()} color="primary" > Submit </Button> }
+                            && <Button onClick={() => formStore.submitForm()} color="primary" > Submit </Button> }
                     </Col>
                     <Col>
                         { (formStore.isSubmitted || showResetButton)

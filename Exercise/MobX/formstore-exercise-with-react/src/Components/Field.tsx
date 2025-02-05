@@ -21,6 +21,7 @@ function Field({ type, name, label, store, required} : IField){
     const disabled = formStore.isSubmitted ;
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>, key : string) => {
+        formStore.errors = {}
         formStore.setValue(key, e.target.value);
     };
 
@@ -38,6 +39,7 @@ function Field({ type, name, label, store, required} : IField){
                     disabled={disabled}
                     required={required}
                 />
+                {formStore.errors[name] && <p className={'text-danger'}>{formStore.errors[name]}</p>}
             </Col>
         </FormGroup>
     )
