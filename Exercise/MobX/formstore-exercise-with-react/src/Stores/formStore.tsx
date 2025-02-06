@@ -12,9 +12,6 @@ export class FormStore<T> {
         makeObservable(this);
         if (initialState) {
             this.formData = initialState;
-            for (const key in initialState){
-                this.validateKeys[key] = false;
-            }
         }
         if (onSubmit){
             this.onSubmit = onSubmit;
@@ -33,9 +30,7 @@ export class FormStore<T> {
 
     @action
     setRequired<K extends keyof T>(key: K, status: boolean) {
-        if (this.validateKeys.hasOwnProperty(key)) {
             this.validateKeys[key] = status;
-        }
     }
 
     @action

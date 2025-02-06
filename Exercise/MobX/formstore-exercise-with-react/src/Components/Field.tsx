@@ -24,13 +24,14 @@ function Field({name, label, store, required, component, onChange}: IField) {
             onChange();
         }
     };
+    const inputProps = {name, required};
     return (
         <FormGroup row>
             <Label for={name} sm={4}>
                 {label}{required && <span style={{color: "red"}}>*</span>}
             </Label>
             <Col sm={8}>
-                {component(handleChange)}
+                {component(inputProps, handleChange)}
                 {formStore.errors[name] && <p className={'text-danger'}>{formStore.errors[name]}</p>}
             </Col>
         </FormGroup>

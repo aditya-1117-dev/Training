@@ -17,7 +17,7 @@ function App() {
         age: 10
     }
     const formStore = new FormStore<IFormStore>(obj);
-    formStore.setOnSubmitCallBack(()=> console.log("on submit call") );
+    formStore.setOnSubmitCallBack(() => console.log("on submit call"));
 
     return (
         <>
@@ -26,16 +26,21 @@ function App() {
 
                 <Field label="Name" store={formStore} name="name" required={true}
                        onChange={() => console.log("Callback Name")}
-                       component={(handleChange: (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void) => (
-                           <Input name="name" type="text" value={formStore.getValue("name")} onChange={handleChange}
-                                  disabled={formStore.isSubmitted} required={true} />
+                       component={(inputProps: {
+                           name: keyof IFormStore,
+                           required: boolean
+                       }, handleChange: (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void) => (
+                           <Input {...inputProps} type="text" value={formStore.getValue("name")} onChange={handleChange}
+                                  disabled={formStore.isSubmitted}/>
                        )}
                 />
                 <Field label="Age" store={formStore} name="age" required={false}
                        onChange={() => console.log("Callback Age")}
-                       component={(handleChange: (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void) => (
-                           <Input name="age" type="number" value={formStore.getValue("age")} onChange={handleChange}
-                                  disabled={formStore.isSubmitted} required={false}/>
+                       component={(inputProps: {
+                           name: keyof IFormStore, required: boolean
+                       }, handleChange: (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void) => (
+                           <Input {...inputProps} type="number" value={formStore.getValue("age")}
+                                  onChange={handleChange} disabled={formStore.isSubmitted}/>
                        )}
                 />
             </Form>
