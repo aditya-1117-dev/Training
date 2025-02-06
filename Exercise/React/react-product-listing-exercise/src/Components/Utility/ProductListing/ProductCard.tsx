@@ -4,9 +4,15 @@ import {useContext, useEffect, useState} from "react";
 import {UserContext} from "../../../App.tsx";
 import AddToCartButton from "./AddToCartButton.tsx";
 
-export default function ProductCard({product}:{product: IProduct}){
+export default function ProductCard({product, setProducts}:{product: IProduct, setProducts : Function}){
     const [quantity, setQuantity] = useState<number>(product.quantity || 0);
-    const [,, userID] = useContext(UserContext);
+    const [, , userID] = useContext(UserContext);
+
+    const updateCart = (updatedCart: IProduct[]) => {
+        localStorage.setItem(`${userID}`, JSON.stringify(updatedCart));
+        if (setProducts)
+            setProducts(updatedCart);
+    };
 
     useEffect(() => {
         const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
@@ -22,35 +28,32 @@ export default function ProductCard({product}:{product: IProduct}){
     function handleAddToCart() {
         const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
-        if(existingProduct){
+        if (existingProduct) {
             existingProduct.quantity += 1;
-        }
-        else{
+        } else {
             storedCart.push({ ...product, quantity: 1 });
         }
-
-        localStorage.setItem(`${userID}`, JSON.stringify(storedCart));
-        setQuantity(prev => prev+1);
+        updateCart(storedCart);
+        setQuantity(prev => prev + 1);
     }
 
     function handleDecreaseFromCart() {
         const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
-        if(existingProduct){
+        if (existingProduct) {
             existingProduct.quantity -= 1;
-            localStorage.setItem(`${userID}`, JSON.stringify(storedCart));
-            if (existingProduct.quantity === 0){
+            if (existingProduct.quantity === 0) {
                 handleRemoveItemFromCart();
                 return;
             }
+            updateCart(storedCart);
         }
-        else
-            return
-        setQuantity(prev => prev-1);
+        setQuantity(prev => prev - 1);
     }
     function handleRemoveItemFromCart() {
         const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
-        localStorage.setItem(`${userID}`, JSON.stringify(storedCart?.filter(cart => cart.id != product.id)));
+        const updatedCart = storedCart.filter((cart: IProduct) => cart.id !== product.id);
+        updateCart(updatedCart);
         setQuantity(0);
     }
     return (

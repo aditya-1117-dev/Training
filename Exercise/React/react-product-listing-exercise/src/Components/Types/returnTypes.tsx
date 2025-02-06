@@ -8,5 +8,6 @@ export interface IListProducts {
     products : IProduct[] | undefined,
     currentPage : number;
     setCurrentPage : Dispatch<SetStateAction<number>>;
-    loading : boolean
+    loading : boolean,
+    setProducts? : Function
 }
