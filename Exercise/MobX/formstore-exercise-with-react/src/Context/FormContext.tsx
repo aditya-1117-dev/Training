@@ -1,4 +1,7 @@
-import {FormStore, formStore} from "../Stores/formStore.tsx";
+import {FormStore} from "../Stores/formStore.tsx";
 import {createContext} from "react";
+import {IFormStore} from "../App.tsx";
 
-export const FormStoreContext = createContext<FormStore>(formStore);
+const formStore = new FormStore<IFormStore>({} as IFormStore);
+
+export const FormStoreContext = createContext<FormStore<IFormStore>>(formStore);

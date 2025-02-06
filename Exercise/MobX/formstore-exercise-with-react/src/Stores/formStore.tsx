@@ -1,29 +1,59 @@
 import {action, makeObservable, observable} from "mobx";
 
-export class FormStore {
-    @observable formData : { [key : string] : any} = {};
-    @observable errors : { [key : string] : any} = {}
-    @observable isSubmitted : boolean = false;
+export class FormStore<T> {
+    @observable formData: {
+        [K in keyof T]: {
+            value: T[K],
+            required: boolean
+        }
+    } = {} as {
+        [K in keyof T]: {
+            value: T[K],
+            required: boolean
+        };
+    };
+    @observable errors: { [K in keyof T]?: string } = {} as { [K in keyof T]?: string };
+    @observable isSubmitted: boolean = false;
+    private errorMessage: string = "REQUIRED";
 
-    constructor() {
+    constructor(initialState: T) {
         makeObservable(this);
+        for (const key in initialState) {
+            this.formData[key] = {value: initialState[key], required: false};
+        }
     }
 
     @action
-    setValue(key :string , value : any){
-        this.formData[key] = value;
+    setValue<K extends keyof T>(key: K, value: T[K], required: boolean = false) {
+        if (this.formData[key]) {
+            this.formData[key].value = value;
+            this.formData[key].required = required;
+        }
     }
 
     @action
-    setSubmission(status : boolean){
+    setRequired<K extends keyof T>(key: K, status: boolean) {
+        if (this.formData[key]) {
+            this.formData[key].required = status;
+        }
+    }
+
+    @action
+    setSubmissionStatus(status: boolean) {
         this.isSubmitted = status;
     }
 
     @action
     resetForm() {
-        this.formData = {};
+        for (const key in this.formData) {
+            if (typeof this.formData[key].value === "number") {
+                this.formData[key].value = 0 as T[typeof key];
+            } else {
+                this.formData[key].value = "" as T[typeof key];
+            }
+        }
         this.errors = {};
-        if(this.isSubmitted) this.isSubmitted = false;
+        if (this.isSubmitted) this.isSubmitted = false;
     }
 
     @action
@@ -33,23 +63,20 @@ export class FormStore {
         }
     }
 
-    getValue(key : string){
-        return this.formData[key]?? "";
+    getValue<K extends keyof T>(key: K): T[K] {
+        return this.formData[key]?.value ?? ("" as T[K]);
     }
 
-    validate() {
+    @action
+    validate(): boolean {
         let valid = true;
-        this.errors = {};
+        this.errors = {} as { [K in keyof T]?: string };
         for (const key in this.formData) {
-            console.log(key)
-            if (!this.formData[key]?.trim().length) {
-                this.errors[key] = "this field is required";
+            if (this.formData[key].required && !this.formData[key]?.value?.toString()?.trim()?.length) {
+                this.errors[key] = this.errorMessage;
                 valid = false;
             }
         }
-        console.log(JSON.stringify(this.errors))
         return valid;
     }
 }
-
-export const formStore = new FormStore();
