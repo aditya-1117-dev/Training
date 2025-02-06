@@ -6,7 +6,7 @@ import {IListProducts} from "../../Types/returnTypes.tsx";
 import Loader from "../Loader/Loader.tsx";
 import DropdownItems from "../Dropdown/DropdownItems.tsx";
 
-export default function ListProducts({ loading, totalPages, products, currentPage, setCurrentPage, limit, setLimit} : IListProducts ) {
+export default function ListProducts({ loading, totalPages, products, currentPage, setCurrentPage, limit, setLimit, setProducts} : IListProducts ) {
     function onPageChange(page : number) {
         setCurrentPage(page % (totalPages+1));
     }
@@ -22,7 +22,7 @@ export default function ListProducts({ loading, totalPages, products, currentPag
             </Row>
             {loading? <Loader height={100} width={100} /> :
                 !products || products.length === 0 ? <Row className="bold justify-content-center"> No Products Available</Row> :
-                products.map((product : IProduct) =><ProductCard key={product.id} product={product} /> )
+                products.map((product : IProduct) =><ProductCard key={product.id} product={product} setProducts={setProducts} /> )
             }
         </Col>
     )

@@ -23,9 +23,13 @@ function App() {
     const userCart = useFetch(currentUser !== "" && userID !== 0 && !localstorageValue
         ?`https://dummyjson.com/users/${userID}/carts` : ``);
 
+    const [products, setProducts] = useState(localstorageValue || userCart?.data?.carts[0]?.products || []);
     useEffect(() => {
         const currID =  currentUser? usersByUsername[currentUser] : 0;
         setUserID( () => currID);
+
+        const localstorageValue = JSON.parse( localStorage.getItem(`${currID}`) as string );
+        setProducts(localstorageValue || 0)
     }, [currentUser]);
 
     useEffect( () => {
@@ -34,6 +38,7 @@ function App() {
         if (currentUser !== "" && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID ) {
             const products = userCart?.data?.carts[0]?.products ? userCart?.data?.carts[0]?.products : userCart?.data?.carts;
             localStorage.setItem(`${userID}`, JSON.stringify(products?? []) );
+            setProducts(products?? []);
         }else if( currentUser !== "" && !localstorageValue && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts && !userCart?.data?.carts[0]?.userId){
             localStorage.setItem(`${userID}`, JSON.stringify([]) );
         }
@@ -44,7 +49,7 @@ function App() {
             path: "/",
             element:
                 <>
-                    <NavbarComponent users={users}/>
+                    <NavbarComponent users={users} cartLength={products?.length}/>
                     <Outlet />
                 </>,
             children: [
