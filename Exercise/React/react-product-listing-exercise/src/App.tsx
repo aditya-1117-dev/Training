@@ -55,13 +55,13 @@ function App() {
             children: [
                 {
                     path: '/',
-                    element: <Home />,
+                    element: <Home setProducts={setProducts} />,
                 },
                 {
                     path: '/cart',
                     element:
                         <>
-                            <Cart key={userID} loading={userCart?.loading}/>
+                            <Cart key={userID} loading={userCart?.loading} setProducts={setProducts}/>
                         </>,
                 },
             ]

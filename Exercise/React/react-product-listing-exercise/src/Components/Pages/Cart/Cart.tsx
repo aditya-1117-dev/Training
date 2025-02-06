@@ -5,7 +5,7 @@ import {Container} from "reactstrap";
 import useFetch from "../../Utility/CustomHooks/fetchData.tsx";
 import Loader from "../../Utility/Loader/Loader.tsx";
 
-const Cart = ({loading}: { loading: boolean }) => {
+const Cart = ({loading, setProducts}: { loading: boolean, setProducts: Function }) => {
     const [, , userID] = useContext(UserContext);
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(5);
@@ -21,7 +21,7 @@ const Cart = ({loading}: { loading: boolean }) => {
         ? userCart?.data?.carts[0]?.products.slice(startIdx, startIdx + limit)
         : localStorageProducts?.slice(startIdx, startIdx + limit)
 
-    const [products, setProducts] = useState(cartProducts);
+    // const [products, setProducts] = useState(cartProducts);
 
     return (
         <Container>

@@ -24,7 +24,7 @@ function filterByKey( array1 : IProduct[] | undefined, key: keyof IProduct, valu
         : array1?.filter((product : IProduct )=> product[key] === value);
 }
 
-const Home : FC = () =>{
+const Home : FC = ({setProducts} : {setProducts: Function}) =>{
     const categories : IFetchedCategories = useFetch(`https://dummyjson.com/products/category-list`);
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const search : IuseFromInput  = useFormInputBox("");
@@ -62,6 +62,7 @@ const Home : FC = () =>{
                 limit={limit}
                 setLimit={setLimit}
                 loading={paginatedProducts?.loading}
+                setProducts={setProducts}
             />
         </>
     )

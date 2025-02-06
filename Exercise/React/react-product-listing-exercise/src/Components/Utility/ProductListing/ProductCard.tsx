@@ -10,8 +10,9 @@ export default function ProductCard({product, setProducts}:{product: IProduct, s
 
     const updateCart = (updatedCart: IProduct[]) => {
         localStorage.setItem(`${userID}`, JSON.stringify(updatedCart));
-        if (setProducts)
+        if (setProducts){
             setProducts(updatedCart);
+        }
     };
 
     useEffect(() => {
