@@ -42,11 +42,17 @@ const Home : FC = () =>{
         search.onChange(e);
         setCurrentPage(1);
     }
+
+    function handleCategoryChange(value : string) {
+        setSelectedCategory(value);
+        setCurrentPage(1);
+    }
+
     return (
         <>
             <Container className="search-container">
                 <Input className="search-input" placeholder="Search for products" value={search.value} onChange={handleInputChange} />
-                <DropdownItems baseValue="Select the Category" list={categories?.data} selectedItem={selectedCategory} setSelectedItem={setSelectedCategory} />
+                <DropdownItems baseValue="Select the Category" list={categories?.data} selectedItem={selectedCategory} setSelectedItem={handleCategoryChange} />
             </Container>
             <ListProducts
                 products={products}
