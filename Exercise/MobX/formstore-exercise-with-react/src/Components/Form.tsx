@@ -1,29 +1,30 @@
-import Field from "./Field.tsx";
 import {FormStoreContext} from "../Context/FormContext.tsx";
 import {Button, Col, Form, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
-import {formStore} from "../Stores/formStore.tsx";
+import {ReactNode} from "react";
+import {FormStore} from "../Stores/formStore.tsx";
+import {IFormStore} from "../App.tsx";
 
-interface IReactForm{
-    showSaveButton : boolean,
-    showResetButton : boolean
+interface IReactForm {
+    showSaveButton: boolean,
+    showResetButton: boolean,
+    children: ReactNode,
+    formStore: FormStore<IFormStore>
 }
 
-function ReactForm( { showSaveButton, showResetButton} : IReactForm){
+function ReactForm({showSaveButton, showResetButton, children, formStore}: IReactForm) {
     return (
         <FormStoreContext.Provider value={formStore}>
             <Form>
-                <Field type="text" label="Name" store={formStore} name="name" required={true}/>
-                <Field type="text" label="Address" store={formStore} name="address" required={true}/>
-                <Field type="number" label="Age" store={formStore} name="age" required={false}/>
+                {children}
                 <Row>
                     <Col>
-                        { (!formStore.isSubmitted || showSaveButton)
-                            && <Button onClick={() => formStore.submitForm()} color="primary" > Submit </Button> }
+                        {(!formStore.isSubmitted || showSaveButton)
+                            && <Button onClick={() => formStore.submitForm()} color="primary"> Submit </Button>}
                     </Col>
                     <Col>
-                        { (formStore.isSubmitted || showResetButton)
-                            && <Button onClick={() => formStore.resetForm()} color="primary" > Reset </Button>
+                        {(formStore.isSubmitted || showResetButton)
+                            && <Button onClick={() => formStore.resetForm()} color="primary"> Reset </Button>
                         }
                     </Col>
                 </Row>

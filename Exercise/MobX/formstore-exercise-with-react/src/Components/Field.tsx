@@ -1,48 +1,40 @@
-import {FormStore} from "../Stores/formStore.tsx";
-import {ChangeEvent, useContext} from "react";
-import {observer} from "mobx-react-lite";
-import {Col, FormGroup, Label} from "reactstrap";
-import ReactInput from "./ReactInput.tsx";
-import {FormStoreContext} from "../Context/FormContext.tsx";
+import {ChangeEvent, useContext} from 'react';
+import {observer} from 'mobx-react-lite';
+import {Col, FormGroup, Label} from 'reactstrap';
+import {FormStoreContext} from '../Context/FormContext';
+import {FormStore} from '../Stores/formStore';
+import {IFormStore} from "../App.tsx";
 
 interface IField {
-    type : 'text'|'number',
-    name : string,
-    label : string,
-    store : FormStore,
-    required : boolean,
+    name: keyof IFormStore;
+    label: string;
+    store: FormStore<IFormStore>;
+    required: boolean;
+    component: any;
+    onChange?: () => void;
 }
 
-function Field({ type, name, label, store, required} : IField){
+function Field({name, label, store, required, component, onChange}: IField) {
     const contextStore = useContext(FormStoreContext);
-    const formStore = store || contextStore;
-
-    const value = formStore.getValue(name);
-    const disabled = formStore.isSubmitted ;
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement>, key : string) => {
-        formStore.errors = {}
+    const formStore: FormStore<IFormStore> = contextStore || store;
+    if (required) formStore.setRequired(name, required);
+    const handleChange = (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => {
         formStore.setValue(key, e.target.value);
+        if (onChange) {
+            onChange();
+        }
     };
-
     return (
         <FormGroup row>
             <Label for={name} sm={4}>
                 {label}{required && <span style={{color: "red"}}>*</span>}
             </Label>
             <Col sm={8}>
-                <ReactInput
-                    type={type}
-                    name={name}
-                    value={value}
-                    onChange={handleChange}
-                    disabled={disabled}
-                    required={required}
-                />
+                {component(handleChange)}
                 {formStore.errors[name] && <p className={'text-danger'}>{formStore.errors[name]}</p>}
             </Col>
         </FormGroup>
-    )
+    );
 }
 
 export default observer(Field);
