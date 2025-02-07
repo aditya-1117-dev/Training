@@ -7,20 +7,18 @@ interface IWithFieldProps extends IField {
     options?: any;
 }
 
-function withField(WrappedComponent: any, type : any ) {
+function withField(WrappedComponent: any ) {
     return (props : IWithFieldProps ) => {
         const store = useContext(FormStoreContext) || props?.store;
+        if (!store.hasKey(props.name) ) return <>"Error"</>;
+
         return (
-            <>
-                {store.hasKey(props.name) &&
-                    <Field label={props.label} store={store} name={props.name} required={props.required}
-                           onChange={props?.onChange}
-                           component={(inputProps : { name: keyof IFormStore, required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void ) => (
-                               <WrappedComponent {...inputProps} type={type} value={store.getValue(props.name)} onChange={handleChange} disabled={store.isSubmitted} options={props?.options}/>
-                           )}
-                    />
-                }
-            </>
+            <Field label={props.label} store={store} name={props.name} required={props.required}
+                   onChange={props?.onChange}
+                   component={(inputProps : { name: keyof IFormStore, required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void ) => (
+                       <WrappedComponent {...inputProps} options={props.options} disabled={store.isSubmitted} value={store.getValue(props.name)} onChange={handleChange} />
+                   )}
+            />
         )
     }
 }

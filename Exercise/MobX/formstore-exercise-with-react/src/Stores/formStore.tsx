@@ -30,6 +30,23 @@ export class FormStore<T> {
     @action
     setValue<K extends keyof T>(key: K, value: T[K]) {
         this.formData[key] = value;
+        if (this.errors[key]){
+            delete this.errors[key];
+        }
+    }
+
+    @action
+    pushValue<K extends keyof T>(key: K, value: T[K]) {
+        if (Array.isArray(this.formData[key])){
+            if (!this.formData[key].includes?.(value)){
+                this.formData[key].push?.(value);
+            }else{
+                this.formData[key] = this.formData[key]?.filter(item => item !== value) as T[typeof key];
+            }
+            if (this.errors[key]){
+                delete this.errors[key];
+            }
+        }
     }
 
     @action
@@ -45,7 +62,10 @@ export class FormStore<T> {
     @action
     resetForm() {
         for (const key in this.formData) {
-            if (typeof this.formData[key] === "number") {
+            if (Array.isArray(this.formData[key])){
+                this.formData[key] = [] as T[typeof key];
+            }
+            else if (typeof this.formData[key] === "number") {
                 this.formData[key] = 0 as T[typeof key];
             } else {
                 this.formData[key] = "" as T[typeof key];
