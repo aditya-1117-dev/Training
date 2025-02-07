@@ -5,12 +5,12 @@ import {FormStoreContext} from '../Context/FormContext';
 import {FormStore} from '../Stores/formStore';
 import {IFormStore} from "../App.tsx";
 
-interface IField {
+export interface IField {
     name: keyof IFormStore;
     label: string;
-    store: FormStore<IFormStore>;
+    store?: FormStore<IFormStore>;
     required: boolean;
-    component: any;
+    component?: any;
     onChange?: () => void;
 }
 

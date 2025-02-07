@@ -1,20 +1,28 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {ChangeEvent} from "react";
-import Field from "./Components/Field.tsx";
 import {FormStore} from "./Stores/formStore.tsx";
-import Input from "./Components/ReactInput.tsx";
 import Form from "./Components/Form.tsx";
+import {CheckField, NumberField, RadioField, SelectField, StringField} from "./Components/InputFields.tsx";
+import {FormGroup, Label} from "reactstrap";
 
 export interface IFormStore {
+    firstName: string,
     name: string,
-    age: number
+    age: number,
+    country: "IND" | "UK" | "USA" | "CA",
+    select: "abc" | "bcd" | "efg",
+    gender: "Male" | "Female",
 }
 
 function App() {
+
     const obj: IFormStore = {
+        firstName: "A",
         name: "Adi",
-        age: 10
+        age: 10,
+        select: "abc",
+        gender: "Male",
+        country: "IND"
     }
     const formStore = new FormStore<IFormStore>(obj);
     formStore.setOnSubmitCallBack(() => console.log("on submit call"));
@@ -23,26 +31,23 @@ function App() {
         <>
             <h1>MobX Exercise</h1>
             <Form showResetButton={true} showSaveButton={true} formStore={formStore}>
+                <StringField name="firstName" label="First Name" required={true}/>
+                <NumberField name="age" label="Your Age" required={false}/>
+                <SelectField label="Country" name="country" required={true}
+                             options={[{value: 'USA', label: 'United States'}, {value: 'IND', label: 'India'}, {value: 'CA', label: 'Canada'}, {value: 'UK', label: 'United Kingdom'}]}/>
 
-                <Field label="Name" store={formStore} name="name" required={true}
-                       onChange={() => console.log("Callback Name")}
-                       component={(inputProps: {
-                           name: keyof IFormStore,
-                           required: boolean
-                       }, handleChange: (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void) => (
-                           <Input {...inputProps} type="text" value={formStore.getValue("name")} onChange={handleChange}
-                                  disabled={formStore.isSubmitted}/>
-                       )}
-                />
-                <Field label="Age" store={formStore} name="age" required={false}
-                       onChange={() => console.log("Callback Age")}
-                       component={(inputProps: {
-                           name: keyof IFormStore, required: boolean
-                       }, handleChange: (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void) => (
-                           <Input {...inputProps} type="number" value={formStore.getValue("age")}
-                                  onChange={handleChange} disabled={formStore.isSubmitted}/>
-                       )}
-                />
+                <FormGroup>
+                    <Label>Select your Gender :</Label>
+                    <Label><RadioField name="select" label="Male" required={false}/></Label>
+                    <Label><RadioField label="Female" name="select" required={false}/></Label>
+                </FormGroup>
+
+                <FormGroup>
+                    <Label>Select your Gender :</Label>
+                    <Label><CheckField name="gender" label="Male" required={false}/></Label>
+                    <Label><CheckField label="Female" name="gender" required={false}/></Label>
+                </FormGroup>
+
             </Form>
         </>
     )

@@ -5,7 +5,7 @@ export class FormStore<T> {
     @observable validateKeys : { [K in keyof T] : boolean } = {} as { [K in keyof T] : boolean };
     @observable errors: { [K in keyof T]?: string } = {} as { [K in keyof T]?: string };
     @observable isSubmitted: boolean = false;
-    @observable onSubmit : Function;
+    @observable onSubmit : Function = () => {};
     private errorMessage: string = "REQUIRED";
 
     constructor(initialState : T, onSubmit? : Function) {
@@ -16,6 +16,10 @@ export class FormStore<T> {
         if (onSubmit){
             this.onSubmit = onSubmit;
         }
+    }
+
+    hasKey<K extends keyof T>(key: K): boolean {
+        return !!this.formData[key];
     }
 
     @action
