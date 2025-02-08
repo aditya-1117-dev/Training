@@ -1,22 +1,34 @@
-import Field, {IField} from "../Components/Field.tsx";
+import Field from "../Components/Field.tsx";
 import {IFormStore} from "../App.tsx";
 import {ChangeEvent, useContext} from "react";
 import {FormStoreContext} from "../Context/FormContext.tsx";
+import {FormStore} from "../Stores/formStore.tsx";
 
-interface IWithFieldProps extends IField {
-    options?: any;
+interface IBaseField {
+    name: keyof IFormStore;
+    required?: boolean;
+    disabled?: boolean;
+    onChange?: Function;
 }
 
-function withField(WrappedComponent: any ) {
-    return (props : IWithFieldProps ) => {
+interface IWithFieldProps extends IBaseField {
+    options?: { value: string, label: string }[];
+    min?: number;
+    max?: number;
+    index?: number;
+    label? : string;
+    store? : FormStore<IFormStore>;
+}
+
+function withField<T extends IWithFieldProps>(WrappedComponent : (props: T ) => JSX.Element ) {
+    return (props : T ) => {
         const store = useContext(FormStoreContext) || props?.store;
         if (!store.hasKey(props.name) ) return <>"Error"</>;
-
         return (
-            <Field label={props.label} store={store} name={props.name} required={props.required}
+            <Field label={props.label} store={store} name={props.name} required={props.required} index={props.index}
                    onChange={props?.onChange}
-                   component={(inputProps : { name: keyof IFormStore, required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => void ) => (
-                       <WrappedComponent {...inputProps} options={props.options} disabled={store.isSubmitted} value={store.getValue(props.name)} onChange={handleChange} />
+                   component={(inputProps : { name: keyof IFormStore, required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>) => void ) => (
+                       <WrappedComponent {...props} store={store} {...inputProps} disabled={store.isSubmitted} value={typeof props?.index ==="number" ? store.getValue(props.name, props.index) : store.getValue(props.name) } onChange={handleChange} />
                    )}
             />
         )

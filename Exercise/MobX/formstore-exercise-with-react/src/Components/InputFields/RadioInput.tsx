@@ -1,21 +1,21 @@
 import {Button, ButtonGroup} from "reactstrap";
 import {observer} from "mobx-react-lite";
-import {useContext} from "react";
-import {FormStoreContext} from "../../Context/FormContext.tsx";
 import {IFormStore} from "../../App.tsx";
+import {FormStore} from "../../Stores/formStore.tsx";
 
-interface IRadioInput {
+export interface IRadioInput {
     name: keyof IFormStore;
     disabled: boolean;
-    options? : {value: string, label: string}[]
+    options?: { value: string, label: string }[];
+    store: FormStore<IFormStore>;
+    index?: number
 }
 
-const RadioInput = ({name, options, disabled } : IRadioInput) => {
-    const store = useContext( FormStoreContext);
+const RadioInput = ({name, options, disabled, store, index}: IRadioInput) => {
     return (
         <ButtonGroup>
-            {options?.map((option : any) => (
-                <Button key={option.value} color="primary" outline onClick={() => store.setValue(name, option.value)} active={store.getValue(name) === (option.value)} disabled={disabled}>
+            {options?.map((option: any) => (
+                <Button key={option.value} color="primary" outline onClick={() => typeof index === "number" ? store.setValue(name, option.value, index) : store.setValue(name, option.value)} active={(typeof index === "number" ? store.getValue(name, index) : store.getValue(name)) === (option.value)} disabled={disabled}>
                     {option.label}
                 </Button>
             ))}

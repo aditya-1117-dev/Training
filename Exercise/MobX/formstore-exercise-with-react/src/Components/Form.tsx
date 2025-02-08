@@ -6,8 +6,8 @@ import {FormStore} from "../Stores/formStore.tsx";
 import {IFormStore} from "../App.tsx";
 
 interface IForm {
-    showSaveButton: boolean,
-    showResetButton: boolean,
+    showSaveButton?: boolean,
+    showResetButton?: boolean,
     children: ReactNode,
     formStore: FormStore<IFormStore>
 }
@@ -32,5 +32,5 @@ function Form({showSaveButton, showResetButton, children, formStore}: IForm) {
         </FormStoreContext.Provider>
     )
 }
-
+// Component for conditional rendering
 export default observer(Form);

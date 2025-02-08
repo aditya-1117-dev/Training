@@ -7,19 +7,20 @@ import {IFormStore} from "../App.tsx";
 
 export interface IField {
     name: keyof IFormStore;
-    label: string;
+    label?: string;
     store?: FormStore<IFormStore>;
-    required: boolean;
+    required?: boolean;
     component?: any;
-    onChange?: () => void;
+    onChange?: Function;
+    index? : number;
 }
 
-function Field({name, label, store, required, component, onChange}: IField) {
+function Field( {name, label, store, required, component, onChange, index}: IField) {
     const contextStore = useContext(FormStoreContext);
     const formStore: FormStore<IFormStore> = contextStore || store;
-    if (required) formStore.setRequired(name, required);
-    const handleChange = (e: ChangeEvent<HTMLInputElement>, key: keyof IFormStore) => {
-        formStore.setValue(key, e.target.value);
+    if (required) typeof index ==="number" ? formStore.setRequired(name, required, index) : formStore.setRequired(name, required);
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        typeof index ==="number" ? formStore.setValue(name, e.target.value, index) : formStore.setValue(name, e.target.value)
         if (onChange) {
             onChange();
         }
@@ -32,7 +33,8 @@ function Field({name, label, store, required, component, onChange}: IField) {
             </Label>
             <Col sm={8}>
                 {component(inputProps, handleChange)}
-                {formStore.errors[name] && <p className={'text-danger'}>{formStore.errors[name]}</p>}
+                {( (typeof index ==="number" && Array.isArray(formStore.errors[name]) && formStore.errors[name][index] !==null )? formStore.errors[name][index] : formStore.errors[name]) &&
+                    <p className={'text-danger'}>{( (typeof index ==="number" && Array.isArray(formStore.errors[name]) )? formStore.errors[name][index] : formStore.errors[name])}</p>}
             </Col>
         </FormGroup>
     );
