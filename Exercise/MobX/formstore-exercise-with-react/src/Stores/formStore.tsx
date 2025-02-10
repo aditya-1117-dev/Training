@@ -1,4 +1,4 @@
-import {action, computed, makeObservable, observable} from "mobx";
+import {action, makeObservable, observable} from "mobx";
 
 export class FormStore<T> {
     @observable formData: T = {} as T;
@@ -37,7 +37,7 @@ export class FormStore<T> {
             Array.isArray(this.formData[key])
                 ? this.formData[key][index] = value
                 : 0;
-            if (this.errors[key][index]){
+            if (this.errors[key] && this.errors[key][index]){
                 delete this.errors[key][index];
             }
         }else {
@@ -51,14 +51,18 @@ export class FormStore<T> {
     @action
     pushValue<K extends keyof T>(key: K, value: T[K], index? : number) {
         if (typeof index === "number"){
-            if (Array.isArray(this.formData[key]) && Array.isArray(this.formData[key][index]) ){
-                if (!this.formData[key][index].includes?.(value)){
-                    this.formData[key][index].push?.(value);
-                }else{
-                    this.formData[key][index] = this.formData[key][index]?.filter(item => item !== value) as T[typeof key];
-                }
-                if (this.errors[key][index]){
-                    this.errors[key][index] = "";
+            if (Array.isArray(this.formData[key]) ){
+                if (Array.isArray(this.formData[key][index]) ){
+                    if (!this.formData[key][index].includes?.(value)) {
+                        this.formData[key][index].push?.(value);
+                    } else {
+                        this.formData[key][index] = this.formData[key][index]?.filter(item => item !== value) as T[typeof key];
+                    }
+                    if (this.errors[key][index]) {
+                        this.errors[key][index] = "";
+                    }
+                }else {
+                    this.formData[key].push?.(value);
                 }
             }
         }else if (Array.isArray(this.formData[key])){
@@ -90,10 +94,11 @@ export class FormStore<T> {
 
     @action
     resetForm() {
+            // console.log(JSON.stringify(this.formData))
         for (const key in this.formData) {
-            if (Array.isArray(this.validateKeys[key]) && Array.isArray(this.formData[key]) ){
+            if (Array.isArray(this.validateKeys[key]) && Array.isArray(this.formData[key]) ){ // for json objects only
                 for (const key2 in this.formData[key]) {
-                    if (Array.isArray(this.formData[key][key2])){
+                    if (Array.isArray(this.formData[key][key2])){ // for json object checkbox
                         this.formData[key][key2] = [] as T[typeof key];
                     }else {
                         this.formData[key][key2] = "" as T[typeof key];
@@ -101,7 +106,14 @@ export class FormStore<T> {
                 }
             }
             else if (Array.isArray(this.formData[key])){
-                this.formData[key] = [] as T[typeof key];
+                if (key.startsWith("json")){
+                    if (this.formData[key].length > 0){
+                        const type = typeof this.formData[key][0];
+                        this.formData[key] = this.formData[key].map(()=> type.toString()==="string" ? "": 0 ) as T[typeof key]
+                    }
+                }else {
+                    this.formData[key] = [] as T[typeof key];
+                }
             }else {
                 this.formData[key] = "" as T[typeof key];
             }

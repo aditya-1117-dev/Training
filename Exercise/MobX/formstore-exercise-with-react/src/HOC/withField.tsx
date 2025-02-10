@@ -1,7 +1,6 @@
 import Field from "../Components/Field.tsx";
-import {IStoreData} from "../App.tsx";
 import {ChangeEvent, useContext} from "react";
-import {FormStoreContext} from "../Context/FormContext.tsx";
+import {FormStoreContext, IStoreData} from "../Context/FormContext.tsx";
 import {FormStore} from "../Stores/formStore.tsx";
 
 interface IBaseField {
@@ -16,12 +15,12 @@ export interface IWithFieldProps extends IBaseField {
     min?: number;
     max?: number;
     index?: number;
-    label? : string;
-    store? : FormStore<IStoreData>;
+    label?: string;
+    store?: FormStore<IStoreData>;
 }
 
-function withField<T extends IWithFieldProps>(WrappedComponent : (props: T ) => JSX.Element ) {
-    return (props : T ) => {
+function withField<T extends IWithFieldProps>(WrappedComponent: (props: T) => JSX.Element) {
+    return (props: T) => {
         const store = useContext(FormStoreContext) || props?.store;
         if (!store.hasKey(props.name) ) return <>"Error"</>;
         return (
@@ -34,4 +33,5 @@ function withField<T extends IWithFieldProps>(WrappedComponent : (props: T ) => 
         )
     }
 }
+
 export default withField;

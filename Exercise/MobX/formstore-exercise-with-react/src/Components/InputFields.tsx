@@ -4,7 +4,10 @@ import Checkbox, {ICheckbox} from "./InputFields/Checkbox.tsx";
 import SelectInput, {ISelectInput} from "./InputFields/SelectInput.tsx";
 import NumberInput, {INumberInput} from "./InputFields/NumberInput.tsx";
 import StringInput, {IStringInput} from "./InputFields/StringInput.tsx";
-import {Fragment} from "react";
+import {Fragment, useContext} from "react";
+import AddField from "./AddField.tsx";
+import {FormStoreContext, IStoreData} from "../Context/FormContext.tsx";
+import {observer} from "mobx-react-lite";
 
 export const StringField = withField<IStringInput & IWithFieldProps> ( (props:IStringInput) =>(<StringInput {...props} />));
 export const NumberField = withField<IWithFieldProps & INumberInput>( (props:INumberInput) =>(<NumberInput {...props} />));
@@ -12,44 +15,24 @@ export const SelectField = withField<IWithFieldProps & ISelectInput>( (props:ISe
 export const CheckField = withField<IWithFieldProps & ICheckbox>( (props:ICheckbox) =><Checkbox {...props} />);
 export const RadioField = withField<IWithFieldProps & IRadioInput>( (props:IRadioInput) =><RadioInput {...props} />);
 
-interface IFieldComponents {
-    [key : string]: (props: any) => JSX.Element;
-}
-export const FieldComponents : IFieldComponents  = {
-    "string": StringField,
-    "number": NumberField,
-    "select": SelectField,
-    "checkbox": CheckField,
-    "radio": RadioField,
-};
-
-export const JSONField = ({props, renderField } : {  props : object[] | number[] | string[], renderField? : Function } ) : JSX.Element | JSX.Element[] =>{
-    if (renderField){
-        if (Array.isArray(props) && props.length > 0) {
-            return props.map((item, index) => (
-                <Fragment key={index}>{renderField(item, index)}</Fragment>
-            ));
-        }
-    }
-    return (
-        <>
-            {Array.isArray(props) &&
-                props.map( (items : any, index : number)=> {
-                    const type = items?.type;
-                    switch ( type) {
-                        case "string":
-                        case "number":
-                        case "select":
-                        case "checkbox":
-                        case "radio": {
-                            const Component = FieldComponents[type];
-                            return <Component index={index} key={items.name+index} {...items} />;
-                        }
-                            break;
-                        default : <> Error </>
-                    }
-                })
+export const JSONField = observer( ({renderField, name, required = false } : { name : keyof IStoreData, renderField : Function, required? : boolean } ) : JSX.Element =>{
+    const store = useContext(FormStoreContext);
+    const jsonInput = store.getValue(name);
+    if (Array.isArray(jsonInput) && jsonInput.length > 0) {
+        function handleAddNewInput() {
+            if (Array.isArray(jsonInput)){
+                store.pushValue(name, typeof jsonInput[0]==="number"? 0 : ``, jsonInput?.length);
             }
-        </>
-    )
-};
+        }
+        return (
+            <>
+                {jsonInput.map((item, index) => {
+                    if ( index > 0 ) required = false;
+                    return <Fragment key={index}>{renderField(item, index, name, required)}</Fragment>
+                })}
+                <AddField handleAddNewInput={handleAddNewInput} disabled={store.isSubmitted} />
+            </>
+        );
+    }
+    return <></>;
+});
