@@ -33,9 +33,9 @@ function App() {
                 <CheckField label="country" name="country" required={true}
                              options={[{value: 'IND', label: 'IND'}, {value: 'UK', label: 'UK'} ]}/>
             </Form>
-            {/*<ListTableStoreContext.Provider value={listTableStore}>*/}
-            {/*    <ListTable tableContent={listTableStore.data?.products} columns={columns} />*/}
-            {/*</ListTableStoreContext.Provider>*/}
+            <ListTableStoreContext.Provider value={listTableStore}>
+                <ListTable tableContent={listTableStore.data?.products} columns={columns} />
+            </ListTableStoreContext.Provider>
         </>
     )
 }
