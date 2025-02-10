@@ -1,14 +1,14 @@
 import {ChangeEvent} from 'react';
 import {observer} from 'mobx-react-lite';
 import {Input as ReactStrapInput} from 'reactstrap';
-import {IFormStore} from "../../App.tsx";
+import {IStoreData} from "../../App.tsx";
 
 export interface INumberInput {
-    name: keyof IFormStore;
-    value: number | string;
+    name: keyof IStoreData;
+    value?: number | string;
     required: boolean;
-    disabled: boolean;
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    disabled?: boolean;
+    onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
     min? : number;
     max? : number;
 }
@@ -19,7 +19,7 @@ function NumberInput({name, value, onChange, disabled, required, min, max}: INum
             type="number"
             name={name}
             value={value}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange ? onChange(e) : e }
             disabled={disabled}
             required={required}
             min={min} max={max}

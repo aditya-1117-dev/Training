@@ -3,12 +3,12 @@ import {observer} from 'mobx-react-lite';
 import {Col, FormGroup, Label} from 'reactstrap';
 import {FormStoreContext} from '../Context/FormContext';
 import {FormStore} from '../Stores/formStore';
-import {IFormStore} from "../App.tsx";
+import {IStoreData} from "../App.tsx";
 
 export interface IField {
-    name: keyof IFormStore;
+    name: keyof IStoreData;
     label?: string;
-    store?: FormStore<IFormStore>;
+    store?: FormStore<IStoreData>;
     required?: boolean;
     component?: any;
     onChange?: Function;
@@ -17,7 +17,7 @@ export interface IField {
 
 function Field( {name, label, store, required, component, onChange, index}: IField) {
     const contextStore = useContext(FormStoreContext);
-    const formStore: FormStore<IFormStore> = contextStore || store;
+    const formStore: FormStore<IStoreData> = contextStore || store;
     if (required) typeof index ==="number" ? formStore.setRequired(name, required, index) : formStore.setRequired(name, required);
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         typeof index ==="number" ? formStore.setValue(name, e.target.value, index) : formStore.setValue(name, e.target.value)

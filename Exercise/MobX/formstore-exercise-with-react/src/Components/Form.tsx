@@ -3,13 +3,13 @@ import {Button, Col, Form as ReactStrapForm, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
 import {ReactNode} from "react";
 import {FormStore} from "../Stores/formStore.tsx";
-import {IFormStore} from "../App.tsx";
+import {IStoreData} from "../App.tsx";
 
 interface IForm {
     showSaveButton?: boolean,
     showResetButton?: boolean,
     children: ReactNode,
-    formStore: FormStore<IFormStore>
+    formStore: FormStore<IStoreData>
 }
 
 function Form({showSaveButton, showResetButton, children, formStore}: IForm) {

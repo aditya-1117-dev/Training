@@ -1,4 +1,4 @@
-import {action, makeObservable, observable} from "mobx";
+import {action, computed, makeObservable, observable} from "mobx";
 
 export class FormStore<T> {
     @observable formData: T = {} as T;
@@ -19,7 +19,11 @@ export class FormStore<T> {
     }
 
     hasKey<K extends keyof T>(key: K): boolean {
-        return !!this.formData[key];
+        return typeof this.formData ==='object'
+            ? (this.formData
+                ? this.formData.hasOwnProperty(key)
+                : false)
+            : false;
     }
 
     @action
@@ -30,7 +34,9 @@ export class FormStore<T> {
     @action
     setValue<K extends keyof T>(key: K, value: T[K], index?: number) {
         if (typeof index === "number"){
-            Array.isArray(this.formData[key])? this.formData[key][index] = value : 0;
+            Array.isArray(this.formData[key])
+                ? this.formData[key][index] = value
+                : 0;
             if (this.errors[key][index]){
                 delete this.errors[key][index];
             }

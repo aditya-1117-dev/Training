@@ -1,23 +1,23 @@
 import Field from "../Components/Field.tsx";
-import {IFormStore} from "../App.tsx";
+import {IStoreData} from "../App.tsx";
 import {ChangeEvent, useContext} from "react";
 import {FormStoreContext} from "../Context/FormContext.tsx";
 import {FormStore} from "../Stores/formStore.tsx";
 
 interface IBaseField {
-    name: keyof IFormStore;
+    name: keyof IStoreData;
     required?: boolean;
     disabled?: boolean;
-    onChange?: Function;
+    onChange?: any;
 }
 
-interface IWithFieldProps extends IBaseField {
+export interface IWithFieldProps extends IBaseField {
     options?: { value: string, label: string }[];
     min?: number;
     max?: number;
     index?: number;
     label? : string;
-    store? : FormStore<IFormStore>;
+    store? : FormStore<IStoreData>;
 }
 
 function withField<T extends IWithFieldProps>(WrappedComponent : (props: T ) => JSX.Element ) {
@@ -27,7 +27,7 @@ function withField<T extends IWithFieldProps>(WrappedComponent : (props: T ) => 
         return (
             <Field label={props.label} store={store} name={props.name} required={props.required} index={props.index}
                    onChange={props?.onChange}
-                   component={(inputProps : { name: keyof IFormStore, required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>) => void ) => (
+                   component={ (inputProps : { name: keyof IStoreData, required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>) => void ) => (
                        <WrappedComponent {...props} store={store} {...inputProps} disabled={store.isSubmitted} value={typeof props?.index ==="number" ? store.getValue(props.name, props.index) : store.getValue(props.name) } onChange={handleChange} />
                    )}
             />
