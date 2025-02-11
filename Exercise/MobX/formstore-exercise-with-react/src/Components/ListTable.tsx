@@ -5,9 +5,28 @@ import {ChangeEvent, useContext} from "react";
 import {ListTableStoreContext} from "../Context/ListTableContext.tsx";
 import Loader from "./Loader.tsx";
 import ListRows from "./ListRows.tsx";
+import CheckBox from "./CheckBox.tsx";
 
-const ListTable = ({ tableContent, columns } : any) => {
+const ListTable = ({ columns, Key } : any) => {
     const store = useContext(ListTableStoreContext);
+    const tableContent =  store.getKeyInData(Key);
+    const selectAllID = 11111111;
+
+    function onCheckboxSelection( id: number){
+        if ( id === selectAllID){
+            if (store.isSelected(selectAllID) ){
+                store.deSelectAll();
+                return ;
+            }else {
+                store.selectAll();
+            }
+        }else {
+            if (store.isSelected(selectAllID) ){
+                store.updateSelection(selectAllID);
+            }
+        }
+        return store.updateSelection(id);
+    }
     return (
         <Col>
             <Container className="search-container">
@@ -20,14 +39,23 @@ const ListTable = ({ tableContent, columns } : any) => {
                             <Table bordered hover responsive>
                                 <thead>
                                 <tr>
-                                    {columns.map((col : string) => (
-                                        <th key={col} className="text-uppercase text-center">{col.toUpperCase()}</th>
+                                    <th className="text-uppercase text-center">
+                                        <CheckBox id={selectAllID} value={store.isSelected(selectAllID)} onchange={()=> onCheckboxSelection(selectAllID)} />
+                                    </th>
+                                    {Object.keys(columns).map((colKey: string) => (
+                                        <td key={colKey} className="text-center">{columns[colKey]}</td>
                                     ))}
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {tableContent.map((row: any) => (
-                                    <ListRows key={row.id} row={row} columns={columns} />
+                                {tableContent.map((row: any, index: number) => (
+                                        <tr key={row.id}>
+                                            <td className="text-center">
+                                                <CheckBox id={index} value={store.isSelected(index)}
+                                                          onchange={() => onCheckboxSelection(index)}/>
+                                            </td>
+                                            <ListRows row={row} columns={Object.keys(columns)}/>
+                                        </tr>
                                 ))}
                                 </tbody>
                             </Table>

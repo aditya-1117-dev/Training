@@ -1,28 +1,68 @@
 import {observable, action, computed, makeObservable} from 'mobx';
 
 class ListTableStore<T> {
-    @observable data: T[] = [];
+    @observable data: T = {} as T;
     @observable loading: boolean = false;
     @observable page: number = 1;
     @observable totalPages: number = 1;
     @observable searchQuery: string = '';
     @observable url : string = "";
+    @observable selectedRows : number[] = [];
 
+    private limit : number = 20;
     private debounceTimer: NodeJS.Timeout | null = null;
 
-    constructor(url?: string) {
+    constructor(url?: string, limit? :number) {
         makeObservable(this);
         if (url){
             this.url = `${url}`;
-            this.fetchData(20).then()
+            this.fetchData().then()
+        }
+        if (limit){
+            this.limit = limit
+        }
+    }
+
+    getKeyInData<K extends keyof T>( key : K ){
+        return this.data[key];
+    }
+
+    isSelected( value : number ): boolean  {
+        return this.selectedRows.includes(value);
+    }
+
+    @action
+    updateSelection(id : number){
+        if (this.selectedRows.includes(id) ){
+            this.selectedRows = this.selectedRows.filter((val)=> val !== id);
+        }else {
+            this.selectedRows.push(id);
+            if (this.selectedRows.length === this.limit){
+                this.selectedRows.push(11111111);
+            }
         }
     }
 
     @action
-    setData(data : any, totalPages: number, page: number ){
+    selectAll(){
+        for (let i = 0; i < this.limit ; i++){
+            if ( !this.selectedRows.includes(i) ){
+                this.selectedRows.push(i);
+            }
+        }
+    }
+
+    @action
+    deSelectAll(){
+        this.selectedRows = [];
+    }
+
+    @action
+    setData(data : any, page?: number ){
         this.data = data;
-        this.totalPages = totalPages;
-        this.page = page;
+        this.selectedRows = [];
+        this.totalPages = Math.ceil( (Number(data.total) | 0) / (this.limit | 1) );
+        if (page) this.page = page;
     }
 
     @action
@@ -31,13 +71,12 @@ class ListTableStore<T> {
     }
 
     @action
-    async fetchData(limit: number = 0, page: number = 1) {
+    async fetchData(page: number = 1) {
         this.setLoading(true);
         try {
-            const response = await fetch(`${this.url}/search?q=${this.searchQuery}&limit=${limit}&skip=${(page-1)*limit}`);
+            const response = await fetch(`${this.url}/search?q=${this.searchQuery}&limit=${this.limit}&skip=${(page-1)*this.limit}`);
             const data = await response.json();
-            const total = data.total | 0;
-            this.setData(data, Math.ceil( (Number(total) | 0) / (limit | 1) ), page )
+            this.setData(data, page )
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
@@ -46,7 +85,7 @@ class ListTableStore<T> {
     }
 
     @action
-    setSearchQuery(query: string, delay : number = 2000) {
+    setSearchQuery(query: string, delay : number = 1000) {
         this.searchQuery = query;
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
@@ -59,7 +98,7 @@ class ListTableStore<T> {
     @action
     setCurrentPage( currentPage : number){
         this.page = currentPage;
-        this.fetchData(20, currentPage).then();
+        this.fetchData(currentPage).then();
     }
 
     @computed
