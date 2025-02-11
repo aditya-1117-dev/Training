@@ -78,6 +78,13 @@ export class FormStore<T> {
     }
 
     @action
+    removeItemFromArray<K extends keyof T>( key : K, index : number){
+        if (Array.isArray(this.formData[key])){
+            this.formData[key] = this.formData[key].filter((value : T[K], idx)=> index != idx) as T[K];
+        }
+    }
+
+    @action
     setRequired<K extends keyof T>(key: K, status: boolean, index? : number) {
         if (typeof index === "number"){
             if (!Array.isArray(this.validateKeys[key])) this.validateKeys[key] = [];
@@ -94,7 +101,6 @@ export class FormStore<T> {
 
     @action
     resetForm() {
-            // console.log(JSON.stringify(this.formData))
         for (const key in this.formData) {
             if (Array.isArray(this.validateKeys[key]) && Array.isArray(this.formData[key]) ){ // for json objects only
                 for (const key2 in this.formData[key]) {

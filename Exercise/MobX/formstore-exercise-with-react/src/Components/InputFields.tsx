@@ -8,6 +8,7 @@ import {Fragment, useContext} from "react";
 import AddField from "./AddField.tsx";
 import {FormStoreContext, IStoreData} from "../Context/FormContext.tsx";
 import {observer} from "mobx-react-lite";
+import {Button} from "reactstrap";
 
 export const StringField = withField<IStringInput & IWithFieldProps> ( (props:IStringInput) =>(<StringInput {...props} />));
 export const NumberField = withField<IWithFieldProps & INumberInput>( (props:INumberInput) =>(<NumberInput {...props} />));
@@ -28,7 +29,15 @@ export const JSONField = observer( ({renderField, name, required = false } : { n
             <>
                 {jsonInput.map((item, index) => {
                     if ( index > 0 ) required = false;
-                    return <Fragment key={index}>{renderField(item, index, name, required)}</Fragment>
+                    function removeInputBox() {
+                        store.removeItemFromArray(name, index);
+                    }
+                    return (
+                        <Fragment key={index}>
+                            {index > 0 && <Button onClick={removeInputBox} color={"danger"}> Delete </Button>}
+                            {renderField(item, index, name, required)}
+                        </Fragment>
+                    )
                 })}
                 <AddField handleAddNewInput={handleAddNewInput} disabled={store.isSubmitted} />
             </>
