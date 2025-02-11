@@ -8,7 +8,7 @@ import {Fragment, useContext} from "react";
 import AddField from "./AddField.tsx";
 import {FormStoreContext, IStoreData} from "../Context/FormContext.tsx";
 import {observer} from "mobx-react-lite";
-import {Button} from "reactstrap";
+import {Button, Col, Row} from "reactstrap";
 
 export const StringField = withField<IStringInput & IWithFieldProps> ( (props:IStringInput) =>(<StringInput {...props} />));
 export const NumberField = withField<IWithFieldProps & INumberInput>( (props:INumberInput) =>(<NumberInput {...props} />));
@@ -34,8 +34,14 @@ export const JSONField = observer( ({renderField, name, required = false } : { n
                 }
                 return (
                     <Fragment key={index}>
-                        {index > 0 && <Button onClick={removeInputBox} color={"danger"}> Delete </Button>}
-                        {renderField(item, index, name, required)}
+                        <Row>
+                            <Col md={8}>
+                                {renderField(item, index, name, required)}
+                            </Col>
+                            <Col md={4}>
+                                {index > 0 && <Button onClick={removeInputBox} color={"danger"}> Delete </Button>}
+                            </Col>
+                        </Row>
                     </Fragment>
                 )
             })}
