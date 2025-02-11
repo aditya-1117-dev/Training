@@ -26,7 +26,7 @@ function withField<T extends IWithFieldProps>(WrappedComponent: (props: T) => JS
         return (
             <Field label={props.label} store={store} name={props.name} required={props.required} index={props.index}
                    onChange={props?.onChange}
-                   component={ (inputProps : { name: keyof IStoreData, required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>) => void ) => (
+                   component={ (inputProps : { name: keyof T["store"], required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>) => void ) => (
                        <WrappedComponent {...props} store={store} {...inputProps} disabled={store.isSubmitted} value={typeof props?.index ==="number" ? store.getValue(props.name, props.index) : store.getValue(props.name) } onChange={handleChange} />
                    )}
             />
