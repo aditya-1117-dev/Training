@@ -1,9 +1,8 @@
 import {ChangeEvent, useContext} from 'react';
 import {observer} from 'mobx-react-lite';
 import {Col, FormGroup, Label} from 'reactstrap';
-import {FormStoreContext} from '../Context/FormContext';
+import {FormStoreContext, IStoreData} from '../Context/FormContext';
 import {FormStore} from '../Stores/formStore';
-import {IStoreData} from "../App.tsx";
 
 export interface IField {
     name: keyof IStoreData;

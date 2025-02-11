@@ -18,30 +18,28 @@ export const RadioField = withField<IWithFieldProps & IRadioInput>( (props:IRadi
 
 export const JSONField = observer( ({renderField, name, required = false } : { name : keyof IStoreData, renderField : Function, required? : boolean } ) : JSX.Element =>{
     const store = useContext(FormStoreContext);
-    const jsonInput = store.getValue(name);
-    if (Array.isArray(jsonInput) && jsonInput.length > 0) {
-        function handleAddNewInput() {
-            if (Array.isArray(jsonInput)){
-                store.pushValue(name, typeof jsonInput[0]==="number"? 0 : ``, jsonInput?.length);
-            }
+    const jsonFields = store.getValue(name);
+    if ( !(Array.isArray(jsonFields) && jsonFields.length > 0)) return <></>;
+    function handleAddNewInput() {
+        if (Array.isArray(jsonFields)){
+            store.pushValue(name, typeof jsonFields[0]==="number"? 0 : ``);
         }
-        return (
-            <>
-                {jsonInput.map((item, index) => {
-                    if ( index > 0 ) required = false;
-                    function removeInputBox() {
-                        store.removeItemFromArray(name, index);
-                    }
-                    return (
-                        <Fragment key={index}>
-                            {index > 0 && <Button onClick={removeInputBox} color={"danger"}> Delete </Button>}
-                            {renderField(item, index, name, required)}
-                        </Fragment>
-                    )
-                })}
-                <AddField handleAddNewInput={handleAddNewInput} disabled={store.isSubmitted} />
-            </>
-        );
     }
-    return <></>;
+    return (
+        <>
+            {jsonFields.map((item, index) => {
+                if ( index > 0 ) required = false;
+                function removeInputBox() {
+                    store.removeItemFromArray(name, index);
+                }
+                return (
+                    <Fragment key={index}>
+                        {index > 0 && <Button onClick={removeInputBox} color={"danger"}> Delete </Button>}
+                        {renderField(item, index, name, required)}
+                    </Fragment>
+                )
+            })}
+            <AddField handleAddNewInput={handleAddNewInput} disabled={store.isSubmitted} />
+        </>
+    );
 });

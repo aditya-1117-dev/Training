@@ -1,7 +1,7 @@
 import {observer} from "mobx-react-lite";
 import {Input} from "reactstrap";
-import {IStoreData} from "../../App.tsx";
 import {ChangeEvent} from "react";
+import {IStoreData} from "../../Context/FormContext.tsx";
 
 export interface ISelectInput {
     name: keyof IStoreData;
