@@ -2,7 +2,7 @@ import { Col, FormGroup, Input, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
 import {ChangeEventHandler} from "react";
 
-const CheckBox = ({id, value, onchange} :{id : number, value : boolean, onchange : ChangeEventHandler} ) => {
+const CheckBox = ({id, value, onchange} :{id? : number, value : boolean, onchange : ChangeEventHandler} ) => {
     return (
         <FormGroup>
             <Row key={id} className="align-items-center">

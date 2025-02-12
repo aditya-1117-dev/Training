@@ -1,4 +1,4 @@
-import {observable, action, computed, makeObservable} from 'mobx';
+import {observable, action, makeObservable} from 'mobx';
 
 class ListTableStore<T> {
     @observable data: T = {} as T;
@@ -7,9 +7,11 @@ class ListTableStore<T> {
     @observable totalPages: number = 1;
     @observable searchQuery: string = '';
     @observable url : string = "";
-    @observable selectedRows : number[] = [];
+    @observable selectedRows : boolean[] = [];
+    @observable selectAllCheck : boolean = false;
 
     private limit : number = 20;
+    private selectedRowsCount : number = 0;
     private debounceTimer: NodeJS.Timeout | null = null;
 
     constructor(url?: string, limit? :number) {
@@ -21,46 +23,58 @@ class ListTableStore<T> {
         if (limit){
             this.limit = limit
         }
+        this.selectedRows = new Array(this.limit);
+    }
+
+    isSelectAll(){
+        return this.selectAllCheck;
     }
 
     getKeyInData<K extends keyof T>( key : K ){
         return this.data[key];
     }
 
-    isSelected( value : number ): boolean  {
-        return this.selectedRows.includes(value);
+    isSelected( id : number ): boolean  {
+        return this.selectedRows[id];
     }
 
     @action
     updateSelection(id : number){
-        if (this.selectedRows.includes(id) ){
-            this.selectedRows = this.selectedRows.filter((val)=> val !== id);
+        if (this.selectedRows[id]){
+            this.selectedRows[id] = false;
+            this.selectedRowsCount--;
+            if (this.selectAllCheck) this.selectAllCheck = false;
         }else {
-            this.selectedRows.push(id);
-            if (this.selectedRows.length === this.limit){
-                this.selectedRows.push(11111111);
+            this.selectedRows[id] = true;
+            this.selectedRowsCount++;
+            if (this.selectedRowsCount === this.selectedRows.length){
+                this.selectAllCheck = true;
             }
         }
     }
 
     @action
     selectAll(){
-        for (let i = 0; i < this.limit ; i++){
-            if ( !this.selectedRows.includes(i) ){
-                this.selectedRows.push(i);
-            }
+        const array = this.selectedRows;
+        for (let i = 0; i < array.length ; i++){
+            if (!array[i]) array[i] = true;
         }
+        this.selectedRows = array;
+        this.selectAllCheck = true;
+        this.selectedRowsCount = this.selectedRows.length;
     }
 
     @action
     deSelectAll(){
-        this.selectedRows = [];
+        this.selectedRows = new Array(this.limit);
+        this.selectAllCheck = false;
+        this.selectedRowsCount = 0;
     }
 
     @action
     setData(data : any, page?: number ){
         this.data = data;
-        this.selectedRows = [];
+        this.deSelectAll();
         this.totalPages = Math.ceil( (Number(data.total) | 0) / (this.limit | 1) );
         if (page) this.page = page;
     }
@@ -101,8 +115,7 @@ class ListTableStore<T> {
         this.fetchData(currentPage).then();
     }
 
-    @computed
-    get isLoading() {
+    isLoading() {
         return this.loading;
     }
 }
