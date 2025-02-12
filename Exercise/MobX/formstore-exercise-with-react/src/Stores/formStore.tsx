@@ -85,9 +85,9 @@ export class FormStore<T> {
             if (Array.isArray(this.formData[key])) {
                 if(this.formData[key].length > 0){
                     if (typeof this.formData[key][0]==="number"){
-                        this.formData[key] = this.formData[key].map(()=> 0);
+                        this.formData[key] = this.formData[key].map(()=> 0) as T[typeof key] ;
                     }else if (typeof this.formData[key][0]==="string"){
-                        this.formData[key] = this.formData[key].map(()=> ``);
+                        this.formData[key] = this.formData[key].map(()=> ``) as T[typeof key];
                     }
                 }
             } else {

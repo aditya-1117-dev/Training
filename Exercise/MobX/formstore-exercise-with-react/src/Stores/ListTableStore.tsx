@@ -14,14 +14,14 @@ class ListTableStore<T> {
     private selectedRowsCount : number = 0;
     private debounceTimer: NodeJS.Timeout | null = null;
 
-    constructor(url?: string, limit? :number) {
+    constructor(url: string, limit? :number) {
         makeObservable(this);
         if (url){
             this.url = `${url}`;
             this.fetchData().then()
         }
         if (limit){
-            this.limit = limit
+            this.limit = limit ;
         }
         this.selectedRows = new Array(this.limit);
     }
