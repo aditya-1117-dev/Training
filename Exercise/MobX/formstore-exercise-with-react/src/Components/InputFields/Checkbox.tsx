@@ -1,17 +1,19 @@
 import { Col, FormGroup, Input, Label, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
 import {FormStore} from "../../Stores/formStore.tsx";
-import {IStoreData} from "../../Context/FormContext.tsx";
+import {IProductData} from "../../Context/FormContext.tsx";
 
 export interface ICheckbox {
-    name: keyof IStoreData;
+    name: keyof IProductData;
     disabled?: boolean;
     options?: { value: string, label: string }[];
-    store?: FormStore<IStoreData>;
+    store?: FormStore<IProductData>;
+    onChange? : any;
+    value? : any
 }
 
-const CheckBox = ({name, options, disabled, store}: ICheckbox) => {
-    const selectedValues = store?.getValue(name) as string[];
+const CheckBox = ({name, options, disabled, store, onChange, value}: ICheckbox) => {
+    const selectedValues = value;
 
     function handleCheckboxSelection(value: string) {
         if (Array.isArray(selectedValues)) {
@@ -31,8 +33,8 @@ const CheckBox = ({name, options, disabled, store}: ICheckbox) => {
                 <Row key={option.value} className="align-items-center">
                     <Col xs="auto">
                         <Input type="checkbox" disabled={disabled}
-                               onChange={() => handleCheckboxSelection(option.value)}
-                               checked={Array.isArray(selectedValues) ? selectedValues.includes(option.value) : false}/>
+                               onChange={() => store? handleCheckboxSelection(option.value) : onChange()}
+                               checked={store? (Array.isArray(selectedValues) ? selectedValues.includes(option.value) : false) : value }/>
                     </Col>
                     <Col><Label check>{option.label}</Label></Col>
                 </Row>
