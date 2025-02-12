@@ -1,62 +1,65 @@
 import {observable, action, makeObservable} from 'mobx';
 
 class ListTableStore<T> {
-    @observable data: T = {} as T;
+    @observable data: T[] = [];
     @observable loading: boolean = false;
     @observable page: number = 1;
     @observable totalPages: number = 1;
     @observable searchQuery: string = '';
-    @observable url : string = "";
-    @observable selectedRows : boolean[] = [];
-    @observable selectAllCheck : boolean = false;
+    @observable url: string = "";
+    @observable selectedRows: boolean[] = [];
+    @observable selectAllCheck: boolean = false;
 
-    private limit : number = 20;
-    private selectedRowsCount : number = 0;
+    private response: T = {} as T;
+    private keyForTableData: string = ``;
+    private limit: number = 20;
+    private selectedRowsCount: number = 0;
     private debounceTimer: NodeJS.Timeout | null = null;
 
-    constructor(url: string, limit? :number) {
+    constructor(url: string, keyForTableData?: string, limit?: number) {
         makeObservable(this);
-        if (url){
+        if (url) {
             this.url = `${url}`;
             this.fetchData().then()
         }
-        if (limit){
-            this.limit = limit ;
-        }
+        this.limit = limit || this.limit;
+        this.keyForTableData = keyForTableData || this.keyForTableData;
         this.selectedRows = new Array(this.limit);
     }
 
-    isSelectAll(){
+    isSelectAll() {
         return this.selectAllCheck;
     }
 
-    getKeyInData<K extends keyof T>( key : K ){
-        return this.data[key];
+    getKeyInData<K extends keyof T>(key: K) {
+        return key === this.keyForTableData ? this.data : this.response[key];
     }
 
-    isSelected( id : number ): boolean  {
+    isSelected(id: number): boolean {
         return this.selectedRows[id];
     }
 
     @action
-    updateSelection(id : number){
-        if (this.selectedRows[id]){
+    updateSelection(id: number) {
+        if (this.selectedRows[id]) {
             this.selectedRows[id] = false;
             this.selectedRowsCount--;
             if (this.selectAllCheck) this.selectAllCheck = false;
-        }else {
+        } else {
             this.selectedRows[id] = true;
             this.selectedRowsCount++;
-            if (this.selectedRowsCount === this.selectedRows.length){
-                this.selectAllCheck = true;
-            }
+            this.isAllRowSelected();
         }
     }
 
+    isAllRowSelected() {
+        this.selectAllCheck = (this.selectedRowsCount >= Math.min(this.selectedRows.length, this.data.length) );
+    }
+
     @action
-    selectAll(){
+    selectAll() {
         const array = this.selectedRows;
-        for (let i = 0; i < array.length ; i++){
+        for (let i = 0; i < array.length; i++) {
             if (!array[i]) array[i] = true;
         }
         this.selectedRows = array;
@@ -65,22 +68,23 @@ class ListTableStore<T> {
     }
 
     @action
-    deSelectAll(){
+    deSelectAll() {
         this.selectedRows = new Array(this.limit);
         this.selectAllCheck = false;
         this.selectedRowsCount = 0;
     }
 
     @action
-    setData(data : any, page?: number ){
-        this.data = data;
+    setData(data: any, page?: number) {
+        this.response = data;
+        this.data = data[this.keyForTableData] || this.data;
         this.deSelectAll();
-        this.totalPages = Math.ceil( (Number(data.total) | 0) / (this.limit | 1) );
+        this.totalPages = Math.ceil((Number(data.total) | 0) / (this.limit | 1));
         if (page) this.page = page;
     }
 
     @action
-    setLoading(status : boolean){
+    setLoading(status: boolean) {
         this.loading = status
     }
 
@@ -88,9 +92,9 @@ class ListTableStore<T> {
     async fetchData(page: number = 1) {
         this.setLoading(true);
         try {
-            const response = await fetch(`${this.url}/search?q=${this.searchQuery}&limit=${this.limit}&skip=${(page-1)*this.limit}`);
+            const response = await fetch(`${this.url}/search?q=${this.searchQuery}&limit=${this.limit}&skip=${(page - 1) * this.limit}`);
             const data = await response.json();
-            this.setData(data, page )
+            this.setData(data, page)
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
@@ -99,7 +103,7 @@ class ListTableStore<T> {
     }
 
     @action
-    setSearchQuery(query: string, delay : number = 1000) {
+    setSearchQuery(query: string, delay: number = 1000) {
         this.searchQuery = query;
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
@@ -110,7 +114,7 @@ class ListTableStore<T> {
     }
 
     @action
-    setCurrentPage( currentPage : number){
+    setCurrentPage(currentPage: number) {
         this.page = currentPage;
         this.fetchData(currentPage).then();
     }

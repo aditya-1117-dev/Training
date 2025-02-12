@@ -17,7 +17,7 @@ const ListTable = ({columns, name}: any) => {
     }
 
     function handleSelectAll() {
-        !store.isSelectAll() ? store.selectAll() : store.deSelectAll();
+        selectAll ? store.deSelectAll() : store.selectAll();
     }
 
     return (
