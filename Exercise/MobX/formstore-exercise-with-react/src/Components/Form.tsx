@@ -1,15 +1,14 @@
-import {FormStoreContext} from "../Context/FormContext.tsx";
+import {FormStoreContext, IProductData} from "../Context/FormContext.tsx";
 import {Button, Col, Form as ReactStrapForm, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
 import {ReactNode} from "react";
 import {FormStore} from "../Stores/formStore.tsx";
-import {IStoreData} from "../App.tsx";
 
 interface IForm {
     showSaveButton?: boolean,
     showResetButton?: boolean,
     children: ReactNode,
-    formStore: FormStore<IStoreData>
+    formStore: FormStore<IProductData>
 }
 
 function Form({showSaveButton, showResetButton, children, formStore}: IForm) {
@@ -32,5 +31,4 @@ function Form({showSaveButton, showResetButton, children, formStore}: IForm) {
         </FormStoreContext.Provider>
     )
 }
-// Component for conditional rendering
 export default observer(Form);

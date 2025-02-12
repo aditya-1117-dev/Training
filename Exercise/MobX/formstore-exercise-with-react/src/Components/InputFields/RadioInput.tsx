@@ -1,13 +1,13 @@
 import {FormGroup, Input, Label} from "reactstrap";
 import {observer} from "mobx-react-lite";
 import {FormStore} from "../../Stores/formStore.tsx";
-import {IStoreData} from "../../Context/FormContext.tsx";
+import {IProductData} from "../../Context/FormContext.tsx";
 
 export interface IRadioInput {
-    name: keyof IStoreData;
+    name: keyof IProductData;
     disabled?: boolean;
     options?: { value: string, label: string }[];
-    store?: FormStore<IStoreData>;
+    store?: FormStore<IProductData>;
 }
 
 const RadioInput = ({name, options, disabled, store}: IRadioInput) => {
@@ -15,7 +15,8 @@ const RadioInput = ({name, options, disabled, store}: IRadioInput) => {
         <FormGroup>
             {options?.map((option) => (
                 <FormGroup check key={option.value} disabled={disabled}>
-                    <Input type="radio" checked={store?.getValue(name) === option.value} onChange={() => store?.setValue(name, option.value)} disabled={disabled}/>
+                    <Input type="radio" checked={store?.getValue(name) === option.value}
+                           onChange={() => store?.setValue(name, option.value)} disabled={disabled}/>
                     <Label check>{option.label}</Label>
                 </FormGroup>
             ))}

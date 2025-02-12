@@ -1,10 +1,10 @@
 import {ChangeEvent} from 'react';
 import {observer} from 'mobx-react-lite';
 import {Input as ReactStrapInput} from 'reactstrap';
-import {IStoreData} from "../../App.tsx";
+import {IProductData} from "../../Context/FormContext.tsx";
 
 export interface IStringInput {
-    name: keyof IStoreData;
+    name: keyof IProductData;
     value?:  string;
     required: boolean;
     disabled?: boolean;
