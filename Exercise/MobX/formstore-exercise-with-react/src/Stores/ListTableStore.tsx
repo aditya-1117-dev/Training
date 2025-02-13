@@ -18,13 +18,11 @@ class ListTableStore<T> {
 
     constructor(url: string, keyForTableData?: string, limit?: number) {
         makeObservable(this);
-        if (url) {
-            this.url = `${url}`;
-            this.fetchData().then()
-        }
+        this.url = url ;
         this.limit = limit || this.limit;
         this.keyForTableData = keyForTableData || this.keyForTableData;
-        this.selectedRows = new Array(this.limit);
+        this.selectedRows = new Array(this.limit).fill(false);
+        if (this.url) this.fetchData().then();
     }
 
     isSelectAll() {
@@ -69,7 +67,7 @@ class ListTableStore<T> {
 
     @action
     deSelectAll() {
-        this.selectedRows = new Array(this.limit);
+        this.selectedRows.fill(false);
         this.selectAllCheck = false;
         this.selectedRowsCount = 0;
     }
@@ -92,7 +90,7 @@ class ListTableStore<T> {
     async fetchData(page: number = 1) {
         this.setLoading(true);
         try {
-            const response = await fetch(`${this.url}/search?q=${this.searchQuery}&limit=${this.limit}&skip=${(page - 1) * this.limit}`);
+            const response = await fetch(`${this.url}/search?q=${this.searchQuery}&limit=${this.limit}&skip=${(page-1)*this.limit}`);
             const data = await response.json();
             this.setData(data, page)
         } catch (error) {

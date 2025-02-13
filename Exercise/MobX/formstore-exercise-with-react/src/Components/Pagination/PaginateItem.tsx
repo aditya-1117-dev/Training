@@ -10,17 +10,23 @@ interface IPaginateItem{
     linkProp? : "" | "first" | "previous" | "next" | "last"
 }
 function PaginateItem({value, onClick, disabled=false, active=false, linkProp = ""} : IPaginateItem ) {
+    const paginationLink = () => {
+        switch (linkProp) {
+            case "first":
+                return <PaginationLink first onClick={onClick} />;
+            case "previous":
+                return <PaginationLink previous onClick={onClick} />;
+            case "next":
+                return <PaginationLink next onClick={onClick} />;
+            case "last":
+                return <PaginationLink last onClick={onClick} />;
+            default:
+                return <PaginationLink onClick={onClick}>{value}</PaginationLink>;
+        }
+    }
     return (
         <PaginationItem disabled={disabled} active={active}>
-            {linkProp === ""
-                ? <PaginationLink onClick={onClick}> {value}</PaginationLink>
-                : linkProp === "first"
-                    ? <PaginationLink first onClick={onClick} />
-                    : linkProp === "previous"
-                        ? <PaginationLink previous onClick={onClick} />
-                        : linkProp === "next"
-                            ? <PaginationLink next onClick={onClick} />
-                            : <PaginationLink last onClick={onClick} /> }
+            {paginationLink()}
         </PaginationItem>
     )
 }
