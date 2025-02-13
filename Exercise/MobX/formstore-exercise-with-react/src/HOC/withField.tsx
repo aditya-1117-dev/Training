@@ -23,20 +23,21 @@ export interface IWithFieldProps extends IBaseField {
 function withField<T extends IWithFieldProps>(WrappedComponent: (props: T) => JSX.Element) {
     return (props: T) => {
         const store = useContext(formStoreContext) || props?.store;
-        if (!store.hasKey(props.name) ) return <>"Error"</>;
+        if (!store.hasKey(props.name)) return <h6>Given field is not initialized</h6>;
         return (
             <Field label={props.label}
                    store={store} name={props.name} required={props.required}
                    index={props.index}
                    callBack={props?.onChange}
-                   inputFieldComponent={ (inputProps : { name: keyof T["store"], required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>) => void ) => (
+                   inputFieldComponent={(inputProps: { name: keyof T["store"], required: boolean },
+                                         handleChange: (e: ChangeEvent<HTMLInputElement>) => void) => (
                        <WrappedComponent {...props} index={props.index}
                                          store={store} {...inputProps}
                                          disabled={store.isSubmitted}
-                                         value={typeof props?.index ==="number"
+                                         value={typeof props?.index === "number"
                                              ? store.getValue(props.name, props.index)
-                                             : store.getValue(props.name) }
-                                         onChange={handleChange} />
+                                             : store.getValue(props.name)}
+                                         onChange={handleChange}/>
                    )}
             />
         )

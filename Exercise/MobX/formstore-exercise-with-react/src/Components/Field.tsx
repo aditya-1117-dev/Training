@@ -34,9 +34,11 @@ function Field({name, label, store, required, inputFieldComponent, callBack, ind
     return (
         <FormGroup row>
             <Label for={name} sm={4}>
-                {label}
-                {required && !index
-                    && <span style={{color: "red"}}>*</span>}
+                {!index &&
+                    <>
+                        {label}
+                        {required && <span style={{color: "red"}}>*</span>}
+                    </>}
             </Label>
             <Col sm={8}>
                 {inputFieldComponent(inputProps, handleChange)}
