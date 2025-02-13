@@ -1,13 +1,18 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {observer} from "mobx-react-lite";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
 import ProductForm from "./Components/ProductForm.tsx";
 import ProductTable from "./Components/ProductTable.tsx";
 
 function App() {
     return (
         <BrowserRouter>
+            <Link to={"/product-table"} >
+                Link to Product Table Page
+            </Link> <br/> <br/>
+
+            <h2> Add New Product Form </h2>
             <Routes>
                 <Route path="/" element={ <ProductForm />}/>
                 <Route path={"/product-table"} element={<ProductTable/> }/>
