@@ -1,7 +1,7 @@
 import {FormGroup, Input, Label} from "reactstrap";
 import {observer} from "mobx-react-lite";
 import {FormStore} from "../../Stores/formStore.tsx";
-import {IProductData} from "../../Context/FormContext.tsx";
+import {IProductData} from "../ProductForm.tsx";
 
 export interface IRadioInput {
     name: keyof IProductData;

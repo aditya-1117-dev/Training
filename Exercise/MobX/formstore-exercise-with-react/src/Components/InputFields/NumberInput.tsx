@@ -1,25 +1,39 @@
 import {ChangeEvent} from 'react';
 import {observer} from 'mobx-react-lite';
 import {Input as ReactStrapInput} from 'reactstrap';
-import {IProductData} from "../../Context/FormContext.tsx";
+import {FormStore} from "../../Stores/formStore.tsx";
+import {IProductData} from "../ProductForm.tsx";
 
 export interface INumberInput {
     name: keyof IProductData;
-    value?: number | string;
+    value?: number;
     required: boolean;
     disabled?: boolean;
     onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
     min? : number;
     max? : number;
+    store? : FormStore<IProductData>;
 }
 
-function NumberInput({name, value, onChange, disabled, required, min, max}: INumberInput) {
+function NumberInput({name, value, onChange, disabled, required, min, max, store}: INumberInput) {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (onChange) {
+            onChange(e);
+        }
+        if ( e.target.value.trim().length && store) {
+            if (max && Number(e.target.value) > max) {
+                store.setError(name, `Maximum limit is ${max}`);
+            } else if (min && Number(e.target.value) < min) {
+                store.setError(name, `Minimum limit is ${min}`);
+            }
+        }
+    };
     return (
         <ReactStrapInput
             type="number"
-            name={name}
+            name={name as string}
             value={value}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange ? onChange(e) : e }
+            onChange={handleChange}
             disabled={disabled}
             required={required}
             min={min} max={max}

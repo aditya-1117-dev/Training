@@ -6,9 +6,10 @@ import NumberInput, {INumberInput} from "./InputFields/NumberInput.tsx";
 import StringInput, {IStringInput} from "./InputFields/StringInput.tsx";
 import {Fragment, useContext} from "react";
 import AddField from "./AddField.tsx";
-import {FormStoreContext, IProductData} from "../Context/FormContext.tsx";
+import {formStoreContext} from "../Context/formContext.tsx";
 import {observer} from "mobx-react-lite";
 import {Button, Col, Row} from "reactstrap";
+import {IProductData} from "./ProductForm.tsx";
 
 interface IJSONField{
     name: keyof IProductData,
@@ -26,30 +27,30 @@ export const CheckField = withField<IWithFieldProps & ICheckbox>((props: ICheckb
 export const RadioField = withField<IWithFieldProps & IRadioInput>((props: IRadioInput) => <RadioInput {...props} />);
 
 export const JSONField = observer(({renderField, name, required = false}: IJSONField): JSX.Element => {
-    const store = useContext(FormStoreContext);
+    const store = useContext(formStoreContext);
     const jsonFields = store.getValue(name);
+    const isFormSubmitted = store.isSubmitted;
     if (!(Array.isArray(jsonFields) && jsonFields.length > 0)) return <></>;
 
     function handleAddNewInput() {
         if (Array.isArray(jsonFields)) {
-            store.pushValue(name, typeof jsonFields[0] === "number" ? 0 : ``);
+            store.pushValue(name, ``);
         }
     }
 
-    function removeInputBox(index: number) {
+    function removeInputField(index: number) {
         store.removeItemFromArray(name, index);
     }
 
     return (
         <>
             {jsonFields.map((item, index) => {
-                if (index > 0) required = false;
                 return (
                     <Fragment key={index}>
                         <Row>
-                            <Col md={8}>{renderField(item, index, name, required)}</Col>
+                            <Col md={8}> {renderField(item, index, name, required)} </Col>
                             <Col md={4}>{index > 0 &&
-                                <Button onClick={() => removeInputBox(index)} color={"danger"}> Delete </Button>}</Col>
+                                <Button onClick={() => removeInputField(index)} color={"danger"} disabled={isFormSubmitted} > Delete </Button>}</Col>
                         </Row>
                     </Fragment>
                 )

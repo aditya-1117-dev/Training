@@ -1,7 +1,7 @@
 import { Col, FormGroup, Input, Label, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
 import {FormStore} from "../../Stores/formStore.tsx";
-import {IProductData} from "../../Context/FormContext.tsx";
+import {IProductData} from "../ProductForm.tsx";
 
 export interface ICheckbox {
     name: keyof IProductData;
@@ -26,7 +26,6 @@ const CheckBox = ({name, options, disabled, store, onChange, value}: ICheckbox) 
             store?.setValue(name, array);
         }
     }
-
     return (
         <FormGroup>
             {options?.map((option) => (
@@ -34,7 +33,7 @@ const CheckBox = ({name, options, disabled, store, onChange, value}: ICheckbox) 
                     <Col xs="auto">
                         <Input type="checkbox" disabled={disabled}
                                onChange={() => store? handleCheckboxSelection(option.value) : onChange()}
-                               checked={store? (Array.isArray(selectedValues) ? selectedValues.includes(option.value) : false) : value }/>
+                               checked={store? (Array.isArray(selectedValues) ? selectedValues.includes(option.value) : false) : Boolean(value) }/>
                     </Col>
                     <Col><Label check>{option.label}</Label></Col>
                 </Row>

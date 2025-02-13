@@ -1,7 +1,8 @@
 import Field from "../Components/Field.tsx";
 import {ChangeEvent, useContext} from "react";
-import {FormStoreContext, IProductData} from "../Context/FormContext.tsx";
+import {formStoreContext} from "../Context/formContext.tsx";
 import {FormStore} from "../Stores/formStore.tsx";
+import {IProductData} from "../Components/ProductForm.tsx";
 
 interface IBaseField {
     name: keyof IProductData;
@@ -21,13 +22,21 @@ export interface IWithFieldProps extends IBaseField {
 
 function withField<T extends IWithFieldProps>(WrappedComponent: (props: T) => JSX.Element) {
     return (props: T) => {
-        const store = useContext(FormStoreContext) || props?.store;
+        const store = useContext(formStoreContext) || props?.store;
         if (!store.hasKey(props.name) ) return <>"Error"</>;
         return (
-            <Field label={props.label} store={store} name={props.name} required={props.required} index={props.index}
-                   onChange={props?.onChange}
+            <Field label={props.label}
+                   store={store} name={props.name} required={props.required}
+                   index={props.index}
+                   callBack={props?.onChange}
                    inputFieldComponent={ (inputProps : { name: keyof T["store"], required: boolean }, handleChange : (e: ChangeEvent<HTMLInputElement>) => void ) => (
-                       <WrappedComponent {...props} store={store} {...inputProps} disabled={store.isSubmitted} value={typeof props?.index ==="number" ? store.getValue(props.name, props.index) : store.getValue(props.name) } onChange={handleChange} />
+                       <WrappedComponent {...props} index={props.index}
+                                         store={store} {...inputProps}
+                                         disabled={store.isSubmitted}
+                                         value={typeof props?.index ==="number"
+                                             ? store.getValue(props.name, props.index)
+                                             : store.getValue(props.name) }
+                                         onChange={handleChange} />
                    )}
             />
         )
