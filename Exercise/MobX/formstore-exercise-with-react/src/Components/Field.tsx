@@ -43,9 +43,9 @@ function Field({name, label, store, required, inputFieldComponent, callBack, ind
             <Col sm={8}>
                 {inputFieldComponent(inputProps, handleChange)}
                 {<p className={'text-danger'}>
-                        {typeof index === "number"
-                            ? formStore.getErrorMessage(name, index)
-                            : formStore.getErrorMessage(name)}
+                    {typeof index === "number"
+                        ? formStore.getErrorMessage(name, index)
+                        : formStore.getErrorMessage(name)}
                 </p>}
             </Col>
         </FormGroup>
