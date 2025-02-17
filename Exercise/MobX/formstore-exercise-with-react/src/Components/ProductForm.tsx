@@ -1,63 +1,83 @@
-import {CheckField, NumberField, RadioField, SelectField, StringField} from "./InputFields.tsx";
 import Form from "./Form.tsx";
 import {FormStore} from "../Stores/formStore.tsx";
-import StringInput from "./InputFields/StringInput.tsx";
 import {observer} from "mobx-react-lite";
-import NumberInput from "./InputFields/NumberInput.tsx";
+import {CheckField, NumberField, RadioField, SelectField, StringField} from "./InputFields.tsx";
 import {JSONField} from "./JSONFields.tsx";
+import StringInput from "./InputFields/StringInput.tsx";
+import NumberInput from "./InputFields/NumberInput.tsx";
+import {Link} from "react-router-dom";
 
 export interface IProductData {
     productName: string,
-    productDescription : string,
-    name : string,
-    imageLink : string,
+    productDescription: string,
+    name: string,
+    imageLink: string,
     price: number,
     country: string[],
     category: "beauty" | "mobile" | "laptop",
     gender: "Male" | "Female",
-    stringField : string[],
-    numbers : number[],
+    stringField: string[],
+    numbers: number[],
 }
-export const formData : IProductData = {
+export const formData: IProductData = {
     productName: "",
     imageLink: "",
-    productDescription : "",
-    name : "",
+    productDescription: "",
+    name: "",
     price: 10,
     category: "mobile",
     gender: "Male",
     country: ["IND"],
-    stringField : ["a", "b"],
-    numbers : [1,2,3]
+    stringField: ["a", "b"],
+    numbers: [1, 2, 3]
 }
 export const formStore = new FormStore<IProductData>(formData);
-formStore.setOnSubmitCallBack(( data : any) => {
+formStore.setOnSubmitCallBack((data: any) => {
     const storedProducts = JSON.parse(localStorage.getItem(`${0}`) || "[]");
     if (data) storedProducts.push({...data});
-    localStorage.setItem(`${0}`,JSON.stringify(storedProducts) )
+    localStorage.setItem(`${0}`, JSON.stringify(storedProducts))
 });
 
 function ProductForm() {
     const selectFieldOptions = [{value: '', label: 'Select Category'}, {value: 'beauty', label: 'BEAUTY'},
         {value: 'mobile', label: 'MOBILE'}, {value: 'laptop', label: 'LAPTOP'}]
     const radioFieldOptions = [{value: 'Male', label: 'Male'}, {value: 'Female', label: 'Female'}]
-    const checkFieldOptions = [{value: 'IND', label: 'IND'}, {value: 'UK', label: 'UK'}]
+    const checkFieldOptions = [{value: 'IND', label: 'IND'}, {value: 'UK', label: 'UK'}];
+
+    function handleAddNewInput(name : keyof IProductData) {
+        if (Array.isArray(formStore.getValue(name))) {
+            formStore.pushValue(name, ``);
+        }
+    }
+
+    function removeInputField(index: number, name : keyof IProductData) {
+        formStore.removeItemFromArray(name, index);
+    }
+
     return (
-        <Form showResetButton={true} showSaveButton={false} formStore={formStore}>
-            <StringField name="productName" label="Product Name" required={true} min={2} max={5}/>
-            <StringField name="productDescription" label="Product Description" required={true} min={2} max={40}/>
-            <NumberField name="price" label="Price of the product" required={true} min={10} max={50}/>
-            <StringField name="imageLink" label="Image Link" required={false} />
+        <>
+            <Link to={"/product-table"}>
+                Link to Product Table Page
+            </Link> <br/> <br/>
 
-            <JSONField name="stringField" required={true} label={"String Input"}
-                       RenderField={(props : any) => <StringInput {...props} /> }/>
-            <JSONField name="numbers" required={true} label={"Number Input"}
-                       RenderField={(props : any) => <NumberInput {...props} /> }/>
+            <h2> Add New Product Form </h2>
+            <Form showResetButton={true} showSaveButton={false} formStore={formStore}>
+                <StringField name="productName" label="Product Name" required={true} min={2} max={5}/>
+                <StringField name="productDescription" label="Product Description" required={true} min={2} max={40}/>
+                <NumberField name="price" label="Price of the product" required={true} min={10} max={50}/>
+                <StringField name="imageLink" label="Image Link" required={false}/>
 
-            <SelectField label="Select Category of product :" name="category" required={true} options={selectFieldOptions}/>
-            <RadioField label="Gender" name="gender" required={true} options={radioFieldOptions}/>
-            <CheckField label="Country" name="country" required={true} options={checkFieldOptions}/>
-        </Form>
+                <JSONField name="stringField" required={true} label={"String Input"} jsonFields={formStore.getValue("stringField")}
+                           isSubmitted={formStore.isSubmitted} handleAddNewInput={handleAddNewInput} removeInputField={removeInputField} RenderField={(props: any) => <StringInput {...props} />}/>
+                <JSONField name="numbers" required={true} label={"Number Input"} jsonFields={formStore.getValue("numbers")}
+                           isSubmitted={formStore.isSubmitted} handleAddNewInput={handleAddNewInput} removeInputField={removeInputField} RenderField={(props: any) => <NumberInput {...props} />}/>
+
+                <SelectField label="Select Category of product :" name="category" required={true}
+                             options={selectFieldOptions}/>
+                <RadioField label="Gender" name="gender" required={true} options={radioFieldOptions}/>
+                <CheckField label="Country" name="country" required={true} options={checkFieldOptions}/>
+            </Form>
+        </>
     )
 }
 export default observer(ProductForm)

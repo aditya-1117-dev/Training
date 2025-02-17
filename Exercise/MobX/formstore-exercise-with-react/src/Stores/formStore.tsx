@@ -1,27 +1,29 @@
 import {action, makeObservable, observable} from "mobx";
 
 export class FormStore<T> {
-    @observable formData: T ;
+    @observable formData: T;
     @observable validateKeys: { [K in keyof T]: boolean | boolean[] } = {} as { [K in keyof T]: boolean };
-    @observable errors: Record<keyof T, string | string[]>  = {} as { [K in keyof T] : string | string[] };
+    @observable errors: Record<keyof T, string | string[]> = {} as { [K in keyof T]: string | string[] };
     @observable isSubmitted: boolean = false;
-    @observable onSubmit: Function = () => {};
     private errorMessage: string = "REQUIRED";
 
     constructor(initialState: T, onSubmit?: Function) {
         makeObservable(this);
         this.formData = initialState;
         if (onSubmit) {
-            this.onSubmit =  onSubmit;
+            this.onSubmit = onSubmit;
         }
     }
 
+    @observable onSubmit: Function = () => {
+    };
+
     @action
-    setError(key : keyof T, error : string){
+    setError(key: keyof T, error: string) {
         this.errors[key] = error;
     }
 
-    getErrorMessage(key : keyof T, index? : number){
+    getErrorMessage(key: keyof T, index?: number) {
         return (typeof index === "number" && Array.isArray(this.errors[key]))
             ? this.errors[key][index]
             : this.errors[key]
@@ -42,16 +44,16 @@ export class FormStore<T> {
 
     @action
     setValue<K extends keyof T>(key: K, value: T[K], index?: number) {
-        if (typeof index === "number"){
-            if(Array.isArray(this.formData[key])) {
+        if (typeof index === "number") {
+            if (Array.isArray(this.formData[key])) {
                 this.formData[key][index] = value
             }
-            if (Array.isArray(this.errors[key]) && this.errors[key][index]){
+            if (Array.isArray(this.errors[key]) && this.errors[key][index]) {
                 this.errors[key][index] = ``;
             }
-        }else {
+        } else {
             this.formData[key] = value;
-            if (this.errors[key]){
+            if (this.errors[key]) {
                 this.errors[key] = "";
             }
         }
@@ -91,11 +93,11 @@ export class FormStore<T> {
     @action
     resetForm() {
         for (const key in this.formData) {
-            if( Array.isArray(this.formData[key]) ) {
+            if (Array.isArray(this.formData[key])) {
                 (this.validateKeys[key] === true)
                     ? this.formData[key] = [] as T[typeof key] // check-box array
                     : this.formData[key] = this.formData[key].map(() => ``) as T[typeof key] // JSON Array
-            }else{
+            } else {
                 this.formData[key] = "" as T[typeof key];
             }
         }
@@ -128,24 +130,23 @@ export class FormStore<T> {
 
         for (const key in this.formData) {
             if (!this.validateKeys[key]) continue;
-            if ( !Array.isArray(this.errors[key]) && this.errors[key]) valid = false;
+            if (!Array.isArray(this.errors[key]) && this.errors[key]) valid = false;
 
-            if (!Array.isArray(this.validateKeys[key]) && Array.isArray(this.formData[key]) ) { // for checkbox
+            if (!Array.isArray(this.validateKeys[key]) && Array.isArray(this.formData[key])) { // for checkbox
                 if (this.formData[key].length === 0) {
                     this.errors[key] = this.errorMessage;
                     valid = false;
                 }
-            }
-            else if (Array.isArray(this.formData[key])) { // for JSON input & checkbox
-                if (!Array.isArray(this.errors[key])){
+            } else if (Array.isArray(this.formData[key])) { // for JSON input & checkbox
+                if (!Array.isArray(this.errors[key])) {
                     this.errors[key] = new Array(this.formData[key].length);
                 }
-                this.formData[key].map((value, idx)=>{
+                this.formData[key].map((value, idx) => {
                     if (value !== ``) {
                         this.errors[key][idx] = ``;
                         return;
                     }
-                    this.errors[key][idx] = this.errorMessage ;
+                    this.errors[key][idx] = this.errorMessage;
                     valid = false;
                 })
             } else if (!this.formData[key]?.toString()?.trim()?.length) { // for string, numbers

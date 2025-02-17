@@ -1,54 +1,45 @@
 import {observer} from "mobx-react-lite";
-import {Fragment, useContext} from "react";
-import {formStoreContext} from "../Context/formContext.tsx";
 import withField from "../HOC/withField.tsx";
 import {Button, Col, Row} from "reactstrap";
 import AddField from "./AddField.tsx";
 import {IProductData} from "./ProductForm.tsx";
 
-interface IJSONField{
+interface IJSONField {
     name: keyof IProductData,
-    RenderField: (props : any)=>JSX.Element,
+    RenderField: (props: any) => JSX.Element,
     required?: boolean,
-    label? : string
+    label?: string,
+    jsonFields : any,
+    isSubmitted? : boolean,
+    handleAddNewInput: any,
+    removeInputField : any
 }
 
-export const JSONField = observer(({RenderField, name, required = false, label}: IJSONField): JSX.Element => {
-    const store = useContext(formStoreContext);
-    const jsonFields = store.getValue(name);
-    const isFormSubmitted = store.isSubmitted;
-    if (!(Array.isArray(jsonFields) && jsonFields.length > 0)) return <></>;
-
-    function handleAddNewInput() {
-        if (Array.isArray(jsonFields)) {
-            store.pushValue(name, ``);
-        }
-    }
-
-    function removeInputField(index: number) {
-        store.removeItemFromArray(name, index);
-    }
-
-    const RenderComponent = withField( (props: any) => <RenderField {...props} /> );
-
+export const JSONField = observer(({RenderField, name, required = false, label, jsonFields, isSubmitted, handleAddNewInput, removeInputField }: IJSONField): JSX.Element => {
+    const RenderComponent = withField((props: any) => {
+        const isFormSubmitted = props.store.isSubmitted;
+        if (!(Array.isArray(jsonFields) && jsonFields.length > 0)) return <></>;
+        return (
+            <Row>
+                <Col md={8}>
+                    <RenderField {...props} />
+                </Col>
+                <Col md={4}>{props.index > 0 &&
+                    <Button onClick={() => removeInputField(props.index, name)} color={"danger"}
+                            disabled={isFormSubmitted}> Delete </Button>}</Col>
+            </Row>
+        )
+    } );
     return (
         <>
-            {jsonFields.map( (item, index) => {
+            {jsonFields.map((item: any, index : number) => {
                 return (
-                    <Fragment key={index}>
-                        <Row>
-                            <Col md={8}>
-                                <RenderComponent label={label}
-                                                 name={name} required={required}
-                                                 index={index}/>
-                            </Col>
-                            <Col md={4}>{index > 0 &&
-                                <Button onClick={() => removeInputField(index)} color={"danger"} disabled={isFormSubmitted} > Delete </Button>}</Col>
-                        </Row>
-                    </Fragment>
+                    <RenderComponent key={index} label={label}
+                                     name={name} required={required}
+                                     index={index} />
                 )
             })}
-            <AddField handleAddNewInput={handleAddNewInput} disabled={store.isSubmitted}/>
+            <AddField handleAddNewInput={()=> handleAddNewInput(name)} disabled={isSubmitted}/>
         </>
     );
 });
