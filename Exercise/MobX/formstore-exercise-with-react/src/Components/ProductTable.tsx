@@ -1,12 +1,12 @@
 import ListTable from "./ListTable.tsx";
 import {ListTableStoreContext} from "../Context/ListTableContext.tsx";
 import ListTableStore from "../Stores/ListTableStore.tsx";
-import {IFetchedProducts} from "../types/tableType.tsx";
 import {Link} from "react-router-dom";
 import {CardImg} from "reactstrap";
+import {IProduct} from "../types/tableType.tsx";
 
 const baseUrl: string = `https://dummyjson.com/products`;
-export const ProductTableStore: ListTableStore<IFetchedProducts> = new ListTableStore<IFetchedProducts>(baseUrl, "products", 5);
+export const ProductTableStore: ListTableStore<IProduct> = new ListTableStore<IProduct>(baseUrl, "products", 5);
 
 export default function ProductTable() {
     const columns = [
@@ -17,7 +17,8 @@ export default function ProductTable() {
         { name: "thumbnail", display: "Image",
             render: ( row: any) => <CardImg src={row?.thumbnail} alt={row?.title} style={{ width: "8em", height: "8em" }} /> },
         { name: "dimensions", display: "Width",
-            render: ( row: any) => row?.dimensions?.width } // Nested object rendering
+            render: ( row: any) => row?.dimensions?.width }, // Nested object rendering
+        { name: "dimensions.height", display: "Height"} // Nested object rendering from st
     ];
 
     return (
