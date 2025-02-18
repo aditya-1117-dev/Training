@@ -71,7 +71,7 @@ export class FormStore<T> {
     @action
     removeItemFromArray<K extends keyof T>(key: K, index: number) {
         if (Array.isArray(this.formData[key])) {
-            this.formData[key] = this.formData[key].filter((value: T[K], idx) => index != idx) as T[K];
+            this.formData[key] = this.formData[key].filter(( _ , idx) => index != idx) as T[K];
         }
     }
 
@@ -143,10 +143,10 @@ export class FormStore<T> {
                 }
                 this.formData[key].map((value, idx) => {
                     if (value !== ``) {
-                        this.errors[key][idx] = ``;
+                        (this.errors[key] as string[])[idx] = ``;
                         return;
                     }
-                    this.errors[key][idx] = this.errorMessage;
+                    (this.errors[key] as string[])[idx] = this.errorMessage;
                     valid = false;
                 })
             } else if (!this.formData[key]?.toString()?.trim()?.length) { // for string, numbers

@@ -1,6 +1,6 @@
 import {action, makeObservable, observable} from 'mobx';
 
-class ListTableStore<T> {
+class ListTableStore<T extends {id : number}> {
     @observable data: T[] = [];
     @observable loading: boolean = false;
     @observable page: number = 1;
@@ -53,7 +53,7 @@ class ListTableStore<T> {
 
     @action
     selectAll() {
-        this.data.forEach((item) => {
+        this.data.forEach((item : T) => {
             if (!this.selectedRows.includes(item.id)) {
                 this.selectedRows.push(item.id);
             }
@@ -62,7 +62,7 @@ class ListTableStore<T> {
 
     @action
     deSelectAll() {
-        this.data.forEach((item) => {
+        this.data.forEach((item : T) => {
             const index = this.selectedRows.indexOf(item.id);
             if (index !== -1) {
                 this.selectedRows.splice(index, 1);
@@ -73,7 +73,7 @@ class ListTableStore<T> {
     @action
     setData(data: any, page?: number) {
         this.response = data;
-        this.data = data[this.keyForTableData] || this.data;
+        this.data = data[this.keyForTableData] || data;
         this.totalPages = Math.ceil((Number(data.total) | 0) / (this.limit | 1));
         if (page) this.page = page;
     }
