@@ -1,8 +1,8 @@
 import {Nav, Navbar, NavbarBrand, NavItem } from "reactstrap";
 import {NavLink} from "react-router-dom";
 import {useContext} from "react";
-import { UserContext } from "../../../App.tsx";
-import DropdownItems from "../Dropdown/DropdownItems.tsx";
+import { UserContext } from "../../App.tsx";
+import DropdownItems from "../DropdownItems.tsx";
 
 export default function NavbarComponent({users}) {
     const [currentUser, setCurrentUser] = useContext(UserContext);
@@ -16,6 +16,9 @@ export default function NavbarComponent({users}) {
                 </NavItem>
                 <NavItem>
                     <NavLink to="/cart" className="nav-link">{currentUser!=="" && currentUser+`'s`}  Cart</NavLink>
+                </NavItem>
+                <NavItem>
+                    <NavLink to="/add-product" className="nav-link"> Add New Product </NavLink>
                 </NavItem>
 
                 <DropdownItems

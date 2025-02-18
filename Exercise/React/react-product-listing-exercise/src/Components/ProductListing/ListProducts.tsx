@@ -3,8 +3,8 @@ import { Col, Row} from "reactstrap";
 import PaginationComponent from "../Pagination/Pagination.tsx";
 import ProductCard from "./ProductCard.tsx";
 import {IListProducts} from "../../Types/returnTypes.tsx";
-import Loader from "../Loader/Loader.tsx";
-import DropdownItems from "../Dropdown/DropdownItems.tsx";
+import Loader from "../Loader.tsx";
+import DropdownItems from "../DropdownItems.tsx";
 
 export default function ListProducts({ loading, totalPages, products, currentPage, setCurrentPage, limit, setLimit} : IListProducts ) {
     function onPageChange(page : number) {

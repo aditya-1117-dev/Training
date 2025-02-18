@@ -2,10 +2,10 @@ import {useFormInputBox} from "../../Utility/CustomHooks/formInput.tsx";
 import {ChangeEvent, FC, useState} from "react";
 import "./Home.css";
 import useFetch from "../../Utility/CustomHooks/fetchData.tsx";
-import ListProducts from "../../Utility/ProductListing/ListProducts.tsx";
+import ListProducts from "../../Components/ProductListing/ListProducts.tsx";
 import {IFetchedCategories, IFetchedProducts, IProduct, IuseFromInput} from "../../Types/UtilityTypes.tsx";
 import {Container, Input} from "reactstrap";
-import DropdownItems from "../../Utility/Dropdown/DropdownItems.tsx";
+import DropdownItems from "../../Components/DropdownItems.tsx";
 
 const baseUrl = 'https://dummyjson.com/products';
 

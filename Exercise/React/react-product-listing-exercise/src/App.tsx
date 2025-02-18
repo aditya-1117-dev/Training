@@ -1,11 +1,12 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {createBrowserRouter, Outlet, RouterProvider} from "react-router-dom";
-import Home from "./Components/Pages/Home/Home.tsx";
-import Cart from "./Components/Pages/Cart/Cart.tsx";
-import NavbarComponent from "./Components/Utility/Navbar/Navbar.tsx";
+import Home from "./Pages/Home/Home.tsx";
+import Cart from "./Pages/Cart/Cart.tsx";
+import NavbarComponent from "./Components/Navbar/Navbar.tsx";
 import {Context, createContext, Dispatch, SetStateAction, useEffect, useState} from "react";
-import useFetch from "./Components/Utility/CustomHooks/fetchData.tsx";
+import useFetch from "./Utility/CustomHooks/fetchData.tsx";
+import ProductForm from "./Pages/AddNewProduct/ProductForm.tsx";
 
 export const UserContext : Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", ()=>{}, 0]);
 
@@ -58,6 +59,10 @@ function App() {
                         <>
                             <Cart key={userID} loading={userCart?.loading}/>
                         </>,
+                },
+                {
+                    path: '/add-product',
+                    element: <ProductForm />,
                 },
             ]
         }

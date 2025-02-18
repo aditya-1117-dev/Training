@@ -1,5 +1,5 @@
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
-import ListCategories from "../ProductListing/ListCategories.tsx";
+import ListCategories from "./ProductListing/ListCategories.tsx";
 import {FC, useState, MouseEvent, Dispatch, SetStateAction} from "react";
 
 const DropdownItems : FC<{list: string[] | object | null, selectedItem : string | number, setSelectedItem : Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<number>>, baseValue : string}>  = ({ list, selectedItem, setSelectedItem, baseValue } ) => {
