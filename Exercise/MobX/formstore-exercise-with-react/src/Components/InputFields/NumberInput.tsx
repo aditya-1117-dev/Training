@@ -9,7 +9,7 @@ export interface INumberInput {
     value?: number;
     required: boolean;
     disabled?: boolean;
-    onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (value : any) => void;
     min? : number;
     max? : number;
     store? : FormStore<IProductData>;
@@ -18,7 +18,7 @@ export interface INumberInput {
 function NumberInput({name, value, onChange, disabled, required, min, max, store}: INumberInput) {
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (onChange) {
-            onChange(e);
+            onChange(e.target.value);
         }
         if ( e.target.value.trim().length && store) {
             if (max && Number(e.target.value) > max) {

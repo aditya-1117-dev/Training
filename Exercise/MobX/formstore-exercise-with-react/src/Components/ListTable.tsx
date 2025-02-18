@@ -5,7 +5,7 @@ import {ChangeEvent, useContext} from "react";
 import {ListTableStoreContext} from "../Context/ListTableContext.tsx";
 import Loader from "./Loader.tsx";
 import ListRows from "./ListRows.tsx";
-import Checkbox from "./InputFields/Checkbox.tsx";
+import Checkbox from "./InputFields/CheckboxInput.tsx";
 
 const ListTable = ({columns, name}: any) => {
     const store = useContext(ListTableStoreContext);

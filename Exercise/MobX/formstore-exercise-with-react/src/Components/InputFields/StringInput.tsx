@@ -9,7 +9,7 @@ export interface IStringInput {
     value?:  string;
     required: boolean;
     disabled?: boolean;
-    onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (value : any) => void;
     min? : number;
     max? : number;
     store? : FormStore<IProductData>
@@ -18,7 +18,7 @@ export interface IStringInput {
 function StringInput({ name, value, onChange, disabled, required, min, max, store}: IStringInput) {
     const handleChange = ( e : ChangeEvent<HTMLInputElement>) => {
         if (onChange) {
-            onChange(e);
+            onChange(e.target.value);
         }
         if (min && e.target.value.length < min) {
             store?.setError(name, `Minimum length should be ${min}`);

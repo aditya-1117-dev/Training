@@ -1,4 +1,4 @@
-import {ChangeEvent, useContext} from 'react';
+import {useContext} from 'react';
 import {observer} from 'mobx-react-lite';
 import {Col, FormGroup, Label} from 'reactstrap';
 import {formStoreContext} from '../Context/formContext.tsx';
@@ -22,10 +22,10 @@ function Field({name, label, store, required, inputFieldComponent, callBack, ind
             ? formStore.setRequired(name, required, index)
             : formStore.setRequired(name, required);
     }
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (value : any) => {
         typeof index === "number"
-            ? formStore.setValue(name, e.target.value, index)
-            : formStore.setValue(name, e.target.value)
+            ? formStore.setValue(name, value, index)
+            : formStore.setValue(name,value)
         if (callBack) {
             callBack();
         }

@@ -12,7 +12,7 @@ export interface ICheckbox {
     value? : any
 }
 
-const CheckBox = ({name, options, disabled, store, onChange, value}: ICheckbox) => {
+const CheckboxInput = ({name, options, disabled, store, onChange, value}: ICheckbox) => {
     const selectedValues = value;
 
     function handleCheckboxSelection(value: string) {
@@ -42,4 +42,4 @@ const CheckBox = ({name, options, disabled, store, onChange, value}: ICheckbox) 
     );
 };
 
-export default observer(CheckBox);
+export default observer(CheckboxInput);

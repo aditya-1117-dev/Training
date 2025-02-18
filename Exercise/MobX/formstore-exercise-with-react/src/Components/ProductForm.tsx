@@ -1,8 +1,7 @@
 import Form from "./Form.tsx";
 import {FormStore} from "../Stores/formStore.tsx";
 import {observer} from "mobx-react-lite";
-import {CheckField, NumberField, RadioField, SelectField, StringField} from "./InputFields.tsx";
-import {JSONField} from "./JSONFields.tsx";
+import {CheckField, JSONField, NumberField, RadioField, SelectField, StringField} from "./InputFields.tsx";
 import StringInput from "./InputFields/StringInput.tsx";
 import NumberInput from "./InputFields/NumberInput.tsx";
 import {Link} from "react-router-dom";
@@ -44,16 +43,6 @@ function ProductForm() {
     const radioFieldOptions = [{value: 'Male', label: 'Male'}, {value: 'Female', label: 'Female'}]
     const checkFieldOptions = [{value: 'IND', label: 'IND'}, {value: 'UK', label: 'UK'}];
 
-    function handleAddNewInput(name : keyof IProductData) {
-        if (Array.isArray(formStore.getValue(name))) {
-            formStore.pushValue(name, ``);
-        }
-    }
-
-    function removeInputField(index: number, name : keyof IProductData) {
-        formStore.removeItemFromArray(name, index);
-    }
-
     return (
         <>
             <Link to={"/product-table"}>
@@ -67,10 +56,10 @@ function ProductForm() {
                 <NumberField name="price" label="Price of the product" required={true} min={10} max={50}/>
                 <StringField name="imageLink" label="Image Link" required={false}/>
 
-                <JSONField name="stringField" required={true} label={"String Input"} jsonFields={formStore.getValue("stringField")}
-                           isSubmitted={formStore.isSubmitted} handleAddNewInput={handleAddNewInput} removeInputField={removeInputField} RenderField={(props: any) => <StringInput {...props} />}/>
-                <JSONField name="numbers" required={true} label={"Number Input"} jsonFields={formStore.getValue("numbers")}
-                           isSubmitted={formStore.isSubmitted} handleAddNewInput={handleAddNewInput} removeInputField={removeInputField} RenderField={(props: any) => <NumberInput {...props} />}/>
+                <JSONField name="stringField" required={true} label={"String Input"}
+                           RenderField={(props: any) => <StringInput {...props} />}/>
+                <JSONField name="numbers" required={true} label={"Number Input"}
+                           RenderField={(props: any) => <NumberInput {...props} />}/>
 
                 <SelectField label="Select Category of product :" name="category" required={true}
                              options={selectFieldOptions}/>
@@ -80,4 +69,4 @@ function ProductForm() {
         </>
     )
 }
-export default observer(ProductForm)
+export default observer(ProductForm);

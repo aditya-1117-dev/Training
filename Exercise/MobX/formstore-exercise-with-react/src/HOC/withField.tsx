@@ -1,8 +1,8 @@
 import Field from "../Components/Field.tsx";
-import {ChangeEvent, useContext} from "react";
+import { useContext} from "react";
 import {formStoreContext} from "../Context/formContext.tsx";
 import {FormStore} from "../Stores/formStore.tsx";
-import {IProductData} from "../Components/ProductForm.tsx";
+import { IProductData} from "../Components/ProductForm.tsx";
 
 interface IBaseField {
     name: keyof IProductData;
@@ -30,7 +30,7 @@ function withField<T extends IWithFieldProps>(WrappedComponent: (props: T) => JS
                    index={props.index}
                    callBack={props?.onChange}
                    inputFieldComponent={(inputProps: { name: keyof T["store"], required: boolean },
-                                         handleChange: (e: ChangeEvent<HTMLInputElement>) => void) => (
+                                         handleChange: (value : any) => void) => (
                        <WrappedComponent {...props} index={props.index}
                                          store={store} {...inputProps}
                                          disabled={store.isSubmitted}
