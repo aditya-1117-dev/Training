@@ -11,6 +11,7 @@ import Moderator from "./Pages/Intro/Moderator.tsx";
 import User from "./Pages/Intro/User.tsx";
 import ProtectedRoute from "./Components/ProtectedRoute.tsx";
 import PageNotFound from "./Components/PageNotFound.tsx";
+import {Container} from "reactstrap";
 
 export const UserContext: Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", () => {
 }, 0]);
@@ -44,6 +45,9 @@ function App() {
             localStorage.setItem(`${userID}`, JSON.stringify([]));
         }
     }, [userID, userCart]);
+
+    // { "route2" : ["admin"]  }
+
     const router = createBrowserRouter([
         {
             path: '/login',
@@ -57,6 +61,12 @@ function App() {
                     <Outlet/>
                 </ProtectedRoute>,
             children: [
+                {
+                    index : true,
+                    element : <Container className={'mt-xxl-5'}>
+                                    <h1>Hello</h1>
+                                </Container>
+                },
                 {
                     path: '/cart',
                     element: <ProtectedRoute allowedRoles={['admin','user']}>
@@ -93,7 +103,7 @@ function App() {
     ]);
     return (
         <UserContext.Provider value={[currentUser, setCurrentUser, userID]}>
-            <RouterProvider router={router}/>
+            <RouterProvider router={router} />
         </UserContext.Provider>
     )
 }
