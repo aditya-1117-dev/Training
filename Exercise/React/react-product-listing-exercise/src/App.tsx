@@ -1,14 +1,19 @@
-import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {createBrowserRouter, Outlet, RouterProvider} from "react-router-dom";
-import Home from "./Pages/Home/Home.tsx";
 import Cart from "./Pages/Cart/Cart.tsx";
 import NavbarComponent from "./Components/Navbar/Navbar.tsx";
 import {Context, createContext, Dispatch, SetStateAction, useEffect, useState} from "react";
 import useFetch from "./Utility/CustomHooks/fetchData.tsx";
 import ProductForm from "./Pages/AddNewProduct/ProductForm.tsx";
+import Login from "./Pages/Login/Login.tsx";
+import Admin from "./Pages/Intro/Admin.tsx";
+import Moderator from "./Pages/Intro/Moderator.tsx";
+import User from "./Pages/Intro/User.tsx";
+import ProtectedRoute from "./Components/ProtectedRoute.tsx";
+import PageNotFound from "./Components/PageNotFound.tsx";
 
-export const UserContext : Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", ()=>{}, 0]);
+export const UserContext: Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", () => {
+}, 0]);
 
 function App() {
     const [currentUser, setCurrentUser] = useState("");
@@ -18,60 +23,79 @@ function App() {
     const usersByUsername = users?.data?.users.reduce((acc, user) => {
         acc[user.username] = user.id;
         return acc;
-    }, {} );
+    }, {});
 
-    const localstorageValue = JSON.parse( localStorage.getItem(`${userID}`) as string );
+    const localstorageValue = JSON.parse(localStorage.getItem(`${userID}`) as string);
     const userCart = useFetch(currentUser !== "" && userID !== 0 && !localstorageValue
-        ?`https://dummyjson.com/users/${userID}/carts` : ``);
+        ? `https://dummyjson.com/users/${userID}/carts` : ``);
 
     useEffect(() => {
-        const currID =  currentUser? usersByUsername[currentUser] : 0;
-        setUserID( () => currID);
+        const currID = currentUser ? usersByUsername[currentUser] : 0;
+        setUserID(() => currID);
     }, [currentUser]);
 
-    useEffect( () => {
-        const localstorageValue = JSON.parse( localStorage.getItem(`${userID}`) as string );
+    useEffect(() => {
+        const localstorageValue = JSON.parse(localStorage.getItem(`${userID}`) as string);
 
-        if (currentUser !== "" && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID ) {
+        if (currentUser !== "" && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID) {
             const products = userCart?.data?.carts[0]?.products ? userCart?.data?.carts[0]?.products : userCart?.data?.carts;
-            localStorage.setItem(`${userID}`, JSON.stringify(products?? []) );
-        }else if( currentUser !== "" && !localstorageValue && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts && !userCart?.data?.carts[0]?.userId){
-            localStorage.setItem(`${userID}`, JSON.stringify([]) );
+            localStorage.setItem(`${userID}`, JSON.stringify(products ?? []));
+        } else if (currentUser !== "" && !localstorageValue && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts && !userCart?.data?.carts[0]?.userId) {
+            localStorage.setItem(`${userID}`, JSON.stringify([]));
         }
     }, [userID, userCart]);
-
     const router = createBrowserRouter([
+        {
+            path: '/login',
+            element: <Login/>,
+        },
         {
             path: "/",
             element:
-                <>
+                <ProtectedRoute allowedRoles={['admin', 'moderator', 'user']}>
                     <NavbarComponent users={users}/>
-                    <Outlet />
-                </>,
+                    <Outlet/>
+                </ProtectedRoute>,
             children: [
                 {
-                    path: '/',
-                    element: <Home />,
-                },
-                {
                     path: '/cart',
-                    element:
-                        <>
-                            <Cart key={userID} loading={userCart?.loading}/>
-                        </>,
+                    element: <ProtectedRoute allowedRoles={['admin','user']}>
+                                <Cart key={userID} loading={userCart?.loading}/>
+                            </ProtectedRoute>,
                 },
                 {
                     path: '/add-product',
-                    element: <ProductForm />,
+                    element: <ProtectedRoute allowedRoles={['admin', 'moderator']}>
+                                <ProductForm/>
+                            </ProtectedRoute>,
+                },
+                {
+                    path: '/admin',
+                    element:  <ProtectedRoute allowedRoles={['admin']}>
+                                <Admin/>
+                            </ProtectedRoute> ,
+                },
+                {
+                    path: '/moderator',
+                    element: <ProtectedRoute allowedRoles={['moderator']}>
+                                <Moderator/>
+                            </ProtectedRoute>,
+                },
+                {
+                    path: '/user',
+                    element: <ProtectedRoute allowedRoles={['user']}>
+                                <User/>
+                            </ProtectedRoute>,
                 },
             ]
-        }
+        },
+        {path: "*", element: <PageNotFound/>}
     ]);
-  return (
-      <UserContext.Provider value={[currentUser, setCurrentUser, userID]}>
-          <RouterProvider router={router} />
-      </UserContext.Provider>
-  )
+    return (
+        <UserContext.Provider value={[currentUser, setCurrentUser, userID]}>
+            <RouterProvider router={router}/>
+        </UserContext.Provider>
+    )
 }
 
 export default App
