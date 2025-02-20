@@ -28,8 +28,8 @@ function Form({showSaveButton, showResetButton, children, formStore}: IForm) {
                     <Col>
                         {(!isFormSubmitted || showSaveButton)
                             && <Button onClick={() => formStore.submitForm()} color="primary" disabled={isFormSubmitted}> Submit </Button>}
-                    </Col>
-                    <Col>
+                    {/*</Col>*/}
+                    {/*<Col>*/}
                         {(isFormSubmitted || showResetButton)
                             && <Button onClick={() => formStore.resetForm()} color="primary"> Reset </Button>
                         }

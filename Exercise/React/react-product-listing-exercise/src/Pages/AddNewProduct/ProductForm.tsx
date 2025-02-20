@@ -1,72 +1,57 @@
 import Form from "../../Components/Form.tsx";
 import {observer} from "mobx-react-lite";
-import {CheckField, JSONField, NumberField, RadioField, SelectField, StringField} from "../../Components/InputFields.tsx";
+import { JSONField, NumberField, StringField} from "../../Components/InputFields.tsx";
 import StringInput from "../../Components/InputFields/StringInput.tsx";
-import NumberInput from "../../Components/InputFields/NumberInput.tsx";
-import {Link} from "react-router-dom";
 import {FormStore} from "../../stores/formStore.tsx";
+import {Container, Row} from "reactstrap";
 
 export interface IProductData {
-    productName: string,
-    productDescription: string,
-    name: string,
-    imageLink: string,
+    title: string,
+    category: string,
     price: number,
-    country: string[],
-    category: "beauty" | "mobile" | "laptop",
-    gender: "Male" | "Female",
-    stringField: string[],
-    numbers: number[],
+    discountPercentage: number,
+    tags: string[],
+    thumbnail: string,
+    rating: number,
+    description: string,
+    stock: string,
 }
 export const formData: IProductData = {
-    productName: "",
-    imageLink: "",
-    productDescription: "",
-    name: "",
-    price: 10,
-    category: "mobile",
-    gender: "Male",
-    country: ["IND"],
-    stringField: ["a", "b"],
-    numbers: [1, 2, 3]
-}
+    title: "",
+    category: "",
+    price: 0,
+    discountPercentage: 0,
+    tags: [""],
+    thumbnail: "",
+    rating: 0,
+    description: "",
+    stock: "",
+};
+
 export const formStore = new FormStore<IProductData>(formData);
 formStore.setOnSubmitCallBack((data: any) => {
-    const storedProducts = JSON.parse(localStorage.getItem(`${0}`) || "[]");
-    if (data) storedProducts.push({...data});
-    localStorage.setItem(`${0}`, JSON.stringify(storedProducts))
+    const storedProducts = JSON.parse(localStorage.getItem(`products`) || "[]");
+    if (data) storedProducts.push({...data, quantity: 0});
+    localStorage.setItem(`products`, JSON.stringify(storedProducts) );
 });
 
 function ProductForm() {
-    const selectFieldOptions = [{value: '', label: 'Select Category'}, {value: 'beauty', label: 'BEAUTY'},
-        {value: 'mobile', label: 'MOBILE'}, {value: 'laptop', label: 'LAPTOP'}]
-    const radioFieldOptions = [{value: 'Male', label: 'Male'}, {value: 'Female', label: 'Female'}]
-    const checkFieldOptions = [{value: 'IND', label: 'IND'}, {value: 'UK', label: 'UK'}];
-
     return (
-        <>
-            <Link to={"/product-table"}>
-                Link to Product Table Page
-            </Link> <br/> <br/>
-
+        <Container>
             <h2> Add New Product Form </h2>
-            <Form showResetButton={true} showSaveButton={false} formStore={formStore}>
-                <StringField name="productName" label="Product Name" required={true} min={2} max={5}/>
-                <StringField name="productDescription" label="Product Description" required={true} min={2} max={40}/>
-                <NumberField name="price" label="Price of the product" required={true} min={10} max={50}/>
-                <StringField name="imageLink" label="Image Link" required={false}/>
+            <Row>
+                <Form formStore={formStore}>
+                    <StringField name="title" label="Product Title" required={true} />
+                    <StringField name="category" label="Product Category" required={true} />
+                    <StringField name="thumbnail" label="Product Image Link" required={true} />
+                    <StringField name="discountPercentage" label="Discount on Product (in percentage)" required={true} />
+                    <NumberField name="price" label="Price of the product" required={true}/>
+                    <StringField name="description" label="Product Description :" required={true}/>
 
-                <JSONField name="stringField" required={true} label={"String Input"}
-                           RenderField={(props: any) => <StringInput {...props} />}/>
-                <JSONField name="numbers" required={true} label={"Number Input"}
-                           RenderField={(props: any) => <NumberInput {...props} />}/>
-
-                <SelectField label="Select Category of product :" name="category" required={true}
-                             options={selectFieldOptions}/>
-                <RadioField label="Gender" name="gender" required={true} options={radioFieldOptions}/>
-                <CheckField label="Country" name="country" required={true} options={checkFieldOptions}/>
-            </Form>
-        </>
+                    <JSONField name={"tags"} label={"Tags :"} RenderField={ (props: any) => <StringInput {...props} /> } />
+                </Form>
+            </Row>
+        </Container>
     )
 }
 export default observer(ProductForm);
