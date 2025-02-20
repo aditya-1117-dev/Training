@@ -31,11 +31,15 @@ const Home : FC = () =>{
     const query : string = search.value.length > 0 ? `/search?q=${search.value}` : '';
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [limit, setLimit] = useState(20);
+    const [limit, setLimit] = useState(5);
     const limitAndSkip = `limit=${limit}&skip=${(currentPage-1)*limit}`;
     const url = findUrl(query, selectedCategory, limitAndSkip);
     const paginatedProducts : IFetchedProducts = useFetch(url, query !== ""? 1000 : 0);
-    const totalPages = Math.ceil( (paginatedProducts?.data?.total?? 0) / limit );
+    const localStorageProducts = JSON.parse(localStorage.getItem('products') || '[]')
+        .map( (product : any) => {
+            return  { ...product, quantity : 0 }
+        } );
+    const totalPages = Math.ceil( ( paginatedProducts?.data?.total )?? 0 / limit );
 
     const products : IProduct[] | undefined = filterByKey( paginatedProducts?.data?.products, "category", selectedCategory);
     function handleInputChange(e : ChangeEvent<HTMLInputElement>) {
@@ -49,7 +53,9 @@ const Home : FC = () =>{
                 <DropdownItems baseValue="Select the Category" list={categories?.data} selectedItem={selectedCategory} setSelectedItem={setSelectedCategory} />
             </Container>
             <ListProducts
-                products={products}
+                products={currentPage===1 && products
+                    ? [...localStorageProducts , ...products]
+                    : products}
                 totalPages={totalPages}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}

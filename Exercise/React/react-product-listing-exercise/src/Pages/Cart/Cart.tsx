@@ -8,7 +8,7 @@ import Loader from "../../Components/Loader.tsx";
 const Cart = ({loading} : {loading : boolean}) =>{
     const [, , userID] = useContext(UserContext);
     const [currentPage, setCurrentPage] = useState(1);
-    const [limit, setLimit] = useState("5");
+    const [limit, setLimit] = useState(5);
     const localStorageValue = JSON.parse( localStorage.getItem(`${userID}`) as string );
     const userCart = useFetch(userID !== 0 && !localStorageValue ? `https://dummyjson.com/users/${userID}/carts` : "");
     const products = localStorageValue || [];
