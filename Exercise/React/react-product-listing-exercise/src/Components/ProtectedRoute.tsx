@@ -5,12 +5,11 @@ function ProtectedRoute({ allowedRoles, children }: { children? : any ; allowedR
     const token = localStorage.getItem("accessToken");
     const role = localStorage.getItem("role");
     const navigate = useNavigate();
-
-    if (!token && !role){
+    if (!token || !role){
         navigate('/login');
         return ;
     }
-    if (!token || !allowedRoles.includes(role as string ) ) {
+    if ( !allowedRoles.includes(role) ) {
         return <UserNotAuthorized /> ;
     }
     return children;
