@@ -1,0 +1,231 @@
+[
+  {
+    "id": 1,
+    "name": "Tomato Soup",
+    "ingredients": {
+      "tomato": 2,
+      "onion": 1,
+      "water": 3,
+      "salt": 1,
+      "pepper": 0.5
+    },
+    "time": 30
+  },
+  {
+    "id": 2,
+    "name": "Mashed Potatoes",
+    "ingredients": {
+      "potato": 4,
+      "butter": 2,
+      "salt": 0.5
+    },
+    "time": 40
+  },
+  {
+    "id": 3,
+    "name": "Cauliflower Curry",
+    "ingredients": {
+      "cauliflower": 1,
+      "onion": 1,
+      "tomato": 1,
+      "turmeric": 0.5,
+      "salt": 0.5
+    },
+    "time": 35
+  },
+  {
+    "id": 4,
+    "name": "Ladyfinger Stir-Fry",
+    "ingredients": {
+      "ladyfinger": 0.5,
+      "onion": 0.5,
+      "tomato": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 25
+  },
+  {
+    "id": 5,
+    "name": "Potato Chips",
+    "ingredients": {
+      "potato": 2,
+      "salt": 1
+    },
+    "time": 20
+  },
+  {
+    "id": 6,
+    "name": "Tomato Salad",
+    "ingredients": {
+      "tomato": 2,
+      "onion": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 15
+  },
+  {
+    "id": 7,
+    "name": "Cauliflower Soup",
+    "ingredients": {
+      "cauliflower": 1,
+      "onion": 1,
+      "water": 2,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 30
+  },
+  {
+    "id": 8,
+    "name": "Spicy Ladyfinger Curry",
+    "ingredients": {
+      "ladyfinger": 0.5,
+      "onion": 0.5,
+      "tomato": 1,
+      "turmeric": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 40
+  },
+  {
+    "id": 9,
+    "name": "Potato Salad",
+    "ingredients": {
+      "potato": 2,
+      "onion": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 20
+  },
+  {
+    "id": 10,
+    "name": "Tomato Pasta",
+    "ingredients": {
+      "tomato": 2,
+      "onion": 0.5,
+      "salt": 0.5,
+      "pepper": 0.5
+    },
+    "time": 25
+  },
+  {
+    "id": 11,
+    "name": "Cauliflower Stir-Fry",
+    "ingredients": {
+      "cauliflower": 1,
+      "onion": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 20
+  },
+  {
+    "id": 12,
+    "name": "Ladyfinger Salad",
+    "ingredients": {
+      "ladyfinger": 0.5,
+      "onion": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 15
+  },
+  {
+    "id": 13,
+    "name": "Potato Soup",
+    "ingredients": {
+      "potato": 2,
+      "onion": 1,
+      "water": 3,
+      "salt": 1,
+      "pepper": 0.5
+    },
+    "time": 30
+  },
+  {
+    "id": 14,
+    "name": "Tomato Curry",
+    "ingredients": {
+      "tomato": 2,
+      "onion": 1,
+      "turmeric": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 35
+  },
+  {
+    "id": 15,
+    "name": "Mashed Cauliflower",
+    "ingredients": {
+      "cauliflower": 1,
+      "butter": 2,
+      "salt": 0.5
+    },
+    "time": 30
+  },
+  {
+    "id": 16,
+    "name": "Ladyfinger Soup",
+    "ingredients": {
+      "ladyfinger": 0.5,
+      "onion": 1,
+      "water": 2,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 25
+  },
+  {
+    "id": 17,
+    "name": "Potato Curry",
+    "ingredients": {
+      "potato": 2,
+      "onion": 1,
+      "tomato": 1,
+      "turmeric": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 35
+  },
+  {
+    "id": 18,
+    "name": "Tomato Stir-Fry",
+    "ingredients": {
+      "tomato": 1,
+      "onion": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 20
+  },
+  {
+    "id": 19,
+    "name": "Cauliflower Salad",
+    "ingredients": {
+      "cauliflower": 0.5,
+      "onion": 0.5,
+      "salt": 0.5,
+      "pepper": 0.25
+    },
+    "time": 15
+  },
+  {
+    "id": 20,
+    "name": "Spicy Ladyfinger Stir-Fry",
+    "ingredients": {
+      "ladyfinger": 0.5,
+      "onion": 0.5,
+      "tomato": 1,
+      "turmeric": 0.5,
+      "salt": 0.5,
+      "pepper": 0.5
+    },
+    "time": 30
+  }
+]
