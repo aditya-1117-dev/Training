@@ -1,11 +1,19 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {createBrowserRouter, Outlet, RouterProvider} from "react-router-dom";
-import Home from "./Components/Pages/Home/Home.tsx";
-import Cart from "./Components/Pages/Cart/Cart.tsx";
-import NavbarComponent from "./Components/Utility/Navbar/Navbar.tsx";
+import {BrowserRouter, createBrowserRouter, Outlet, Route, RouterProvider, Routes} from "react-router-dom";
+import Home from "./Pages/Home/Home.tsx";
+import Cart from "./Pages/Cart/Cart.tsx";
+import NavbarComponent from "./Components/Navbar/Navbar.tsx";
 import {Context, createContext, Dispatch, SetStateAction, useEffect, useState} from "react";
-import useFetch from "./Components/Utility/CustomHooks/fetchData.tsx";
+import useFetch from "./Utility/CustomHooks/fetchData.tsx";
+import Login from "./Pages/Login/Login.tsx";
+import ProtectedRoute from "./Components/ProtectedRoute.tsx";
+import {Container} from "reactstrap";
+import Admin from "./Pages/Intro/Admin.tsx";
+import Moderator from "./Pages/Intro/Moderator.tsx";
+import User from "./Pages/Intro/User.tsx";
+import ProductForm from "./Pages/AddNewProduct/ProductForm.tsx";
+import PageNotFound from "./Components/PageNotFound.tsx";
 
 export const UserContext : Context<[string, Dispatch<SetStateAction<string>>, number]> = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", ()=>{}, 0]);
 
@@ -44,32 +52,57 @@ function App() {
         }
     }, [userID, userCart]);
 
-    const router = createBrowserRouter([
-        {
-            path: "/",
-            element:
-                <>
-                    <NavbarComponent users={users} cartLength={products?.length}/>
-                    <Outlet />
-                </>,
-            children: [
-                {
-                    path: '/',
-                    element: <Home setProducts={setProducts} />,
-                },
-                {
-                    path: '/cart',
-                    element:
-                        <>
-                            <Cart key={userID} loading={userCart?.loading} setProducts={setProducts}/>
-                        </>,
-                },
-            ]
-        }
-    ]);
+    enum Role {
+        ADMIN = 'admin',
+        MODERATOR = 'moderator',
+        USER = 'user'
+    }
+    const allowedRoles : Record<string, Role[]> = {
+        'navbar' : [Role.ADMIN, Role.MODERATOR, Role.USER],
+        'admin' : [Role.ADMIN],
+        'moderator' : [Role.MODERATOR],
+        'user' : [Role.USER],
+        'cart' : [Role.ADMIN, Role.USER],
+        'add-products' : [Role.ADMIN, Role.MODERATOR],
+    }
   return (
       <UserContext.Provider value={[currentUser, setCurrentUser, userID]}>
-          <RouterProvider router={router} />
+          <BrowserRouter>
+              <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/" element={
+                                      <ProtectedRoute allowedRoles={allowedRoles.navbar}>
+                                          <NavbarComponent users={users} cartLength={products?.length} />
+                                          <Outlet/>
+                                      </ProtectedRoute> }>
+                      <Route index element={
+                                        <Container className={'mt-xxl-5'}>
+                                            <h1>Hello</h1>
+                                        </Container>} />
+                      <Route path="admin" element={
+                                              <ProtectedRoute allowedRoles={allowedRoles.admin}>
+                                                  <Admin setProducts={setProducts} />
+                                              </ProtectedRoute>} />
+                      <Route path="moderator" element={
+                                                  <ProtectedRoute allowedRoles={allowedRoles.moderator}>
+                                                      <Moderator setProducts={setProducts} />
+                                                  </ProtectedRoute>} />
+                      <Route path="user" element={
+                                                <ProtectedRoute allowedRoles={allowedRoles.user}>
+                                                    <User setProducts={setProducts} />
+                                                </ProtectedRoute>} />
+                      <Route path="cart" element={
+                                                <ProtectedRoute allowedRoles={allowedRoles.cart}>
+                                                    <Cart key={userID} loading={userCart?.loading} setProducts={setProducts} />
+                                                </ProtectedRoute>} />
+                      <Route path="add-product" element={
+                                                        <ProtectedRoute allowedRoles={allowedRoles["add-products"]}>
+                                                            <ProductForm />
+                                                        </ProtectedRoute>} />
+                  </Route>
+                  <Route path="*" element={<PageNotFound />} />
+              </Routes>
+          </BrowserRouter>
       </UserContext.Provider>
   )
 }

@@ -1,7 +1,7 @@
 import { Card, CardBody, CardImg, CardText, CardTitle, Col, Row} from "reactstrap";
 import {IProduct} from "../../Types/UtilityTypes.tsx";
 import {useContext, useEffect, useState} from "react";
-import {UserContext} from "../../../App.tsx";
+import {UserContext} from "../../App.tsx";
 import AddToCartButton from "./AddToCartButton.tsx";
 
 export default function ProductCard({product, setProducts}:{product: IProduct, setProducts : Function}){

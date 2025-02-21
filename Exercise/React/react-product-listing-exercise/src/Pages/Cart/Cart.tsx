@@ -1,9 +1,9 @@
 import {useContext, useState} from "react";
-import ListProducts from "../../Utility/ProductListing/ListProducts.tsx";
-import {UserContext} from "../../../App.tsx";
+import ListProducts from "../../Components/ProductListing/ListProducts.tsx";
+import {UserContext} from "../../App.tsx";
 import {Container} from "reactstrap";
 import useFetch from "../../Utility/CustomHooks/fetchData.tsx";
-import Loader from "../../Utility/Loader/Loader.tsx";
+import Loader from "../../Components/Loader/Loader.tsx";
 
 const Cart = ({loading, setProducts}: { loading: boolean, setProducts: Function }) => {
     const [, , userID] = useContext(UserContext);
