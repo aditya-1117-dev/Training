@@ -1,34 +1,35 @@
-import {observable, action, makeObservable} from 'mobx';
+import {action, makeObservable, observable} from 'mobx';
 
-class ListTableStore<T> {
+class ListTableStore<T extends {id : number}> {
     @observable data: T[] = [];
     @observable loading: boolean = false;
     @observable page: number = 1;
     @observable totalPages: number = 1;
     @observable searchQuery: string = '';
     @observable url: string = "";
-    @observable selectedRows: boolean[] = [];
-    @observable selectAllCheck: boolean = false;
+    @observable selectedRows: number[] = [];
 
     private response: T = {} as T;
     private keyForTableData: string = ``;
     private limit: number = 20;
-    private selectedRowsCount: number = 0;
     private debounceTimer: NodeJS.Timeout | null = null;
 
     constructor(url: string, keyForTableData?: string, limit?: number) {
         makeObservable(this);
-        if (url) {
-            this.url = `${url}`;
-            this.fetchData().then()
-        }
+        this.url = url;
         this.limit = limit || this.limit;
         this.keyForTableData = keyForTableData || this.keyForTableData;
-        this.selectedRows = new Array(this.limit);
+        if (this.url) this.fetchData().then();
+    }
+
+    get numberOfSelectedItems(): number {
+        return this.selectedRows.length;
     }
 
     isSelectAll() {
-        return this.selectAllCheck;
+        return !this.loading && this.data.every((item: T) => {
+            return this.selectedRows.includes(item.id);
+        });
     }
 
     getKeyInData<K extends keyof T>(key: K) {
@@ -36,49 +37,43 @@ class ListTableStore<T> {
     }
 
     isSelected(id: number): boolean {
-        return this.selectedRows[id];
+        let index = this.selectedRows.indexOf(id);
+        return index !== -1;
     }
 
     @action
     updateSelection(id: number) {
-        if (this.selectedRows[id]) {
-            this.selectedRows[id] = false;
-            this.selectedRowsCount--;
-            if (this.selectAllCheck) this.selectAllCheck = false;
-        } else {
-            this.selectedRows[id] = true;
-            this.selectedRowsCount++;
-            this.isAllRowSelected();
+        let index = this.selectedRows.indexOf(id);
+        if (index !== -1) {
+            this.selectedRows.splice(index, 1);
+        }else {
+            this.selectedRows.push(id);
         }
-    }
-
-    isAllRowSelected() {
-        this.selectAllCheck = (this.selectedRowsCount >= Math.min(this.selectedRows.length, this.data.length) );
     }
 
     @action
     selectAll() {
-        const array = this.selectedRows;
-        for (let i = 0; i < array.length; i++) {
-            if (!array[i]) array[i] = true;
-        }
-        this.selectedRows = array;
-        this.selectAllCheck = true;
-        this.selectedRowsCount = this.selectedRows.length;
+        this.data.forEach((item : T) => {
+            if (!this.selectedRows.includes(item.id)) {
+                this.selectedRows.push(item.id);
+            }
+        });
     }
 
     @action
     deSelectAll() {
-        this.selectedRows = new Array(this.limit);
-        this.selectAllCheck = false;
-        this.selectedRowsCount = 0;
+        this.data.forEach((item : T) => {
+            const index = this.selectedRows.indexOf(item.id);
+            if (index !== -1) {
+                this.selectedRows.splice(index, 1);
+            }
+        });
     }
 
     @action
     setData(data: any, page?: number) {
         this.response = data;
-        this.data = data[this.keyForTableData] || this.data;
-        this.deSelectAll();
+        this.data = data[this.keyForTableData] || data;
         this.totalPages = Math.ceil((Number(data.total) | 0) / (this.limit | 1));
         if (page) this.page = page;
     }

@@ -1,11 +1,11 @@
 import {observer} from 'mobx-react-lite';
-import {Col, Container, Input, Row, Table} from "reactstrap";
+import {Col, Input, Row, Table} from "reactstrap";
 import PaginationComponent from "./Pagination/Pagination.tsx";
 import {ChangeEvent, useContext} from "react";
 import {ListTableStoreContext} from "../Context/ListTableContext.tsx";
 import Loader from "./Loader.tsx";
 import ListRows from "./ListRows.tsx";
-import Checkbox from "./InputFields/Checkbox.tsx";
+import Checkbox from "./InputFields/CheckboxInput.tsx";
 
 const ListTable = ({columns, name}: any) => {
     const store = useContext(ListTableStoreContext);
@@ -22,42 +22,51 @@ const ListTable = ({columns, name}: any) => {
 
     return (
         <Col>
-            <Container className="search-container">
-                <Input className="search-input" placeholder="Search for products" value={store.searchQuery}
-                       onChange={(e: ChangeEvent<HTMLInputElement>) => store.setSearchQuery(e.target.value)}/>
-            </Container>
-            <Col md={8} style={{margin: "0 auto"}}>
-                {store.isLoading() ? <Loader height={100} width={100}/> :
-                    tableContent.length === 0 ?
-                        <Row className="bold justify-content-center"> No Products Available</Row> :
-                        (
-                            <Table bordered hover responsive>
-                                <thead>
-                                <tr>
-                                    <th className="text-uppercase text-center">
-                                        <Checkbox value={selectAll} onChange={handleSelectAll} name="name"
-                                                  options={[{value: '', label: ''}]}/>
-                                    </th>
-                                    {columns.map((column : any) => (
-                                        <td key={column.name} className="text-center">{column.display}</td>
-                                    ))}
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {tableContent.map((row: any, index: number) => (
+            <Row className="search-container">
+                <Col md={7}>
+                    <Input className="search-input" placeholder="Search for products" value={store.searchQuery}
+                           onChange={(e: ChangeEvent<HTMLInputElement>) => store.setSearchQuery(e.target.value)}/>
+                </Col>
+                <Col md={4}>
+                    Number of Selected Items are : {store.numberOfSelectedItems}
+                </Col>
+            </Row>
+            <Col style={{marginTop: "6%", width: '100%'}}>
+                <Table bordered hover responsive style={{width: '100%', tableLayout: 'fixed'}}>
+                    <thead>
+                    <tr>
+                        <th style={{width: 50}} className="text-uppercase text-center">
+                            <Checkbox value={selectAll} onChange={handleSelectAll} name="name"
+                                      options={[{value: '', label: ''}]}/>
+                        </th>
+                        {columns.map((column: any) => (
+                            <th key={column.name} className="text-center">{column.display}</th>
+                        ))}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {store.isLoading()
+                        ? <tr className="text-center">
+                            <td colSpan={columns.length}><Loader height={100} width={100}/></td>
+                        </tr>
+                        : tableContent.length === 0
+                            ? (<tr>
+                                <td colSpan={columns.length} className="text-center">No Products Available</td>
+                            </tr>)
+                            : (tableContent.map((row: any) => (
                                     <tr key={row.id}>
                                         <td className="text-center">
-                                            <Checkbox value={store.isSelected(index)}
-                                                      onChange={() => onCheckboxSelection(index)} name="name"
-                                                      options={[{value: '', label: ''}]}/>
+                                            <Checkbox value={store.isSelected(row.id)}
+                                                      options={[{value: '', label: ''}]}
+                                                      onChange={() => onCheckboxSelection(row.id)} name="name"/>
                                         </td>
-                                        <ListRows row={row} columns={columns.map((column : any)=> column.name)}/>
+                                        <ListRows row={row} columns={columns}/>
                                     </tr>
-                                ))}
-                                </tbody>
-                            </Table>
-                        )
-                }
+                                ))
+                            )
+                    }
+                    </tbody>
+                </Table>
                 <PaginationComponent/>
             </Col>
         </Col>

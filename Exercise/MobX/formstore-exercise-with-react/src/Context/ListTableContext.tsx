@@ -1,8 +1,8 @@
 import {createContext} from "react";
 import ListTableStore from "../Stores/ListTableStore.tsx";
-import {IFetchedProducts} from "../types/tableType.tsx";
+import { IProduct} from "../types/tableType.tsx";
 
 const baseUrl: string = ``;
-export const listTableStore : ListTableStore<IFetchedProducts> = new ListTableStore<IFetchedProducts>(baseUrl);
+export const listTableStore : ListTableStore<IProduct> = new ListTableStore<IProduct>(baseUrl);
 
-export const ListTableStoreContext = createContext<ListTableStore<IFetchedProducts>>(listTableStore);
+export const ListTableStoreContext = createContext<ListTableStore<IProduct>>(listTableStore);
