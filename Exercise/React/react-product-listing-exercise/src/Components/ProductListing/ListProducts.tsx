@@ -21,12 +21,16 @@ export default function ListProducts({ loading, totalPages, products, currentPag
                 products.map((product : IProduct) =><ProductCard key={product.id+product.title} product={product} /> )
             }
             <Row className="mb-3">
-                <Col md={5}>
-                    <PaginationComponent currentPage={currentPage  % (totalPages+1)} onPageChange={onPageChange} totalPages={totalPages}/>
-                </Col>
-                <Col md={1}>
-                    <DropdownItems baseValue="Select Number of Products to show" list={setLimitArray} selectedItem={limit} setSelectedItem={setLimit} />
-                </Col>
+                {products?.length !== 0 &&
+                    <>
+                        <Col md={5}>
+                            <PaginationComponent currentPage={currentPage  % (totalPages+1)} onPageChange={onPageChange} totalPages={totalPages}/>
+                        </Col>
+                        <Col md={1}>
+                            <DropdownItems baseValue="Select Number of Products to show" list={setLimitArray} selectedItem={limit} setSelectedItem={setLimit} />
+                        </Col>
+                    </>
+                }
             </Row>
         </Col>
     )

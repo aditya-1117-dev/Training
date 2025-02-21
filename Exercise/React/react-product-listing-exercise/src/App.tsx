@@ -38,15 +38,30 @@ function App() {
     useEffect(() => {
         const localstorageValue = JSON.parse(localStorage.getItem(`${userID}`) as string);
 
-        if (currentUser !== "" && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID) {
+        if (currentUser !== "" && userID === usersByUsername[currentUser]
+            && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID) {
             const products = userCart?.data?.carts[0]?.products ? userCart?.data?.carts[0]?.products : userCart?.data?.carts;
             localStorage.setItem(`${userID}`, JSON.stringify(products ?? []));
-        } else if (currentUser !== "" && !localstorageValue && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts && !userCart?.data?.carts[0]?.userId) {
+
+        } else if (currentUser !== "" && !localstorageValue && userID === usersByUsername[currentUser]
+            && !userCart?.loading && userCart?.data?.carts && !userCart?.data?.carts[0]?.userId) {
             localStorage.setItem(`${userID}`, JSON.stringify([]));
         }
     }, [userID, userCart]);
 
-    // { "route2" : ["admin"]  }
+    enum Role {
+        ADMIN = 'admin',
+        MODERATOR = 'moderator',
+        USER = 'user'
+    }
+    const allowedRoles : Record<string, Role[]> = {
+        'navbar' : [Role.ADMIN, Role.MODERATOR, Role.USER],
+        'admin' : [Role.ADMIN],
+        'moderator' : [Role.MODERATOR],
+        'user' : [Role.USER],
+        'cart' : [Role.ADMIN, Role.USER],
+        'add-products' : [Role.ADMIN, Role.MODERATOR],
+    }
 
     const router = createBrowserRouter([
         {
@@ -56,46 +71,52 @@ function App() {
         {
             path: "/",
             element:
-                <ProtectedRoute allowedRoles={['admin', 'moderator', 'user']}>
+                <ProtectedRoute allowedRoles={allowedRoles.navbar}>
                     <NavbarComponent users={users}/>
                     <Outlet/>
                 </ProtectedRoute>,
             children: [
                 {
-                    index : true,
-                    element : <Container className={'mt-xxl-5'}>
-                                    <h1>Hello</h1>
-                                </Container>
+                    index: true,
+                    element:
+                        <Container className={'mt-xxl-5'}>
+                            <h1>Hello</h1>
+                        </Container>
                 },
                 {
-                    path: '/cart',
-                    element: <ProtectedRoute allowedRoles={['admin','user']}>
-                                <Cart key={userID} loading={userCart?.loading}/>
-                            </ProtectedRoute>,
+                    path: 'admin',
+                    element:
+                        <ProtectedRoute allowedRoles={allowedRoles.admin}>
+                            <Admin/>
+                        </ProtectedRoute>,
                 },
                 {
-                    path: '/add-product',
-                    element: <ProtectedRoute allowedRoles={['admin', 'moderator']}>
-                                <ProductForm/>
-                            </ProtectedRoute>,
+                    path: 'moderator',
+                    element:
+                        <ProtectedRoute allowedRoles={allowedRoles.moderator}>
+                            <Moderator/>
+                        </ProtectedRoute>,
                 },
                 {
-                    path: '/admin',
-                    element:  <ProtectedRoute allowedRoles={['admin']}>
-                                <Admin/>
-                            </ProtectedRoute> ,
+                    path: 'user',
+                    element:
+                        <ProtectedRoute allowedRoles={allowedRoles.user}>
+                            <User/>
+                        </ProtectedRoute>,
                 },
                 {
-                    path: '/moderator',
-                    element: <ProtectedRoute allowedRoles={['moderator']}>
-                                <Moderator/>
-                            </ProtectedRoute>,
+                    path: 'cart',
+                    element:
+                        <ProtectedRoute allowedRoles={allowedRoles.cart}>
+                            <Cart key={userID} loading={userCart?.loading}/>
+                        </ProtectedRoute>,
                 },
                 {
-                    path: '/user',
-                    element: <ProtectedRoute allowedRoles={['user']}>
-                                <User/>
-                            </ProtectedRoute>,
+                    path: 'add-product',
+                    element:
+                        <ProtectedRoute allowedRoles={allowedRoles["add-products"]}>
+                            <ProductForm/>
+                        </ProtectedRoute>,
                 },
             ]
         },
@@ -103,7 +124,7 @@ function App() {
     ]);
     return (
         <UserContext.Provider value={[currentUser, setCurrentUser, userID]}>
-            <RouterProvider router={router} />
+            <RouterProvider router={router}/>
         </UserContext.Provider>
     )
 }

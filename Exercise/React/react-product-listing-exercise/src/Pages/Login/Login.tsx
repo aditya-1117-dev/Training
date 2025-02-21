@@ -5,7 +5,10 @@ import '../../App.css'
 import {Col, Container, Row} from "reactstrap";
 import postRequest from "../../Utility/postRequest.tsx";
 import getRequest from "../../Utility/getRequest.tsx";
-import {useEffect} from "react";
+import {useContext, useEffect, useRef} from "react";
+import {observable} from "mobx";
+import {UserContext} from "../../App.tsx";
+import {useNavigate} from "react-router-dom";
 
 export interface ILogin {
     username: string;
@@ -15,26 +18,42 @@ export const loginInfo: ILogin = {
     username: '',
     password: '',
 }
-export const loginFormStore = new FormStore<ILogin>(loginInfo);
 
-export default function Login() {
-    const token = localStorage.getItem("accessToken");
-    const role = localStorage.getItem("role");
+class loginRootStore{
+    @observable loginFormStore ;
 
-    useEffect(() => {
-        loginFormStore.setOnSubmitCallBack( async (data: any) => {
+    constructor( setCurrentUser : any, navigate : any) {
+        this.loginFormStore = new FormStore<ILogin>(loginInfo);
+
+        this.loginFormStore.setOnSubmitCallBack( async (data: any) => {
             const {username, password } = data;
             try {
                 const response = await postRequest('https://dummyjson.com/auth/login', {username, password});
                 const user = await getRequest(`https://dummyjson.com/auth/me`, {'Authorization': `Bearer ${response.accessToken}`,});
                 localStorage.setItem("accessToken", response.accessToken);
                 localStorage.setItem("role", user.role);
+                setCurrentUser( ()=> user.username);
+                this.loginFormStore.resetForm();
+
+                // navigate(`/${user.role}`) //
                 location.href=user.role;
-                loginFormStore.resetForm();
             }catch (e) {
                 console.log(e)
             }
         });
+    }
+}
+
+export default function Login() {
+    const token = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("role");
+    const loginStore = useRef<loginRootStore | null>(null);
+    const [, setCurrentUser,] = useContext(UserContext);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        loginStore.current =  new loginRootStore(setCurrentUser, navigate);
+
         if (token && role) {
             location.href=role;
             return;
@@ -45,7 +64,7 @@ export default function Login() {
         <Container>
             <Row className="justify-content-center mt-5" >
                 <Col md={12}>
-                    <Form formStore={loginFormStore}>
+                    <Form formStore={loginStore.current?.loginFormStore}>
                         <StringField name={"username"} required={true} label={"Username : "} />
                         <StringField name={"password"} required={true} label={"Password: "} />
                     </Form>

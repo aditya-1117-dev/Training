@@ -1,22 +1,21 @@
 import {Button, Col, Form as ReactStrapForm, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
 import {ReactNode} from "react";
-import {IProductData} from "../Pages/AddNewProduct/ProductForm.tsx";
 import {FormStore} from "../stores/formStore.tsx";
 import { formStoreContext } from "../context/formContext.tsx";
 
-interface IForm {
+interface IForm<T> {
     showSaveButton?: boolean,
     showResetButton?: boolean,
     children: ReactNode,
-    formStore: FormStore<IProductData>
+    formStore: FormStore<T> | undefined
 }
 
-function Form({showSaveButton, showResetButton, children, formStore}: IForm) {
+function Form<T>({showSaveButton, showResetButton, children, formStore}: IForm<T>) {
     if (!formStore){
         return <> Form Store Not Provided</> ;
     }
-    if (Object.keys(formStore.formData).length === 0){
+    if (Object.keys(formStore.formData as object).length === 0){
         return <> Form does not have initialized data</> ;
     }
     const isFormSubmitted = formStore.isSubmitted;

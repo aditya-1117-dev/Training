@@ -1,22 +1,21 @@
 import {useContext} from 'react';
 import {observer} from 'mobx-react-lite';
 import {Col, FormGroup, Label} from 'reactstrap';
-import {IProductData} from "../Pages/AddNewProduct/ProductForm.tsx";
 import {FormStore} from "../stores/formStore.tsx";
 import {formStoreContext} from "../context/formContext.tsx";
 
-export interface IField {
-    name: keyof IProductData;
+export interface IField<T> {
+    name: keyof T;
     label?: string;
-    store?: FormStore<IProductData>;
+    store?: FormStore<T>;
     required?: boolean;
     inputFieldComponent?: any;
     callBack?: Function;
     index?: number;
 }
 
-function Field({name, label, store, required, inputFieldComponent, callBack, index}: IField) {
-    const formStore: FormStore<IProductData> = useContext(formStoreContext) || store;
+function Field<T>({name, label, store, required, inputFieldComponent, callBack, index}: IField<T>) {
+    const formStore: FormStore<T> = useContext(formStoreContext) || store;
     if (required){
         typeof index === "number"
             ? formStore.setRequired(name, required, index)
@@ -33,7 +32,7 @@ function Field({name, label, store, required, inputFieldComponent, callBack, ind
     const inputProps = {name, required};
     return (
         <FormGroup row>
-            <Label for={name} sm={4}>
+            <Label for={name as string} sm={4}>
                 {!index &&
                     <>
                         {label}

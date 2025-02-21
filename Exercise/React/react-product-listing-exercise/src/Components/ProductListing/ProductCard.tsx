@@ -50,7 +50,7 @@ export default function ProductCard({product}:{product: IProduct}){
     }
     function handleRemoveItemFromCart() {
         const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
-        localStorage.setItem(`${userID}`, JSON.stringify(storedCart?.filter(cart => cart.id != product.id)));
+        localStorage.setItem(`${userID}`, JSON.stringify(storedCart?.filter((cart: IProduct) => cart.id != product.id)));
         setQuantity(0);
     }
     return (
