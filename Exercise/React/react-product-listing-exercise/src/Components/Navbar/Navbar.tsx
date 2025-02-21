@@ -1,4 +1,4 @@
-import {Col, Nav, Navbar, NavbarBrand, NavItem, Row} from "reactstrap";
+import {Badge, Nav, Navbar, NavbarBrand, NavItem, Row} from "reactstrap";
 import {NavLink} from "react-router-dom";
 import {useContext} from "react";
 import { UserContext } from "../../App.tsx";
@@ -7,7 +7,7 @@ import LogOut from "../LogOut.tsx";
 
 export default function NavbarComponent({users, cartLength} : any) {
     const [currentUser, setCurrentUser] = useContext(UserContext);
-    const usernames = users?.data?.users.map((user : any) => user.username);
+    const usernames = users?.data?.users.map((user : any) => user.username.toUpperCase() );
 
     const token = localStorage.getItem("accessToken");
     const role = localStorage.getItem("role");
@@ -18,13 +18,9 @@ export default function NavbarComponent({users, cartLength} : any) {
             component : (key : any) => (
                 <NavItem key={key}>
                     <Row>
-                        <Col>
-                            {cartLength > 0 && (
-                                <p style={{ color: "white", padding: 0, margin: 0}}>{cartLength}</p>
-                            )}
-                        </Col>
-                        <NavLink to="/cart" className="nav-link">
-                            {currentUser !== "" ? `${currentUser}'s Cart` : 'Cart'}
+                        <NavLink to="/cart" className="nav-link d-flex justify-content-between align-items-center">
+                            <span>{currentUser !== "" ? `${(currentUser.toUpperCase())}'s Cart` : 'Cart'}</span>
+                            {cartLength > 0 && (<Badge className="ms-2" >{cartLength}</Badge>)}
                         </NavLink>
                     </Row>
                 </NavItem>
@@ -49,12 +45,11 @@ export default function NavbarComponent({users, cartLength} : any) {
             )
         }
     ]
-
     return (
         <Navbar color="dark" light={false} dark={true} fixed="top" expand="md" className="mb-4">
             <NavbarBrand href="/">Product Listing</NavbarBrand>
             {token && role &&
-                <Nav className="ms-auto" navbar>
+                <Nav className="ms-auto gap-xl-3" navbar>
                     <NavItem key={'products'}>
                         <NavLink to={role} className="nav-link"> Products </NavLink>
                     </NavItem>

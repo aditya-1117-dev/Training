@@ -16,14 +16,22 @@ export default function ListProducts({ loading, totalPages, products, currentPag
     }
     return (
         <Col md={8} style={{ margin: "0 auto" }}>
-            <Row className="mb-3">
-                <PaginationComponent currentPage={currentPage  % (totalPages+1)} onPageChange={onPageChange} totalPages={totalPages}/>
-                <DropdownItems baseValue="Select Number of Products to show" list={setLimitArray} selectedItem={limit} setSelectedItem={setLimit} />
-            </Row>
             {loading? <Loader height={100} width={100} /> :
                 !products || products.length === 0 ? <Row className="bold justify-content-center"> No Products Available</Row> :
-                products.map((product : IProduct) =><ProductCard key={product.id} product={product} setProducts={setProducts} /> )
+                products.map((product : IProduct) =><ProductCard key={product.id+product.title} product={product} setProducts={setProducts} /> )
             }
+            <Row className="mb-3">
+                {products?.length !== 0 &&
+                    <>
+                        <Col md={5}>
+                            <PaginationComponent currentPage={currentPage  % (totalPages+1)} onPageChange={onPageChange} totalPages={totalPages}/>
+                        </Col>
+                        <Col md={1}>
+                            <DropdownItems baseValue="Select Number of Products to show" list={setLimitArray} selectedItem={limit} setSelectedItem={setLimit} />
+                        </Col>
+                    </>
+                }
+            </Row>
         </Col>
     )
 }

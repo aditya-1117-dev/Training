@@ -21,8 +21,6 @@ const Cart = ({loading, setProducts}: { loading: boolean, setProducts: Function 
         ? userCart?.data?.carts[0]?.products.slice(startIdx, startIdx + limit)
         : localStorageProducts?.slice(startIdx, startIdx + limit)
 
-    // const [products, setProducts] = useState(cartProducts);
-
     return (
         <Container>
             {!localStorageProducts && userCart?.loading

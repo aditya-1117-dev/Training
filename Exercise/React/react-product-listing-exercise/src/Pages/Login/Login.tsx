@@ -6,7 +6,7 @@ import {Col, Container, Row} from "reactstrap";
 import postRequest from "../../Utility/postRequest.tsx";
 import getRequest from "../../Utility/getRequest.tsx";
 import {useContext, useEffect, useRef} from "react";
-import {action, observable} from "mobx";
+import {observable} from "mobx";
 import {UserContext} from "../../App.tsx";
 import {useNavigate} from "react-router-dom";
 import {observer} from "mobx-react-lite";
@@ -29,9 +29,9 @@ class loginRootStore{
         this.loginFormStore.setOnSubmitCallBack( async (data: any) => {
             const {username, password } = data;
             try {
+                this.loginFormStore.setSubmission(true);
                 const response = await postRequest('https://dummyjson.com/auth/login', {username, password});
                 const user = await getRequest(`https://dummyjson.com/auth/me`, {'Authorization': `Bearer ${response.accessToken}`,});
-
                 localStorage.setItem("accessToken", response.accessToken);
                 localStorage.setItem("role", user.role);
                 setCurrentUser( ()=> user.username);
@@ -39,6 +39,9 @@ class loginRootStore{
                 navigate(`/${user.role}`);
             }catch (e) {
                 console.log(e)
+            }
+            finally {
+                this.loginFormStore.setSubmission(false);
             }
         });
     }

@@ -4,7 +4,7 @@ import {useContext, useEffect, useState} from "react";
 import {UserContext} from "../../App.tsx";
 import AddToCartButton from "./AddToCartButton.tsx";
 
-export default function ProductCard({product, setProducts}:{product: IProduct, setProducts : Function}){
+export default function ProductCard({product, setProducts}:{product: IProduct, setProducts : any}){
     const [quantity, setQuantity] = useState<number>(product.quantity || 0);
     const [, , userID] = useContext(UserContext);
 

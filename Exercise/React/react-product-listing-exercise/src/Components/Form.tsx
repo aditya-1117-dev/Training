@@ -3,6 +3,7 @@ import {observer} from "mobx-react-lite";
 import {ReactNode} from "react";
 import {FormStore} from "../stores/formStore.tsx";
 import { formStoreContext } from "../context/formContext.tsx";
+import Loader from "./Loader/Loader.tsx";
 
 interface IForm<T> {
     showSaveButton?: boolean,
@@ -24,15 +25,21 @@ function Form<T>({showSaveButton, showResetButton, children, formStore}: IForm<T
             <ReactStrapForm>
                 {children}
                 <Row>
-                    <Col>
-                        {(!isFormSubmitted || showSaveButton)
-                            && <Button onClick={() => formStore.submitForm()} color="primary" disabled={isFormSubmitted}> Submit </Button>}
-                    {/*</Col>*/}
-                    {/*<Col>*/}
-                        {(isFormSubmitted || showResetButton)
-                            && <Button onClick={() => formStore.resetForm()} color="primary"> Reset </Button>
-                        }
-                    </Col>
+                    {formStore.submitting
+                        ?
+                        <Col>
+                            <Loader height={50} width={50} />
+                        </Col>
+                        :
+                        <Col>
+                            {(!isFormSubmitted || showSaveButton)
+                                && <Button onClick={() => formStore.submitForm()} color="primary" disabled={isFormSubmitted}> Submit </Button>}
+                            {/*</Col>*/}
+                            {/*<Col>*/}
+                            {(isFormSubmitted || showResetButton)
+                                && <Button onClick={() => formStore.resetForm()} color="primary"> Reset </Button>
+                            }
+                        </Col> }
                 </Row>
             </ReactStrapForm>
         </formStoreContext.Provider>
