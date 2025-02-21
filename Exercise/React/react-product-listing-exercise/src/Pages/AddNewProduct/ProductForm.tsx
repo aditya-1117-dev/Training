@@ -33,6 +33,7 @@ formStore.setOnSubmitCallBack((data: any) => {
     const storedProducts = JSON.parse(localStorage.getItem(`products`) || "[]");
     if (data) storedProducts.push({...data, quantity: 0});
     localStorage.setItem(`products`, JSON.stringify(storedProducts) );
+    formStore.resetForm();
 });
 
 function ProductForm() {

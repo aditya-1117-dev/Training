@@ -6,6 +6,12 @@ export class FormStore<T> {
     @observable errors: Record<keyof T, string | string[]> = {} as { [K in keyof T]: string | string[] };
     @observable isSubmitted: boolean = false;
     private errorMessage: string = "REQUIRED";
+    @observable submitting = false;
+
+    @action
+    setSubmission( status : boolean){
+        this.submitting = status;
+    }
 
     constructor(initialState: T, onSubmit?: Function) {
         makeObservable(this);
