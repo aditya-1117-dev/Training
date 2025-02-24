@@ -1,6 +1,6 @@
-import UserNotAuthorized from "./UserNotAuthorized.tsx";
-import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
+import {useNavigate} from "react-router-dom";
+import UserNotAuthorized from "./UserNotAuthorized.tsx";
 
 function ProtectedRoute({ allowedRoles, children }: { children? : any ; allowedRoles: string[] }) {
     const token = localStorage.getItem("accessToken");
@@ -13,10 +13,20 @@ function ProtectedRoute({ allowedRoles, children }: { children? : any ; allowedR
             return ;
         }
     }, []);
-
-    if ( !allowedRoles.includes(role as string) ) {
+    if (token && allowedRoles.includes(role as string) ) {
+        return children;
+    }else if (token && !allowedRoles.includes(role as string)){
         return <UserNotAuthorized /> ;
+    }else{
+        return null;
     }
-    return children;
 }
-export default ProtectedRoute;
+
+function ProtectedRouteWrapper({allowedRoles, component} : {allowedRoles : string[], component : any}) {
+    return (
+        <ProtectedRoute allowedRoles={allowedRoles}>
+            {component}
+        </ProtectedRoute>
+    )
+}
+export default ProtectedRouteWrapper;
