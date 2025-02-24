@@ -12,6 +12,7 @@ import User from "./Pages/Intro/User.tsx";
 import ProductForm from "./Pages/AddNewProduct/ProductForm.tsx";
 import PageNotFound from "./Components/PageNotFound.tsx";
 import ProtectedRouteWrapper from "./Components/ProtectedRoute.tsx";
+import {IFetched} from "./Types/UtilityTypes.tsx";
 
 export const UserContext: Context<[string, Dispatch<SetStateAction<string>>, number]>
     = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", () => {
@@ -21,19 +22,19 @@ function App() {
     const [currentUser, setCurrentUser] = useState("");
     const [userID, setUserID] = useState(0);
 
-    const users = useFetch(`https://dummyjson.com/users`);
-    const usersByUsername = users?.data?.users.reduce((acc, user) => {
+    const users : IFetched<{ users : { username: string; id: number}[] }>  = useFetch(`https://dummyjson.com/users`);
+    const usersByUsername : Record<string, number> | undefined = users?.data?.users.reduce((acc : Record<string, number> , user : {username : string, id : number}) => {
         acc[user.username] = user.id;
         return acc;
     }, {});
 
     const localstorageValue = JSON.parse(localStorage.getItem(`${userID}`) as string);
-    const userCart = useFetch(currentUser !== "" && userID !== 0 && !localstorageValue
+    const userCart : IFetched<{carts : any}> = useFetch(currentUser !== "" && userID !== 0 && !localstorageValue
         ? `https://dummyjson.com/users/${userID}/carts` : ``);
 
     const [products, setProducts] = useState(localstorageValue || userCart?.data?.carts[0]?.products || []);
     useEffect(() => {
-        const currID = currentUser ? usersByUsername[currentUser] : 0;
+        const currID = currentUser && usersByUsername ? usersByUsername[currentUser] : 0;
         setUserID(() => currID);
 
         const localstorageValue = JSON.parse(localStorage.getItem(`${currID}`) as string);
@@ -43,11 +44,11 @@ function App() {
     useEffect(() => {
         const localstorageValue = JSON.parse(localStorage.getItem(`${userID}`) as string);
 
-        if (currentUser !== "" && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID) {
+        if (currentUser !== "" && usersByUsername && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts[0]?.userId === userID) {
             const products = userCart?.data?.carts[0]?.products ? userCart?.data?.carts[0]?.products : userCart?.data?.carts;
             localStorage.setItem(`${userID}`, JSON.stringify(products ?? []));
             setProducts(products ?? []);
-        } else if (currentUser !== "" && !localstorageValue && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts && !userCart?.data?.carts[0]?.userId) {
+        } else if (currentUser !== "" && !localstorageValue && usersByUsername && userID === usersByUsername[currentUser] && !userCart?.loading && userCart?.data?.carts && !userCart?.data?.carts[0]?.userId) {
             localStorage.setItem(`${userID}`, JSON.stringify([]));
         }
     }, [userID, userCart]);
@@ -71,24 +72,45 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Login/>}/>
-                    <Route path="/" element={<ProtectedRouteWrapper allowedRoles={allowedRoles.navbar}
-                                            component={<><Navbar users={users} cartLength={products?.length}/>
-                                                              <Outlet/></>}/>}>
-                        <Route index element={<Container className={'mt-xxl-5'}><h1>Hello</h1></Container>}/>
-                        <Route path="admin" element={<ProtectedRouteWrapper allowedRoles={allowedRoles.admin}
-                                                        component={<Admin setProducts={setProducts}/>}/>}/>
+                    <Route
+                        path="/"
+                        element={
+                            <ProtectedRouteWrapper
+                                allowedRoles={allowedRoles.navbar}
+                                component={
+                                    <>
+                                        <Navbar users={users} cartLength={products?.length}/>
+                                        <Outlet/>
+                                    </>}
+                            />
+                        }
+                    >
+                        <Route index
+                               element={
+                                <Container className={'mt-xxl-5'}>
+                                    <h1>Hello</h1>
+                                </Container>}
+                        />
+                        <Route path="admin"
+                               element={
+                            <ProtectedRouteWrapper allowedRoles={allowedRoles.admin}
+                                                   component={<Admin setProducts={setProducts}/>}/>}/>
 
-                        <Route path="moderator" element={<ProtectedRouteWrapper allowedRoles={allowedRoles.moderator}
-                                                            component={<Moderator setProducts={setProducts}/>}/>}/>
+                        <Route path="moderator"
+                               element={<ProtectedRouteWrapper allowedRoles={allowedRoles.moderator}
+                                                               component={<Moderator setProducts={setProducts}/>}/>}/>
 
-                        <Route path="user" element={<ProtectedRouteWrapper allowedRoles={allowedRoles.user}
+                        <Route path="user"
+                               element={<ProtectedRouteWrapper allowedRoles={allowedRoles.user}
                                                        component={<User setProducts={setProducts}/>}/>}/>
 
-                        <Route path="add-product" element={<ProtectedRouteWrapper allowedRoles={allowedRoles["add-products"]}
-                                                                                  component={<ProductForm/>}/>}/>
+                        <Route path="add-product"
+                               element={<ProtectedRouteWrapper allowedRoles={allowedRoles["add-products"]}
+                                                               component={<ProductForm/>}/>}/>
 
-                        <Route path="cart" element={<ProtectedRouteWrapper allowedRoles={allowedRoles.cart}
-                                                       component={<Cart key={userID} loading={userCart?.loading}
+                        <Route path="cart"
+                               element={<ProtectedRouteWrapper allowedRoles={allowedRoles.cart}
+                                                               component={<Cart key={userID} loading={userCart?.loading}
                                                                     setProducts={setProducts}/>}/>}/>
                     </Route>
                     <Route path="*" element={<PageNotFound/>}/>

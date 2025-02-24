@@ -5,6 +5,12 @@ export interface IuseFromInput {
     onChange: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
+export interface IFetched<T> {
+    data : null | T,
+    error : string | null,
+    loading : boolean
+}
+
 export interface IFetchedCategories {
     data : null | {
         data : string[],

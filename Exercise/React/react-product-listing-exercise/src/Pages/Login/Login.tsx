@@ -1,12 +1,11 @@
+import {useContext, useEffect, useRef} from "react";
+import {observable} from "mobx";
 import {FormStore} from "../../stores/formStore.tsx";
 import {StringField} from "../../Components/InputFields.tsx";
 import Form from "../../Components/Form.tsx";
-import '../../App.css'
 import {Col, Container, Row} from "reactstrap";
 import postRequest from "../../Utility/postRequest.tsx";
 import getRequest from "../../Utility/getRequest.tsx";
-import {useContext, useEffect, useRef} from "react";
-import {observable} from "mobx";
 import {UserContext} from "../../App.tsx";
 import {useNavigate} from "react-router-dom";
 import {observer} from "mobx-react-lite";
@@ -65,7 +64,7 @@ function Login() {
     return (
         <Container>
             <Row className="justify-content-center mt-5" >
-                <Col md={12}>
+                <Col className={'text-center'} md={12}>
                     <Form formStore={loginStore.current?.loginFormStore}>
                         <StringField name={"username"} required={true} label={"Username : "} />
                         <StringField name={"password"} required={true} label={"Password: "} />

@@ -14,10 +14,12 @@ interface IForm<T> {
 
 function Form<T>({showSaveButton, showResetButton, children, formStore}: IForm<T>) {
     if (!formStore){
-        return <> Form Store Not Provided</> ;
+        console.log('Form Store Not Provided')
+        return <></> ;
     }
     if (Object.keys(formStore.formData as object).length === 0){
-        return <> Form does not have initialized data</> ;
+        console.log('Form does not have initialized data')
+        return <></> ;
     }
     const isFormSubmitted = formStore.isSubmitted;
     return (

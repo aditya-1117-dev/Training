@@ -1,13 +1,13 @@
-import {Badge, Nav, Navbar, NavbarBrand, NavItem, Row} from "reactstrap";
+import {Badge, Nav, Navbar as ReactStrapNavbar, NavbarBrand, NavItem, Row} from "reactstrap";
 import {NavLink} from "react-router-dom";
 import {useContext} from "react";
 import { UserContext } from "../../App.tsx";
 import DropdownItems from "../Dropdown/DropdownItems.tsx";
 import LogOut from "../LogOut.tsx";
 
-export default function NavbarComponent({users, cartLength} : any) {
+export default function Navbar({users, cartLength} : any) {
     const [currentUser, setCurrentUser] = useContext(UserContext);
-    const usernames = users?.data?.users.map((user : any) => user.username.toUpperCase() );
+    const usernames = users?.data?.users.map((user : any) => user.username );
 
     const token = localStorage.getItem("accessToken");
     const role = localStorage.getItem("role");
@@ -46,7 +46,7 @@ export default function NavbarComponent({users, cartLength} : any) {
         }
     ]
     return (
-        <Navbar color="dark" light={false} dark={true} fixed="top" expand="md" className="mb-4">
+        <ReactStrapNavbar color="dark" light={false} dark={true} fixed="top" expand="md" className="mb-4">
             <NavbarBrand href="/">Product Listing</NavbarBrand>
             {token && role &&
                 <Nav className="ms-auto gap-xl-3" navbar>
@@ -63,6 +63,6 @@ export default function NavbarComponent({users, cartLength} : any) {
                     </NavItem>
                 </Nav>
             }
-        </Navbar>
+        </ReactStrapNavbar>
     )
 }
