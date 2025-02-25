@@ -1,21 +1,20 @@
 import {ChangeEvent} from 'react';
 import {observer} from 'mobx-react-lite';
 import {Input as ReactStrapInput} from 'reactstrap';
-import {IProductData} from "../../Pages/AddNewProduct/ProductForm.tsx";
 import {FormStore} from "../../stores/formStore.tsx";
 
-export interface IStringInput {
-    name: keyof IProductData;
+export interface IStringInput<T> {
+    name: keyof T;
     value?:  string;
     required: boolean;
     disabled?: boolean;
     onChange?: (value : any) => void;
     min? : number;
     max? : number;
-    store? : FormStore<IProductData>
+    store? : FormStore<T>
 }
 
-function StringInput({ name, value, onChange, disabled, required, min, max, store}: IStringInput) {
+function StringInput<T>({ name, value, onChange, disabled, required, min, max, store}: IStringInput<T> ) {
     const handleChange = ( e : ChangeEvent<HTMLInputElement>) => {
         if (onChange) {
             onChange(e.target.value);
@@ -30,7 +29,7 @@ function StringInput({ name, value, onChange, disabled, required, min, max, stor
     return (
         <ReactStrapInput
             type="text"
-            name={name}
+            name={name as string}
             value={value}
             onChange={handleChange}
             disabled={disabled}

@@ -1,5 +1,5 @@
 import {useFormInputBox} from "../../Utility/CustomHooks/formInput.tsx";
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, Dispatch, SetStateAction, useState} from "react";
 import "./Home.css";
 import useFetch from "../../Utility/CustomHooks/fetchData.tsx";
 import ListProducts from "../../Components/ProductListing/ListProducts.tsx";
@@ -24,7 +24,7 @@ function filterByKey( array1 : IProduct[] | undefined, key: keyof IProduct, valu
         : array1?.filter((product : IProduct )=> product[key] === value);
 }
 
-const Home = ({setProducts} : {setProducts: Function}) =>{
+const Home = ({setProducts} : {setProducts : Dispatch<SetStateAction<IProduct[]>>}) =>{
     const categories : IFetchedCategories = useFetch(`https://dummyjson.com/products/category-list`);
     const [selectedCategory, setSelectedCategory] = useState<string>("");
     const search : IuseFromInput  = useFormInputBox("");

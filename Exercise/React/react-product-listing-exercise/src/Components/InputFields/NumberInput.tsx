@@ -1,21 +1,20 @@
 import {ChangeEvent} from 'react';
 import {observer} from 'mobx-react-lite';
 import {Input as ReactStrapInput} from 'reactstrap';
-import {IProductData} from "../../Pages/AddNewProduct/ProductForm.tsx";
 import {FormStore} from "../../stores/formStore.tsx";
 
-export interface INumberInput {
-    name: keyof IProductData;
+export interface INumberInput<T> {
+    name: keyof T;
     value?: number;
     required: boolean;
     disabled?: boolean;
     onChange?: (value : any) => void;
     min? : number;
     max? : number;
-    store? : FormStore<IProductData>;
+    store? : FormStore<T>;
 }
 
-function NumberInput({name, value, onChange, disabled, required, min, max, store}: INumberInput) {
+function NumberInput<T>({name, value, onChange, disabled, required, min, max, store}: INumberInput<T>) {
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (onChange) {
             onChange(e.target.value);

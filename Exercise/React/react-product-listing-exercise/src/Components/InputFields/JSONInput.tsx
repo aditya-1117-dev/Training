@@ -1,10 +1,9 @@
-import {Button, Col, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
-import {IProductData} from "../../Pages/AddNewProduct/ProductForm.tsx";
+import {Button, Col, Row} from "reactstrap";
 import AddField from "../AddField.tsx";
 
-export interface IJSONField {
-    name: keyof IProductData,
+export interface IJSONField<T> {
+    name: keyof T,
     RenderField: (props: any) => JSX.Element,
     required?: boolean,
     label?: string,
@@ -13,7 +12,7 @@ export interface IJSONField {
     value?: any
 }
 
-const JSONInput = (props: IJSONField) => {
+function JSONInput<T>(props: IJSONField<T>) {
     const store = props?.store;
     const isFormSubmitted = store.isSubmitted;
     const jsonFields = store.getValue(props.name);
@@ -21,7 +20,7 @@ const JSONInput = (props: IJSONField) => {
 
     const {onChange, value, ...renderFieldProps} = props;
 
-    function handleAddNewInput(name: keyof IProductData) {
+    function handleAddNewInput(name: keyof T) {
         store.pushValue(name, ``);
     }
     function removeInputField(index: number) {

@@ -1,10 +1,10 @@
+import {Dispatch, SetStateAction, useContext, useEffect, useState} from "react";
 import { Card, CardBody, CardImg, CardText, CardTitle, Col, Row} from "reactstrap";
-import {IProduct} from "../../Types/UtilityTypes.tsx";
-import {useContext, useEffect, useState} from "react";
 import {UserContext} from "../../App.tsx";
+import {IProduct} from "../../Types/UtilityTypes.tsx";
 import AddToCartButton from "./AddToCartButton.tsx";
 
-export default function ProductCard({product, setProducts}:{product: IProduct, setProducts : any}){
+export default function ProductCard({product, setProducts}:{product: IProduct, setProducts : Dispatch<SetStateAction<IProduct[]>> | undefined }){
     const [quantity, setQuantity] = useState<number>(product.quantity || 0);
     const [, , userID] = useContext(UserContext);
 

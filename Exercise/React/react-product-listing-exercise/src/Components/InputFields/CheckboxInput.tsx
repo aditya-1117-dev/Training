@@ -1,18 +1,17 @@
-import { Col, FormGroup, Input, Label, Row} from "reactstrap";
 import {observer} from "mobx-react-lite";
-import {IProductData} from "../../Pages/AddNewProduct/ProductForm.tsx";
+import { Col, FormGroup, Input, Label, Row} from "reactstrap";
 import {FormStore} from "../../stores/formStore.tsx";
 
-export interface ICheckbox {
-    name: keyof IProductData;
+export interface ICheckbox<T> {
+    name: keyof T;
     disabled?: boolean;
     options?: { value: string, label: string }[];
-    store?: FormStore<IProductData>;
+    store?: FormStore<T>;
     onChange? : any;
     value? : any
 }
 
-const CheckboxInput = ({name, options, disabled, store, onChange, value}: ICheckbox) => {
+function CheckboxInput<T>({name, options, disabled, store, onChange, value}: ICheckbox<T>) {
     const selectedValues = value;
 
     function handleCheckboxSelection(value: string) {
@@ -23,7 +22,7 @@ const CheckboxInput = ({name, options, disabled, store, onChange, value}: ICheck
             } else {
                 array.push(value);
             }
-            store?.setValue(name, array);
+            store?.setValue(name, array as T[keyof T]);
         }
     }
     return (

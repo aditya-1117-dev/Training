@@ -1,9 +1,8 @@
 import {observer} from "mobx-react-lite";
 import {Input} from "reactstrap";
-import {IProductData} from "../../Pages/AddNewProduct/ProductForm.tsx";
 
-export interface ISelectInput {
-    name: keyof IProductData;
+export interface ISelectInput<T> {
+    name: keyof T;
     value?: number | string;
     required: boolean;
     disabled?: boolean;
@@ -11,9 +10,9 @@ export interface ISelectInput {
     options? : {value: string, label: string}[]
 }
 
-const SelectInput = ({name, value, onChange, disabled = false, required = false, options}: ISelectInput ) => {
+function SelectInput<T>({name, value, onChange, disabled = false, required = false, options}: ISelectInput<T> ) {
     return (
-        <Input type="select" name={name} value={value} onChange={(e) => onChange ? onChange(e.target.value) : e} disabled={disabled}
+        <Input type="select" name={name as string} value={value} onChange={(e) => onChange ? onChange(e.target.value) : e} disabled={disabled}
                required={required} >
             {options?.map((option: any) => (
                 <option key={option.value} value={option.value}>

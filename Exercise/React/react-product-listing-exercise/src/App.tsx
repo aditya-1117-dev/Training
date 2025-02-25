@@ -12,7 +12,7 @@ import User from "./Pages/Intro/User.tsx";
 import ProductForm from "./Pages/AddNewProduct/ProductForm.tsx";
 import PageNotFound from "./Components/PageNotFound.tsx";
 import ProtectedRouteWrapper from "./Components/ProtectedRoute.tsx";
-import {IFetched} from "./Types/UtilityTypes.tsx";
+import {IFetched, IProduct} from "./Types/UtilityTypes.tsx";
 
 export const UserContext: Context<[string, Dispatch<SetStateAction<string>>, number]>
     = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", () => {
@@ -32,7 +32,7 @@ function App() {
     const userCart : IFetched<{carts : any}> = useFetch(currentUser !== "" && userID !== 0 && !localstorageValue
         ? `https://dummyjson.com/users/${userID}/carts` : ``);
 
-    const [products, setProducts] = useState(localstorageValue || userCart?.data?.carts[0]?.products || []);
+    const [products, setProducts] = useState<IProduct[]>(localstorageValue || userCart?.data?.carts[0]?.products || []);
     useEffect(() => {
         const currID = currentUser && usersByUsername ? usersByUsername[currentUser] : 0;
         setUserID(() => currID);

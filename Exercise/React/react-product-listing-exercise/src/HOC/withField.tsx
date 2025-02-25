@@ -1,29 +1,31 @@
 import { useContext} from "react";
-import {IProductData} from "../Pages/AddNewProduct/ProductForm.tsx";
 import {FormStore} from "../stores/formStore.tsx";
 import {formStoreContext} from "../context/formContext.tsx";
 import Field from "../Components/Field.tsx";
 
-interface IBaseField {
-    name: keyof IProductData;
+interface IBaseField<T> {
+    name: keyof T;
     required?: boolean;
     disabled?: boolean;
     onChange?: any;
 }
 
-export interface IWithFieldProps extends IBaseField {
+export interface IWithFieldProps<T> extends IBaseField<T> {
     options?: { value: string, label: string }[];
     min?: number;
     max?: number;
     index?: number;
     label?: string;
-    store?: FormStore<IProductData>;
+    store?: FormStore<T>;
 }
 
-function withField<T extends IWithFieldProps>(WrappedComponent: (props: T) => JSX.Element) {
+function withField<T extends IWithFieldProps<T>>(WrappedComponent: (props: T) => JSX.Element) {
     return (props: T) => {
         const store = useContext(formStoreContext) || props?.store;
-        if (!store.hasKey(props.name)) return <h6>Given field is not initialized</h6>;
+        if (!store.hasKey(props.name)) {
+            console.log('Given field is not initialized');
+            return;
+        }
         return (
             <Field label={props.label}
                    store={store} name={props.name} required={props.required}
