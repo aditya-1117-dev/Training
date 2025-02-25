@@ -1,9 +1,9 @@
-import Form from "../../Components/Form.tsx";
 import {observer} from "mobx-react-lite";
-import { JSONField, NumberField, StringField} from "../../Components/InputFields.tsx";
-import StringInput from "../../Components/InputFields/StringInput.tsx";
-import {FormStore} from "../../stores/formStore.tsx";
 import {Col, Container, Row} from "reactstrap";
+import {FormStore} from "../../stores/formStore.tsx";
+import Form from "../../Components/Form.tsx";
+import { NumberField, StringField} from "../../Components/InputFields.tsx";
+import {useNavigate} from "react-router-dom";
 
 export interface IProductData {
     title: string,
@@ -29,20 +29,23 @@ export const formData: IProductData = {
 };
 
 export const formStore = new FormStore<IProductData>(formData);
-formStore.setOnSubmitCallBack((data: any) => {
-    const storedProducts = JSON.parse(localStorage.getItem(`products`) || "[]");
-    if (data) storedProducts.push({...data, quantity: 0});
-    localStorage.setItem(`products`, JSON.stringify(storedProducts) );
-    formStore.resetForm();
-});
 
 function ProductForm() {
+    const navigate = useNavigate();
+    formStore.setOnSubmitCallBack((data: any) => {
+        const storedProducts = JSON.parse(localStorage.getItem(`products`) || "[]");
+        if (data) storedProducts.push({...data, quantity: 0});
+        localStorage.setItem(`products`, JSON.stringify(storedProducts) );
+        formStore.resetForm();
+        const role = localStorage.getItem('role');
+        navigate(`/${role}`);
+    });
     return (
         <Container>
-            <h2> Add New Product Form </h2>
+            <h2 className={'text-center m-xl-5'}> Add New Product Form </h2>
             <Row>
                 <Col className={'text-center'}>
-                    <Form formStore={formStore}>
+                    <Form<IProductData> formStore={formStore}>
                         <StringField name="title" label="Product Title" required={true} />
                         <StringField name="category" label="Product Category" required={true} />
                         <StringField name="thumbnail" label="Product Image Link" required={true} />
@@ -50,7 +53,7 @@ function ProductForm() {
                         <NumberField name="price" label="Price of the product" required={true}/>
                         <StringField name="description" label="Product Description :" required={true}/>
 
-                        <JSONField name={"tags"} label={"Tags :"} RenderField={ (props: any) => <StringInput {...props} /> } />
+                        {/*<JSONField name={"tags"} label={"Tags :"} RenderField={ (props: any) => <StringInput {...props} /> } />*/}
                     </Form>
                 </Col>
             </Row>
