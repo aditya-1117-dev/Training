@@ -2,18 +2,17 @@ import {observer} from "mobx-react-lite";
 import { Col, FormGroup, Input, Label, Row} from "reactstrap";
 import {FormStore} from "../../stores/formStore.tsx";
 
-export interface ICheckbox<T> {
-    name: keyof T;
+export interface ICheckbox {
+    name: string;
     disabled?: boolean;
     options?: { value: string, label: string }[];
-    store?: FormStore<T>;
+    store?: FormStore<any>;
     onChange? : any;
     value? : any
 }
 
-function CheckboxInput<T>({name, options, disabled, store, onChange, value}: ICheckbox<T>) {
+function CheckboxInput({name, options, disabled, store, onChange, value}: ICheckbox) {
     const selectedValues = value;
-
     function handleCheckboxSelection(value: string) {
         if (Array.isArray(selectedValues)) {
             let array = [...selectedValues];
@@ -22,7 +21,7 @@ function CheckboxInput<T>({name, options, disabled, store, onChange, value}: ICh
             } else {
                 array.push(value);
             }
-            store?.setValue(name, array as T[keyof T]);
+            store?.setValue(name, array);
         }
     }
     return (
@@ -39,6 +38,6 @@ function CheckboxInput<T>({name, options, disabled, store, onChange, value}: ICh
             ))}
         </FormGroup>
     );
-};
+}
 
 export default observer(CheckboxInput);

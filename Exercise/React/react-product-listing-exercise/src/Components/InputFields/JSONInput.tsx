@@ -1,30 +1,31 @@
 import {observer} from "mobx-react-lite";
 import {Button, Col, Row} from "reactstrap";
 import AddField from "../AddField.tsx";
+import {FormStore} from "../../stores/formStore.tsx";
 
-export interface IJSONField<T> {
-    name: keyof T,
+export interface IJSONField {
+    name: string,
     RenderField: (props: any) => JSX.Element,
     required?: boolean,
     label?: string,
-    store?: any,
     onChange?: any,
-    value?: any
+    value?: any,
+    store?: FormStore<any>
 }
 
-function JSONInput<T>(props: IJSONField<T>) {
+function JSONInput(props: IJSONField) {
     const store = props?.store;
-    const isFormSubmitted = store.isSubmitted;
-    const jsonFields = store.getValue(props.name);
+    const isFormSubmitted = store?.isSubmitted;
+    const jsonFields = store?.getValue(props.name);
     if (!(Array.isArray(jsonFields) && jsonFields.length > 0)) return <></>;
 
     const {onChange, value, ...renderFieldProps} = props;
 
-    function handleAddNewInput(name: keyof T) {
-        store.pushValue(name, ``);
+    function handleAddNewInput(name: string) {
+        store?.pushValue(name, `` as any);
     }
     function removeInputField(index: number) {
-        store.removeItemFromArray(props.name, index);
+        store?.removeItemFromArray(props.name, index);
     }
     function handleOnchange(val: any, index: number) {
         const array = [...value];

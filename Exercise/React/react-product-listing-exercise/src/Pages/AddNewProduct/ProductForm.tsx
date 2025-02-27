@@ -45,7 +45,7 @@ function ProductForm() {
             <h2 className={'text-center m-xl-5'}> Add New Product Form </h2>
             <Row>
                 <Col className={'text-center'}>
-                    <Form<IProductData> formStore={formStore}>
+                    <Form formStore={formStore}>
                         <StringField name="title" label="Product Title" required={true} />
                         <StringField name="category" label="Product Category" required={true} />
                         <StringField name="thumbnail" label="Product Image Link" required={true} />
