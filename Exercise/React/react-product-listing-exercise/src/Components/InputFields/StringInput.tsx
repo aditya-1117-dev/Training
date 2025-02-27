@@ -34,7 +34,6 @@ function StringInput<T>({ name, value, onChange, disabled, required, min, max, s
             onChange={handleChange}
             disabled={disabled}
             required={required}
-            // minLength={min} maxLength={max}
         />
     );
 }

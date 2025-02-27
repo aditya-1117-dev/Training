@@ -64,7 +64,7 @@ function Login() {
     return (
         <Container>
             <Row className="justify-content-center mt-5" >
-                <Col className={'text-center'} md={12}>
+                <Col className={'text-center'} md={6}>
                     <Form<ILogin> formStore={loginStore.current?.loginFormStore}>
                         <StringField name={"username"} required={true} label={"Username : "} />
                         <StringField name={"password"} required={true} label={"Password: "} />

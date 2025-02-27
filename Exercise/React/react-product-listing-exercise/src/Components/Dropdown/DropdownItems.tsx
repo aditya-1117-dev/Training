@@ -2,7 +2,9 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap"
 import ListCategories from "../ProductListing/ListCategories.tsx";
 import {FC, useState, Dispatch, SetStateAction} from "react";
 
-const DropdownItems : FC<{list: string[] | object | null, selectedItem : string | number, setSelectedItem : Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<number>> | Function , baseValue : string}>  = ({ list, selectedItem, setSelectedItem, baseValue } ) => {
+const DropdownItems : FC<{list: string[] | object | null, selectedItem : string | number,
+    setSelectedItem : Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<number>> | Function , baseValue : string}>
+    = ({ list, selectedItem, setSelectedItem, baseValue } ) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
     return (

@@ -77,3 +77,43 @@ export interface IProduct {
     warrantyInformation: string;
     meta: IMeta;
 }
+export interface IUser {
+    id: number;
+    firstName: string;
+    lastName: string;
+    maidenName: string;
+    age: number;
+    gender: string;
+    email: string;
+    phone: string;
+    username: string;
+    password: string;
+    birthDate: string;
+    image: string;
+    bloodGroup: string;
+    height: number;
+    weight: number;
+    eyeColor: string;
+    hair: object;
+    ip: string;
+    address: object;
+    macAddress: string;
+    university: string;
+    bank: object;
+    company: object;
+    ein: string;
+    ssn: string;
+    userAgent: string;
+    crypto: object;
+    role: string;
+}
+
+export interface ICart {
+    id: number;
+    products: IProduct[] | undefined;
+    total: number;
+    discountedTotal: number;
+    userId: number;
+    totalProducts: number;
+    totalQuantity: number;
+}

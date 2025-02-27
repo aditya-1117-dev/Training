@@ -52,8 +52,6 @@ function ProductForm() {
                         <StringField name="discountPercentage" label="Discount on Product (in percentage)" required={true} />
                         <NumberField name="price" label="Price of the product" required={true}/>
                         <StringField name="description" label="Product Description :" required={true}/>
-
-                        {/*<JSONField name={"tags"} label={"Tags :"} RenderField={ (props: any) => <StringInput {...props} /> } />*/}
                     </Form>
                 </Col>
             </Row>
