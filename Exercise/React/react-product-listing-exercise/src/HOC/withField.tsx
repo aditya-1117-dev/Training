@@ -18,6 +18,7 @@ export interface IWithFieldProps<T> extends IBaseField<T> {
     index?: number;
     label?: string;
     store?: FormStore<T>;
+    RenderField?: any;
 }
 
 function withField<T, P>(WrappedComponent: (props: P & IWithFieldProps<T> ) => JSX.Element) {
@@ -27,22 +28,28 @@ function withField<T, P>(WrappedComponent: (props: P & IWithFieldProps<T> ) => J
             console.log('Given field is not initialized');
             return <></>;
         }
-        const wrappedComponentProps = {store, disabled: store.isSubmitted,
-            value: typeof props?.index === "number"
-                ? store.getValue(props.name, props.index)
-                : store.getValue(props.name)
-        } as P & IWithFieldProps<T>;
+        function handleAddNewInput(name: string) {
+            store?.pushValue(name, `` as any);
+        }
+        function removeInputField(index: number) {
+            store?.removeItemFromArray(props.name, index);
+        }
+        const wrappedComponentProps = {} as P & IWithFieldProps<T>;
 
         return (
-            <Field label={props.label}
-                   store={store} name={props.name} required={props.required}
-                   index={props.index}
-                   callBack={props?.onChange}
-                   inputFieldComponent={(inputProps: { name: keyof T, required: boolean },
-                                         handleChange: (value : any) => void) => (
-                       <WrappedComponent {...inputProps} {...wrappedComponentProps} {...props}
-                                         onChange={handleChange}/>
-                   )}
+            <Field label={props.label} min={props.min} max={props.max}
+                store={store} name={props.name} required={props.required}
+                index={props.index}
+                callBack={props?.onChange}
+                inputFieldComponent={(inputProps: { name: keyof T, required: boolean },
+                                     handleChange: (value : any) => void) => (
+                    <WrappedComponent {...inputProps} {...wrappedComponentProps} disabled={store.isSubmitted}
+                        options={props.options} RenderField={props.RenderField} onChange={handleChange}
+                        handleAddNewInput={handleAddNewInput} removeInputField={removeInputField}
+                        value={typeof props?.index === "number"
+                           ? store.getValue(props.name, props.index)
+                           : store.getValue(props.name)} />
+                    )}
             />
         )
     }

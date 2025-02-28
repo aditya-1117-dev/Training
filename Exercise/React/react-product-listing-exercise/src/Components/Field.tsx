@@ -12,9 +12,11 @@ export interface IField<T> {
     inputFieldComponent?: any;
     callBack?: Function;
     index?: number;
+    min?: number;
+    max?: number;
 }
 
-function Field<T>({name, label, store, required, inputFieldComponent, callBack, index}: IField<T>) {
+function Field<T>({name, label, store, required, inputFieldComponent, callBack, index, min, max}: IField<T>) {
     const formStore: FormStore<T> = useContext(formStoreContext) || store;
     if (required){
         typeof index === "number"
@@ -25,6 +27,27 @@ function Field<T>({name, label, store, required, inputFieldComponent, callBack, 
         typeof index === "number"
             ? formStore.setValue(name, value, index)
             : formStore.setValue(name,value)
+
+        const val = typeof index === "number"
+            ? formStore.getValue(name, index)
+            : formStore.getValue(name)
+
+        if (typeof val === 'string') {
+            if (min && (val.length < min)) {
+                formStore?.setError(name, `Minimum length should be ${min}`);
+            }
+            if (max && val.length > max) {
+                formStore?.setError(name, `Maximum length should be ${max}`);
+            }
+        }
+        else if (typeof val === 'number') {
+            if (max && val > max) {
+                formStore.setError(name, `Maximum limit is ${max}`);
+            } else if (min && val < min) {
+                formStore.setError(name, `Minimum limit is ${min}`);
+            }
+        }
+
         if (callBack) {
             callBack();
         }

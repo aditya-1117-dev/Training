@@ -1,6 +1,6 @@
 import withField from "../HOC/withField.tsx";
 import Checkbox, {ICheckbox} from "./InputFields/CheckboxInput.tsx";
-import JSONInput, {IJSONField} from "./InputFields/JSONInput.tsx";
+import JSONInput, {IJSONInput} from "./InputFields/JSONInput.tsx";
 import RadioInput, {IRadioInput} from "./InputFields/RadioInput.tsx";
 import SelectInput, {ISelectInput} from "./InputFields/SelectInput.tsx";
 import NumberInput, {INumberInput} from "./InputFields/NumberInput.tsx";
@@ -11,4 +11,4 @@ export const NumberField = withField((props : INumberInput ) => (<NumberInput {.
 export const SelectField = withField((props: ISelectInput ) => <SelectInput {...props} />);
 export const CheckField = withField((props: ICheckbox ) => <Checkbox {...props} />);
 export const RadioField = withField((props: IRadioInput ) => <RadioInput {...props} />);
-export const JSONField = withField((props: IJSONField ) => <JSONInput {...props} />)
+export const JSONField = withField((props: IJSONInput ) => <JSONInput {...props} />)

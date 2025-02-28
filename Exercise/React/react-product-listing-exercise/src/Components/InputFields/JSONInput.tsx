@@ -1,32 +1,26 @@
 import {observer} from "mobx-react-lite";
 import {Button, Col, Row} from "reactstrap";
 import AddField from "../AddField.tsx";
-import {FormStore} from "../../stores/formStore.tsx";
 
-export interface IJSONField {
+export interface IJSONInput {
     name: string,
     RenderField: (props: any) => JSX.Element,
     required?: boolean,
     label?: string,
     onChange?: any,
     value?: any,
-    store?: FormStore<any>
+    disabled?: boolean;
+    handleAddNewInput: (name: string) => void;
+    removeInputField: (index: number) => void;
 }
 
-function JSONInput(props: IJSONField) {
-    const store = props?.store;
-    const isFormSubmitted = store?.isSubmitted;
-    const jsonFields = store?.getValue(props.name);
+function JSONInput(props: IJSONInput) {
+    const isFormSubmitted = props.disabled;
+    const jsonFields = props.value;
     if (!(Array.isArray(jsonFields) && jsonFields.length > 0)) return <></>;
 
     const {onChange, value, ...renderFieldProps} = props;
 
-    function handleAddNewInput(name: string) {
-        store?.pushValue(name, `` as any);
-    }
-    function removeInputField(index: number) {
-        store?.removeItemFromArray(props.name, index);
-    }
     function handleOnchange(val: any, index: number) {
         const array = [...value];
         array[index] = val;
@@ -42,13 +36,13 @@ function JSONInput(props: IJSONField) {
                                                onChange={(value: any) => handleOnchange(value, index)}/>
                         </Col>
                         <Col md={4}>{index > 0 &&
-                            <Button onClick={() => removeInputField(index)} color={"danger"}
+                            <Button onClick={() => props.removeInputField(index)} color={"danger"}
                                     disabled={isFormSubmitted}> Delete </Button>}</Col>
                     </Row>
                 )
             })}
-            <AddField handleAddNewInput={() => handleAddNewInput(props.name)} disabled={isFormSubmitted}/>
+            <AddField handleAddNewInput={() => props.handleAddNewInput(props.name)} disabled={isFormSubmitted}/>
         </>
     )
-};
+}
 export default observer(JSONInput)

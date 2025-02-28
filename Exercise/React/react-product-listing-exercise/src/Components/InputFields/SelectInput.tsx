@@ -1,6 +1,5 @@
 import {observer} from "mobx-react-lite";
 import {Input} from "reactstrap";
-import {FormStore} from "../../stores/formStore.tsx";
 
 export interface ISelectInput {
     name: string;
@@ -9,7 +8,6 @@ export interface ISelectInput {
     disabled?: boolean;
     onChange?: (value : any) => void;
     options? : {value: string, label: string}[];
-    store?: FormStore<any>
 }
 
 function SelectInput({name, value, onChange, disabled = false, required = false, options}: ISelectInput ) {
