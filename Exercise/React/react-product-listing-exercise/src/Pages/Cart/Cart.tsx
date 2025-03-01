@@ -7,7 +7,7 @@ import Loader from "../../Components/Loader/Loader.tsx";
 import {ICart, IFetched, IProduct} from "../../Types/UtilityTypes.tsx";
 
 const Cart = ({loading, setProducts}: { loading: boolean, setProducts: Dispatch<SetStateAction<IProduct[]>> }) => {
-    const [, , userID] = useContext(UserContext);
+    const { userID } = useContext(UserContext);
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(2);
     const localStorageValue = JSON.parse(localStorage.getItem(`${userID}`) as string);

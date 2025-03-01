@@ -50,7 +50,7 @@ function Login() {
     const token = localStorage.getItem("accessToken");
     const role = localStorage.getItem("role");
     const loginStore = useRef<loginRootStore | null>(null);
-    const [, setCurrentUser,] = useContext(UserContext);
+    const { setCurrentUser } = useContext(UserContext);
     const navigate = useNavigate();
 
     useEffect(() => {

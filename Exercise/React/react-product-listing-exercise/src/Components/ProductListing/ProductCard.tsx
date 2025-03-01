@@ -6,7 +6,7 @@ import AddToCartButton from "./AddToCartButton.tsx";
 
 export default function ProductCard({product, setProducts}:{product: IProduct, setProducts : Dispatch<SetStateAction<IProduct[]>> | undefined }){
     const [quantity, setQuantity] = useState<number>(product.quantity || 0);
-    const [, , userID] = useContext(UserContext);
+    const {userID} = useContext(UserContext);
 
     const updateCart = (updatedCart: IProduct[]) => {
         localStorage.setItem(`${userID}`, JSON.stringify(updatedCart));

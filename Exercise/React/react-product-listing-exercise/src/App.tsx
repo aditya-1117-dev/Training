@@ -1,4 +1,4 @@
-import {Context, createContext, Dispatch, SetStateAction, useEffect, useState} from "react";
+import { createContext, Dispatch, SetStateAction, useEffect, useState} from "react";
 import {BrowserRouter, Outlet, Route, Routes} from "react-router-dom";
 import {Container} from "reactstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,9 +14,8 @@ import PageNotFound from "./Components/PageNotFound.tsx";
 import ProtectedRouteWrapper from "./Components/ProtectedRoute.tsx";
 import {ICart, IFetched, IProduct, IUser} from "./Types/UtilityTypes.tsx";
 
-export const UserContext: Context<[string, Dispatch<SetStateAction<string>>, number]>
-    = createContext<[string, Dispatch<SetStateAction<string>>, number]>(["", () => {
-}, 0]);
+export const UserContext = createContext<{ currentUser: string; setCurrentUser: Dispatch<SetStateAction<string>>; userID: number; }>
+                                        ({currentUser: "", setCurrentUser: () => {}, userID: 0});
 
 function App() {
     const [currentUser, setCurrentUser] = useState("");
@@ -70,7 +69,7 @@ function App() {
         'add-products': [Role.ADMIN, Role.MODERATOR],
     }
     return (
-        <UserContext.Provider value={[currentUser, setCurrentUser, userID]}>
+        <UserContext.Provider value={{currentUser, setCurrentUser, userID }} >
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Login/>}/>

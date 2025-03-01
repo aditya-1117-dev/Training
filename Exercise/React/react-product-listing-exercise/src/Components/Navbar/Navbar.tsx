@@ -6,7 +6,7 @@ import DropdownItems from "../Dropdown/DropdownItems.tsx";
 import LogOut from "../LogOut.tsx";
 
 export default function Navbar({users, cartLength} : any) {
-    const [currentUser, setCurrentUser] = useContext(UserContext);
+    const { currentUser, setCurrentUser } = useContext(UserContext);
     const usernames = users?.data?.users.map((user : any) => user.username );
 
     const token = localStorage.getItem("accessToken");
