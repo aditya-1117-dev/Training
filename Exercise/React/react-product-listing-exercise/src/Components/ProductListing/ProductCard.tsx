@@ -18,7 +18,7 @@ export default function ProductCard({product, setProducts}:{product: IProduct, s
     useEffect(() => {
         const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
-        if(existingProduct){
+        if(storedCart && existingProduct){
             setQuantity( existingProduct.quantity);
         }
         else{
@@ -29,7 +29,7 @@ export default function ProductCard({product, setProducts}:{product: IProduct, s
     function handleAddToCart() {
         const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
-        if (existingProduct) {
+        if (storedCart && existingProduct) {
             existingProduct.quantity += 1;
         } else {
             storedCart.push({ ...product, quantity: 1 });
@@ -41,7 +41,7 @@ export default function ProductCard({product, setProducts}:{product: IProduct, s
     function handleDecreaseFromCart() {
         const storedCart = JSON.parse(localStorage.getItem(`${userID}`) || "[]");
         const existingProduct = storedCart.find((p: IProduct) => p.id === product.id);
-        if (existingProduct) {
+        if (storedCart && existingProduct) {
             existingProduct.quantity -= 1;
             if (existingProduct.quantity === 0) {
                 handleRemoveItemFromCart();

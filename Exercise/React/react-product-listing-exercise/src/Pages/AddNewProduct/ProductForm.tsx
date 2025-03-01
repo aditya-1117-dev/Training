@@ -34,7 +34,8 @@ function ProductForm() {
     const navigate = useNavigate();
     formStore.setOnSubmitCallBack((data: any) => {
         const storedProducts = JSON.parse(localStorage.getItem(`products`) || "[]");
-        if (data) storedProducts.push({...data, quantity: 0});
+        const uniqueId = Date.now();
+        if (data) storedProducts.push({id : uniqueId, ...data, quantity: 0});
         localStorage.setItem(`products`, JSON.stringify(storedProducts) );
         formStore.resetForm();
         const role = localStorage.getItem('role');
