@@ -28,12 +28,6 @@ function withField<T, P>(WrappedComponent: (props: P & IWithFieldProps<T> ) => J
             console.log('Given field is not initialized');
             return <></>;
         }
-        function handleAddNewInput(name: string) {
-            store?.pushValue(name, `` as any);
-        }
-        function removeInputField(index: number) {
-            store?.removeItemFromArray(props.name, index);
-        }
         const wrappedComponentProps = {} as P & IWithFieldProps<T>;
 
         return (
@@ -41,11 +35,11 @@ function withField<T, P>(WrappedComponent: (props: P & IWithFieldProps<T> ) => J
                 store={store} name={props.name} required={props.required}
                 index={props.index}
                 callBack={props?.onChange}
-                inputFieldComponent={(inputProps: { name: keyof T, required: boolean },
+                inputFieldComponent={(inputProps: { name: keyof T, required: boolean,
+                                          handleAddNewInput? : (name: string) => void, removeInputField?: (index: number) => void },
                                      handleChange: (value : any) => void) => (
                     <WrappedComponent {...inputProps} {...wrappedComponentProps} disabled={store.isSubmitted}
                         options={props.options} RenderField={props.RenderField} onChange={handleChange}
-                        handleAddNewInput={handleAddNewInput} removeInputField={removeInputField}
                         value={typeof props?.index === "number"
                            ? store.getValue(props.name, props.index)
                            : store.getValue(props.name)} />

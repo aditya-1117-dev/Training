@@ -51,8 +51,14 @@ function Field<T>({name, label, store, required, inputFieldComponent, callBack, 
         if (callBack) {
             callBack();
         }
-    };
-    const inputProps = {name, required};
+    }
+    function handleAddNewInput(name: keyof T) {
+        store?.pushValue(name, `` as T[keyof T]);
+    }
+    function removeInputField(index: number) {
+        store?.removeItemFromArray(name, index);
+    }
+    const inputProps = {name, required, handleAddNewInput, removeInputField };
     return (
         <FormGroup row>
             <Label for={name as string} sm={4}>
