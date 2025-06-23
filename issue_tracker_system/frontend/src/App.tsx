@@ -3,7 +3,7 @@ import { Route, Routes} from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound.tsx";
 import Login from "./pages/Login.tsx";
 import Home from "./pages/Home.tsx";
-import ProtectedRouteWrapper from "./components/ProtectedRoute.tsx";
+import {withProtectedRoute} from "./HOC/withProtectedRoute.tsx";
 
 function App() {
     enum Role {
@@ -16,14 +16,13 @@ function App() {
         'home': [Role.ADMIN, Role.TEAM_LEAD, Role.MEMBER],
     }
 
+    const ProtectedHome = withProtectedRoute<{}>(Home, allowedRoles.home);
+
     return (
         <Routes>
             <Route path="/login" element={<Login/>}/>
             <Route path="/home" element={
-                <ProtectedRouteWrapper
-                    allowedRoles={allowedRoles.home}
-                    component={<Home/>}
-                />
+                <ProtectedHome />
             } />
             <Route path="*" element={<PageNotFound/>}/>
         </Routes>
