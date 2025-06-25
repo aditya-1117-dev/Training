@@ -41,6 +41,10 @@ const Login: React.FC = () => {
             setError('Please enter a valid email address.');
             return;
         }
+        if (!password.trim()){
+            setError('Password cannot be empty.');
+            return;
+        }
         setLoading(true);
 
         try {
