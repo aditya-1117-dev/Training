@@ -1,7 +1,8 @@
-import { type ComponentType, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth.tsx";
+import {type ComponentType, useEffect} from "react";
+import {useNavigate} from "react-router-dom";
+import {useAuth} from "../hooks/useAuth.tsx";
 import UserNotAuthorized from "../pages/UserNotAuthorized.tsx";
+import Layout from "../components/Layout.tsx";
 
 export function withProtectedRoute<T extends {}>(
     WrappedComponent: ComponentType<T>,
@@ -9,23 +10,26 @@ export function withProtectedRoute<T extends {}>(
 ) {
     return (props: T) => {
         const navigate = useNavigate();
-        const { user, token } = useAuth();
+        const {user, token} = useAuth();
 
         useEffect(() => {
             if (!token) {
-                navigate('/login');
+                navigate('/');
             }
         }, [token]);
 
         if (!token || !user) {
-            console.log("User is not authenticated or token is missing.");
             return null;
         }
 
         if (!allowedRoles.includes(user.role)) {
-            return <UserNotAuthorized />;
+            return <UserNotAuthorized/>;
         }
 
-        return <WrappedComponent {...props} />;
+        return (
+            <Layout>
+                <WrappedComponent {...props} />
+            </Layout>
+        );
     };
 }
