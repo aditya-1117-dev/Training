@@ -5,7 +5,7 @@ export async function getRequest<T = any>(
     headers: Record<string, string> = {},
     options: RequestInit = {}
 ): Promise<IAPIResponse<T>> {
-    const response : Response = await fetch(url, {
+    const response: Response = await fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -28,22 +28,31 @@ export async function postRequest<T = any, B = any>(
     headers: Record<string, string> = {},
     options: RequestInit = {}
 ): Promise<IAPIResponse<T>> {
-    const response: Response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...headers,
-        },
-        body: JSON.stringify(body),
-        ...options,
-    });
+    try {
+        const response: Response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...headers,
+            },
+            body: JSON.stringify(body),
+            ...options,
+        });
 
-    if (!response.ok) {
-        throw new Error(`POST request failed: ${response.statusText}`);
+        const data = await response.json() as IAPIResponse<T>;
+
+        if (!response.ok) {
+            return data;
+        }
+        return data;
+    } catch (e: unknown) {
+        console.log(e)
+        return {
+            success: false,
+            message: e instanceof Error ? e.message : 'An error occurred during the POST request',
+            data: null as any
+        };
     }
-
-    const data = await response.json() as IAPIResponse<T>;
-    return data;
 }
 
 export async function putRequest<T = any, B = any>(
