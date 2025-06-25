@@ -1,15 +1,6 @@
-
 export interface IError {
     code : string;
     message : string;
-}
-
-export interface ILoginResponse {
-    "id": string,
-    "email": string,
-    "name": string,
-    "role": string,
-    "is_active": boolean
 }
 
 export interface IAPIResponse<T> {
@@ -17,4 +8,10 @@ export interface IAPIResponse<T> {
     data? : T;
     error? : IError;
     message? : string;
+    "pagination"?: {
+        "page": number,
+        "limit": number,
+        "total": number,
+        "totalPages": number
+    }
 }

@@ -18,21 +18,40 @@ const Login: React.FC = () => {
     const { user, login, isAuthenticated } = useAuth()!;
     const navigate = useNavigate();
 
+    const validateEmail = (email: string): boolean => {
+        return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
+    };
+
     useEffect(() => {
-        if (isAuthenticated){
-            navigate('/home');
+        if (isAuthenticated ) {
+            if (user?.role === 'ADMIN'){
+                navigate('/users');
+            }
+            else {
+                navigate('/home');
+            }
         }
     }, [user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        if (!validateEmail(email)) {
+            setError('Please enter a valid email address.');
+            return;
+        }
         setLoading(true);
+
         try {
-            await login(email, password);
-            navigate('/home');
-        } catch (err) {
-            setError('Invalid credentials');
+            const userRole = await login(email, password);
+            if (userRole === 'ADMIN') {
+                navigate('/users');
+            } else {
+                navigate('/home');
+            }
+        } catch (err : unknown) {
+            setError(err instanceof Error ? err.message : 'Invalid credentials');
         } finally {
             setLoading(false);
         }

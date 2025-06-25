@@ -1,10 +1,10 @@
 import { createContext } from 'react';
-import type {ILoginResponse} from "../../types/apiTypes.tsx";
+import type {IUser} from "../../types/userTypes";
 
 export interface IAuthContext {
-    user: ILoginResponse | null;
+    user: IUser | null;
     token: string | null;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<void | string>;
     logout: () => void;
     isAuthenticated: boolean;
     loading: boolean;
