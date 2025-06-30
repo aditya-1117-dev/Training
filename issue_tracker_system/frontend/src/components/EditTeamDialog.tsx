@@ -15,23 +15,34 @@ import type { IUser } from '../types/user.ts';
 import type { ITeam, ITeamUpdateData } from '../types/team.ts';
 import { useSnackbar } from '../hooks/useSnackBar.ts';
 import {useEffect, useState} from "react";
+import {useAPI} from "../hooks/useAPI.ts";
 
 interface EditTeamDialogProps {
     users: IUser[];
     open: boolean;
     onClose: () => void;
-    onSubmit: (teamId: string, data: ITeamUpdateData) => Promise<void>;
+    onSubmit: () => Promise<void> | void;
     team: ITeam | null;
-    loading? : boolean
 }
 
-export function EditTeamDialog({ open, onClose, onSubmit, users, team, loading = false }: EditTeamDialogProps) {
+export function EditTeamDialog({ open, onClose, onSubmit, users, team }: EditTeamDialogProps) {
     const [formData, setFormData] = useState<ITeamUpdateData>({
         name: team?.name || '',
         description: team?.description || '',
         team_lead_id: team?.team_lead_id || '',
     });
     const { addSnackbar } = useSnackbar();
+
+    const {execute: updateTeam, isLoading: loading} = useAPI<IUser, ITeamUpdateData>('/api/teams/:id', {
+        method: 'PUT',
+        onSuccess: () => {
+            addSnackbar( { severity : 'success', message : 'Team updated successfully!'})
+            onSubmit();
+        },
+        onError: (err: unknown) => {
+            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Team update failed'})
+        }
+    });
 
     useEffect(() => {
         if (team) {
@@ -56,7 +67,10 @@ export function EditTeamDialog({ open, onClose, onSubmit, users, team, loading =
             return;
         }
         if (team?.id) {
-            await onSubmit(team.id, {...formData});
+            await updateTeam({
+                pathParams: {id: team.id},
+                body: {...formData}
+            })
         }
     };
 
