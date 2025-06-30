@@ -11,26 +11,43 @@ import {
     Select,
     MenuItem, type SelectChangeEvent
 } from '@mui/material';
-import type {IUser} from '../types/user.ts';
-import type {ITeamCreateData} from '../types/team.ts';
+import type {IUser, IUserUpdateData} from '../types/user.ts';
+import type {ITeam, ITeamCreateData} from '../types/team.ts';
 import {useState} from "react";
 import {useSnackbar} from "../hooks/useSnackBar.ts";
+import {useAPI} from "../hooks/useAPI.ts";
 
 interface ICreateTeamDialog {
     users: IUser[];
     open: boolean;
     onClose: () => void;
-    onSubmit: (data: ITeamCreateData, memberID: string) => Promise<void>;
-    loading?: boolean;
+    onSubmit: () => Promise<void> | void;
 }
 
-export function CreateTeamDialog({open, onClose, onSubmit, users, loading = false}: ICreateTeamDialog) {
+export function CreateTeamDialog({open, onClose, onSubmit, users}: ICreateTeamDialog) {
     const [formData, setFormData] = useState<ITeamCreateData>({
         name: '',
         description: '',
         team_lead_id: '',
     });
     const {addSnackbar} = useSnackbar();
+
+    const {execute: updateUser, isLoading: userUpdateLoading} = useAPI<IUser, IUserUpdateData>('/api/users/:id', {
+        method: 'PUT',
+        onError: (err: unknown) => {
+            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Update operation failed'})
+        },
+    });
+
+    const {execute: postNewTeam, isLoading: postNewTeamLoading} = useAPI<ITeam, ITeamCreateData>('/api/teams', {
+        method: "POST",
+        onSuccess: () => {
+            addSnackbar( { severity : 'success', message : 'Team created successfully!'})
+        },
+        onError: (err: unknown) => {
+            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Failed to create team'})
+        },
+    })
 
     const validateForm = () => {
         if (!formData.name.trim()) return 'Team name is required';
@@ -46,8 +63,16 @@ export function CreateTeamDialog({open, onClose, onSubmit, users, loading = fals
             addSnackbar({severity: 'error', message: validationError})
             return;
         }
-        await onSubmit(formData, memberID);
-        handleClose();
+        try {
+            await updateUser({body: {role: 'TEAM_LEAD'}, pathParams: {id: memberID}});
+
+            await postNewTeam( {body: formData });
+
+            onSubmit();
+            handleClose();
+        } catch (err: unknown) {
+            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Failed to create team'})
+        }
     };
 
     const handleClose = () => {
@@ -62,6 +87,8 @@ export function CreateTeamDialog({open, onClose, onSubmit, users, loading = fals
     const handleSelectChange = (e: SelectChangeEvent) => {
         setFormData({...formData, team_lead_id: e.target.value as string});
     };
+
+    const loading = userUpdateLoading || postNewTeamLoading
 
     return (
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
