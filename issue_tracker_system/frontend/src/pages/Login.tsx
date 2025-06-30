@@ -8,15 +8,16 @@ import {
     Paper,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import {useAuth} from "../hooks/useAuth.tsx";
+import {useAuth} from "../hooks/useAuth.ts";
+import {useSnackbar} from "../hooks/useSnackBar.ts";
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const { user, login, isAuthenticated } = useAuth()!;
+    const { user, login, isAuthenticated, loading : authLoading } = useAuth()!;
     const navigate = useNavigate();
+    const { addSnackbar} = useSnackbar();
 
     const validateEmail = (email: string): boolean => {
         return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
@@ -24,43 +25,50 @@ const Login: React.FC = () => {
 
     useEffect(() => {
         if (isAuthenticated ) {
-            if (user?.role === 'ADMIN'){
-                navigate('/users');
-            }
-            else {
-                navigate('/home');
-            }
+            navigate('/home');
         }
     }, [user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
 
         if (!validateEmail(email)) {
-            setError('Please enter a valid email address.');
+            addSnackbar({ severity : 'error', message : 'Please enter a valid email address' })
             return;
         }
         if (!password.trim()){
-            setError('Password cannot be empty.');
+            addSnackbar({ severity : 'error', message : 'Password cannot be empty' })
             return;
         }
         setLoading(true);
 
         try {
             const userRole = await login(email, password);
-            if (userRole === 'ADMIN') {
-                navigate('/users');
-            } else {
+            if (userRole) {
                 navigate('/home');
             }
         } catch (err : unknown) {
-            setError(err instanceof Error ? err.message : 'Invalid credentials');
+            addSnackbar({ severity : 'error', message : err instanceof Error ? err.message : 'Invalid credentials' })
         } finally {
             setLoading(false);
         }
     };
 
+    if (authLoading) {
+        return (
+            <Box
+                sx={{
+                    height: '100vh',
+                    width: '100vw',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
     return (
         <Box
             sx={{
@@ -106,11 +114,6 @@ const Login: React.FC = () => {
                         margin="normal"
                         required
                     />
-                    {error && (
-                        <Typography color="error" sx={{ mt: 1 }}>
-                            {error}
-                        </Typography>
-                    )}
                     <Button
                         type="submit"
                         variant="contained"
