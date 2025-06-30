@@ -1,18 +1,28 @@
 import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Paper, LinearProgress, Stack, Pagination
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    LinearProgress,
+    Stack,
+    Pagination,
 } from '@mui/material';
-import type { ReactNode } from "react";
+import type {ReactNode} from 'react';
+
+export interface IColumn<T> {
+    key: string;
+    label: string;
+    render?: (item: T, index?: number) => ReactNode;
+    align?: 'left' | 'center' | 'right';
+    width?: string | number;
+}
 
 export interface IRendertable<T> {
     data: T[];
-    columns: {
-        key: string;
-        header: string;
-        render?: (item: T) => ReactNode;
-        align?: 'left' | 'center' | 'right';
-        width?: string | number;
-    }[];
+    columns: IColumn<T>[];
     loading?: boolean;
     page?: number;
     totalPages?: number;
@@ -20,40 +30,41 @@ export interface IRendertable<T> {
 }
 
 export function RenderTable<T>({
-                                   data, columns, loading,
-                                   page = 1, totalPages = 1, onPageChange
+                                   data,
+                                   columns,
+                                   loading,
+                                   page = 1,
+                                   totalPages = 1,
+                                   onPageChange,
                                }: IRendertable<T>) {
     return (
-        <TableContainer
-            component={Paper}
-            sx={{ width: '100%', overflowX: 'auto' }}
-        >
-            {loading && <LinearProgress />}
-            <Table sx={{ width : "100%" }} aria-label="data table">
+        <TableContainer component={Paper} sx={{width: '100%', overflowX: 'auto'}}>
+            {loading && <LinearProgress/>}
+            <Table sx={{width: '100%'}} aria-label="data table">
                 <TableHead>
                     <TableRow>
-                        {columns.map((column) => (
+                        {columns.map((column: IColumn<T>) => (
                             <TableCell
                                 key={column.key}
                                 align={column.align}
-                                sx={{ width: column.width }}
+                                sx={{width: column.width}}
                             >
-                                {column.header}
+                                {column.label}
                             </TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.map((item, index) => (
+                    {data.map((item: T, index: number) => (
                         <TableRow key={index}>
-                            {columns.map((column) => (
+                            {columns.map((column: IColumn<T>) => (
                                 <TableCell
                                     key={`${index}-${column.key}`}
                                     align={column.align}
-                                    sx={{ width: column.width }}
+                                    sx={{width: column.width}}
                                 >
                                     {column.render
-                                        ? column.render(item)
+                                        ? column.render(item, index)
                                         : (item as Record<string, any>)[column.key]}
                                 </TableCell>
                             ))}
@@ -62,15 +73,17 @@ export function RenderTable<T>({
                 </TableBody>
             </Table>
 
-            {
-                onPageChange &&
-                (
+            {onPageChange && (
                 <Stack direction="row" justifyContent="center" p={2}>
                     <Pagination
                         count={totalPages}
                         page={page}
                         onChange={(_, value) => onPageChange(value)}
                         color="primary"
+                        siblingCount={0}
+                        boundaryCount={1}
+                        showFirstButton
+                        showLastButton
                     />
                 </Stack>
             )}
