@@ -1,4 +1,4 @@
-import type {IAPIResponse} from "../types/api.d.ts";
+import type {IAPIResponse} from "../types/api.ts";
 import {BASE_URL} from "./constants.ts";
 
 export async function getRequest<T = any>(

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import type {IUser} from "../../types/userTypes.tsx";
-import {getRequest, postRequest} from "../../utils/apiClient.tsx";
+import type {IUser} from "../../types/user.ts";
+import {getRequest, postRequest} from "../../utils/apiClient.ts";
 import { AuthContext } from "./AuthContext.tsx";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     async function getCurrentUser(token: string): Promise<IUser | null> {
-        const currentUser = await getRequest<IUser>(`http://localhost:3000/api/auth/me`, {
+        const currentUser = await getRequest<IUser>(`/api/auth/me`, {
             Authorization: `Bearer ${token}`,
         });
         if (!currentUser) {
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const login = async (email: string, password: string): Promise<void | string> => {
         setLoading(true);
         const response = await postRequest<{ token: string, user: IUser }, { email: string, password: string }>(
-            'http://localhost:3000/api/auth/login',
+            '/api/auth/login',
             { email, password }
         );
 
@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setToken(token);
             return response.data.user.role === 'ADMIN' ? 'ADMIN' : 'USER';
         } else {
+            setLoading(false);
             const errorMessage = response.error?.message || 'Login failed. Please try again.';
             throw new Error(errorMessage);
         }
