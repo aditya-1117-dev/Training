@@ -1,6 +1,6 @@
 import { Button, Stack, Typography, Box, Paper, Chip, IconButton } from '@mui/material';
 import { Delete, Edit, PersonAdd } from '@mui/icons-material';
-import type {IUser, IUserCreateData, IUserUpdateData} from '../types/user.ts';
+import type {IUser} from '../types/user.ts';
 import { type IColumn, RenderTable } from '../components/table/RenderTable.tsx';
 import { CreateUserDialog } from '../components/CreateUserDialog.tsx';
 import { EditUserDialog } from '../components/EditUserDialog.tsx';
@@ -41,17 +41,6 @@ const Users : FC = () => {
         onSuccess: (data) => setTotalItems(data.pagination?.total || 0),
     });
 
-    const { execute: createNewUser, isLoading : createNewUserLoading } = useAPI<IUser, IUserCreateData>('/api/users', {
-        method: 'POST',
-        onSuccess: () => {
-            fetchUsers();
-            addSnackbar( { severity : 'success', message : 'User created successfully!' } );
-        },
-        onError: (err: unknown) => {
-            addSnackbar( { severity :'error', message : err instanceof Error ? err.message : 'Create operation failed'});
-        },
-    });
-
     const { execute: handleDeleteUser } = useAPI<IUser>('/api/users/:id', {
         method: 'DELETE',
         onSuccess: () => {
@@ -60,19 +49,6 @@ const Users : FC = () => {
         },
         onError: (err: unknown) => {
             addSnackbar({ severity : 'error', message : err instanceof Error ? err.message : 'Delete operation failed',});
-        },
-    });
-
-    const { execute: updateUser, isLoading: updateLoading } = useAPI<IUser, IUserUpdateData>('/api/users/:id', {
-        method: 'PUT',
-        onSuccess: () => {
-            setOpenEditUserDialog(false);
-            setSelectedUser(null);
-            fetchUsers();
-            addSnackbar({ severity: 'success', message: 'User updated successfully' });
-        },
-        onError: (err: unknown) => {
-            addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Update operation failed' });
         },
     });
 
@@ -154,18 +130,20 @@ const Users : FC = () => {
                         setOpenEditUserDialog(false);
                         setSelectedUser(null)
                     }}
-                    onSubmit={(userId: string, data: IUserCreateData) => updateUser({ pathParams: { id: userId }, body: data })}
+                    onSubmit={() => {
+                        setOpenEditUserDialog(false);
+                        setSelectedUser(null);
+                        fetchUsers();
+                    }}
                     teams={teams || []}
                     user={selectedUser}
-                    loading={updateLoading}
                 />
 
                 <CreateUserDialog
                     open={openCreateUserDialog}
                     onClose={() => setOpenCreateUserDialog(false)}
-                    onSubmit={(data: IUserCreateData) => createNewUser({ body: data })}
+                    onSubmit={() => fetchUsers()}
                     teams={teams || []}
-                    loading={createNewUserLoading}
                 />
             </Paper>
         </Box>
