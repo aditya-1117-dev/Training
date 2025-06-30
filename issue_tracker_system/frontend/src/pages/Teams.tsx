@@ -29,49 +29,6 @@ const Teams: FC = () => {
             addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Delete operation failed'})
         }
     });
-    const {execute: updateTeam, isLoading: teamUpdateLoading} = useAPI<IUser, ITeamUpdateData>('/api/teams/:id', {
-        method: 'PUT',
-        onSuccess: () => {
-            setOpenEditTeamDialog(false);
-            setSelectedTeam(null);
-            if (fetchTeams) {
-                fetchTeams();
-            }
-            addSnackbar( { severity : 'success', message : 'Team updated successfully!'})
-        },
-        onError: (err: unknown) => {
-            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Team update failed'})
-        }
-    });
-
-    const {execute: updateUser, isLoading: userUpdateLoading} = useAPI<IUser, IUserUpdateData>('/api/users/:id', {
-        method: 'PUT',
-        onError: (err: unknown) => {
-            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Update operation failed'})
-        },
-    });
-
-    const {execute: postNewTeam, isLoading: postNewTeamLoading} = useAPI<ITeam, ITeamCreateData>('/api/teams', {
-        method: "POST",
-        onSuccess: () => {
-            if (fetchTeams) fetchTeams();
-            if (fetchUsers) fetchUsers();
-            addSnackbar( { severity : 'success', message : 'Team created successfully!'})
-        },
-        onError: (err: unknown) => {
-            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Failed to create team'})
-        },
-    })
-
-    const createNewTeam = async (data: ITeamCreateData, memberID: string) => {
-        try {
-            await updateUser({body: {role: 'TEAM_LEAD'}, pathParams: {id: memberID}});
-
-            await postNewTeam({body: data});
-        } catch (err: unknown) {
-            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Failed to create team'})
-        }
-    };
 
     const handleEditTeam = (team: ITeam | null) => {
         setSelectedTeam(team);
@@ -121,25 +78,29 @@ const Teams: FC = () => {
 
                 <EditTeamDialog
                     open={openEditTeamDialog}
+                    team={selectedTeam}
+                    users={soloMembersWithinCurrentTeam}
                     onClose={() => {
                         setOpenEditTeamDialog(false)
                         setSelectedTeam(null);
                     }}
-                    onSubmit={async (teamId: string, data: ITeamUpdateData) => updateTeam({
-                        pathParams: {id: teamId},
-                        body: data
-                    })}
-                    team={selectedTeam}
-                    users={soloMembersWithinCurrentTeam}
-                    loading={teamUpdateLoading}
+                    onSubmit={() => {
+                        setOpenEditTeamDialog(false);
+                        setSelectedTeam(null);
+                        if (fetchTeams) {
+                            fetchTeams();
+                        }
+                    }}
                 />
 
                 <CreateTeamDialog
                     open={openCreateTeamsDialog}
-                    onClose={() => setOpenCreateTeamsDialog(false)}
-                    onSubmit={createNewTeam}
                     users={soloMembers}
-                    loading={userUpdateLoading || postNewTeamLoading}
+                    onClose={() => setOpenCreateTeamsDialog(false)}
+                    onSubmit={() => {
+                        if (fetchTeams) fetchTeams();
+                        if (fetchUsers) fetchUsers();
+                    }}
                 />
             </Paper>
         </Box>
