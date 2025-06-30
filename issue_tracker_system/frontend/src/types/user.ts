@@ -19,6 +19,8 @@ export interface IUserCreateData {
 export interface IUserUpdateData {
     name?: string;
     email?: string;
+    password?: string;
     role?: 'ADMIN' | 'TEAM_LEAD' | 'MEMBER';
-    team_id?: string | null;
+    team_id?: string;
+    team_name?: string,
 }

@@ -1,163 +1,174 @@
-import {useState, useEffect, type ReactNode} from 'react';
-import {Button, Stack, Alert, Typography, Box, Paper, Snackbar} from '@mui/material';
-import {PersonAdd} from '@mui/icons-material';
-import type {IUser, IUserCreateData} from "../types/userTypes.tsx";
-import {RenderTable} from "../components/RenderTable.tsx";
-import {CreateUserDialog} from "../components/CreateUserDialog.tsx";
-import {getRequest, postRequest} from "../utils/apiClient.tsx";
-import {useAuth} from "../hooks/useAuth.tsx";
-import {useNavigate} from "react-router-dom";
-import type {ITeam} from "../types/teamTypes.tsx";
+import { Button, Stack, Typography, Box, Paper, Chip, IconButton } from '@mui/material';
+import { Delete, Edit, PersonAdd } from '@mui/icons-material';
+import type {IUser, IUserCreateData, IUserUpdateData} from '../types/user.ts';
+import { type IColumn, RenderTable } from '../components/table/RenderTable.tsx';
+import { CreateUserDialog } from '../components/CreateUserDialog.tsx';
+import { EditUserDialog } from '../components/EditUserDialog.tsx';
+import {type FC, useEffect, useState} from "react";
+import {RenderFilters} from "../components/table/RenderFilters.tsx";
+import {useDebounce} from "../hooks/useDebounce.ts";
+import {usePagination} from "../hooks/usePagination.ts";
+import {useSnackbar} from "../hooks/useSnackBar.ts";
+import {useAPI} from "../hooks/useAPI.ts";
+import type {ITeam} from "../types/team.ts";
 
-export default function Users() {
-    const [users, setUsers] = useState<IUser[]>([]);
-    const [teams, setTeams] = useState<ITeam[]>([]);
+const Users : FC = () => {
     const [openCreateUserDialog, setOpenCreateUserDialog] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [page, setPage] = useState<number>(1);
-    const [limit, _setLimit] = useState<number>(5);
-    const [totalPages, setTotalPages] = useState<number>(1);
-    const {token} = useAuth();
-    const navigate = useNavigate();
-    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
-        open: false,
-        message: '',
-        severity: 'error',
+    const [openEditUserDialog, setOpenEditUserDialog] = useState<boolean>(false);
+    const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+    const [teamFilter, setTeamFilter] = useState<string>('');
+    const { value : searchTerm, setValue : setSearchTerm,debouncedValue: debouncedSearchTerm } = useDebounce<string>('', 500);
+    const { page, limit, totalPages, handlePageChange, setTotalItems } = usePagination({
+        initialPage: 1,
+        initialLimit: 1,
+    });
+    const { addSnackbar } = useSnackbar();
+
+    const { data: teams, execute: fetchTeams } = useAPI<ITeam[]>('/api/teams', {
+        method: 'GET',
+        callOnMount: false,
     });
 
-    const columns: {
-        key: string; header: string; render?: (item: any) => ReactNode;
-        align?: 'left' | 'center' | 'right'; width?: string | number;
-    }[] = [
-        {key: 'name', header: 'Name', width: '25%'},
-        {key: 'email', header: 'Email', width: '25%'},
-        {key: 'role', header: 'Role', width: '15%'},
-        {key: 'team_name', header: 'Team', width: '15%', render: (user: IUser) => user.team_name || '-'}
-    ];
+    const { data: users, isLoading: usersLoading, execute: fetchUsers } = useAPI<IUser[]>('/api/users', {
+        method: 'GET',
+        callOnMount: false,
+        params: {
+            page: JSON.stringify(page),
+            limit: JSON.stringify(limit),
+            search: debouncedSearchTerm,
+            team_id: teamFilter,
+        },
+        onSuccess: (data) => setTotalItems(data.pagination?.total || 0),
+    });
+
+    const { execute: createNewUser, isLoading : createNewUserLoading } = useAPI<IUser, IUserCreateData>('/api/users', {
+        method: 'POST',
+        onSuccess: () => {
+            fetchUsers();
+            addSnackbar( { severity : 'success', message : 'User created successfully!' } );
+        },
+        onError: (err: unknown) => {
+            addSnackbar( { severity :'error', message : err instanceof Error ? err.message : 'Create operation failed'});
+        },
+    });
+
+    const { execute: handleDeleteUser } = useAPI<IUser>('/api/users/:id', {
+        method: 'DELETE',
+        onSuccess: () => {
+            fetchUsers();
+            addSnackbar({ severity: 'success', message: 'User deleted successfully' });
+        },
+        onError: (err: unknown) => {
+            addSnackbar({ severity : 'error', message : err instanceof Error ? err.message : 'Delete operation failed',});
+        },
+    });
+
+    const { execute: updateUser, isLoading: updateLoading } = useAPI<IUser, IUserUpdateData>('/api/users/:id', {
+        method: 'PUT',
+        onSuccess: () => {
+            setOpenEditUserDialog(false);
+            setSelectedUser(null);
+            fetchUsers();
+            addSnackbar({ severity: 'success', message: 'User updated successfully' });
+        },
+        onError: (err: unknown) => {
+            addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Update operation failed' });
+        },
+    });
 
     useEffect(() => {
         fetchUsers();
-    }, [page, limit]);
+    }, [page, limit, debouncedSearchTerm, teamFilter]);
 
     useEffect(() => {
-        fetchTeams();
-    }, []);
+        if (users?.length) fetchTeams();
+    }, [users]);
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const response = await getRequest<
-                IUser[]
-            >(`http://localhost:3000/api/users?page=${page}&limit=${limit}`, {
-                Authorization: `Bearer ${token}`,
-            });
-            if (!response.success) {
-                throw new Error('Create failed');
-            }
-            if (response.data) {
-                setUsers(response.data);
-            }
-            if (response.pagination) {
-                setTotalPages(response.pagination.totalPages);
-            }
-        } catch (err: unknown) {
-            setSnackbar({
-                open: true,
-                message: err instanceof Error ? err.message : 'Failed to load users',
-                severity: 'error'
-            });
-
-        } finally {
-            setLoading(false);
-        }
+    const handleEditUser = (user: IUser | null) => {
+        setSelectedUser(user);
+        setOpenEditUserDialog((openEditUserDialog) => !openEditUserDialog);
     };
 
-    const fetchTeams = async () => {
-        try {
-            const response = await getRequest<ITeam[]>('http://localhost:3000/api/teams', {
-                Authorization: `Bearer ${token}`
-            });
-            if (response.data) setTeams(response.data);
-        } catch (err: unknown) {
-            setTeams([]);
-        }
+    const renderRowNumber = (index: number = 0, page: number, limit: number) => {
+        return (page - 1) * limit + index + 1;
     };
 
-    const handleCreate = async (data: IUserCreateData) => {
-        try {
-            const response = await postRequest<{
-                token: string,
-                user: IUser
-            }, IUserCreateData>('http://localhost:3000/api/users', data, {
-                "Content-Type": 'application/json',
-                "Authorization": `Bearer ${token}`
-            });
-            setSnackbar({
-                open: true,
-                message: 'User created successfully!',
-                severity: 'success'
-            });
-            if (response.error) throw new Error(response.error.message || 'Create failed');
-            setPage(1);
-            await fetchUsers();
-        } catch (err: unknown) {
-            setSnackbar({
-                open: true,
-                message: err instanceof Error ? err.message : 'Create operation failed',
-                severity: 'error'
-            });
-        }
-    }
+    const columns: IColumn<IUser>[] = [
+        {key: 'row_number', label: 'ID', width: '5%',
+            render: (_, index) => renderRowNumber(index, page, limit),
+        },
+        { key: 'name', label: 'Name', width: '10%' },
+        { key: 'email', label: 'Email', width: '15%' },
+        {key: 'role', label: 'Role', width: '15%', align : 'center',
+            render: (user: IUser) => {
+                const color = user.role === 'ADMIN' ? 'error' : user.role === 'TEAM_LEAD' ? 'primary' : 'success';
+                return <Chip label={user.role} color={color} size="small" sx={{ py: 2 }} />;
+            },
+        },
+        {key: 'team_name', label: 'Team', width: '15%',
+            render: (user: IUser) => user.team_name || '-',
+        },
+        {key: 'actions', label: 'Actions', width: '15%', align: 'center',
+            render: (user: IUser) => (
+                <Stack direction="row" spacing={1} justifyContent="center">
+                    <IconButton color="primary" onClick={() => handleEditUser(user)} aria-label={`Edit user ${user.name}`}>
+                        <Edit />
+                    </IconButton>
+                    <IconButton color="error" onClick={() => handleDeleteUser({ pathParams: { id: user.id } })}>
+                        <Delete />
+                    </IconButton>
+                </Stack>
+            ),
+        },
+    ];
 
     return (
-        <Box sx={{width: '100%', py: 4, px: {xs: 2, sm: 4, md: 6}, boxSizing: 'border-box'}}>
-            <Paper sx={{p: 3, overflowX: 'auto'}}>
-                <Snackbar
-                    open={snackbar.open}
-                    autoHideDuration={4000}
-                    onClose={() => setSnackbar({ ...snackbar, open: false })}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                >
-                    <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
-                        {snackbar.message}
-                    </Alert>
-                </Snackbar>
-                <Stack
-                    direction={{xs: 'column', sm: 'row'}}
-                    justifyContent="space-between"
-                    alignItems='center'
-                    spacing={2}
-                    mb={3}
-                >
+        <Box sx={{ width: '100%', py: 4, px: { xs: 2, sm: 4, md: 6 }, boxSizing: 'border-box' }}>
+            <Paper sx={{ p: 3, overflowX: 'auto' }}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
                     <Typography variant="h5" component="h1">User Management</Typography>
-
-                    <Box sx={{display: 'flex', flexDirection: {xs: 'column', sm: 'row'}, gap: 1}}>
-                        <Button variant="outlined" sx={{mr: 1}} onClick={() => navigate('/teams')}>
-                            Click here to move to Teams
-                        </Button>
-                        <Button variant="contained" startIcon={<PersonAdd/>}
-                                onClick={() => setOpenCreateUserDialog(true)}>
-                            New User
-                        </Button>
-                    </Box>
+                    <Button variant="contained" startIcon={<PersonAdd />} onClick={() => setOpenCreateUserDialog(true)}>
+                        New User
+                    </Button>
                 </Stack>
 
+                <RenderFilters
+                    search={{value: searchTerm, label: 'Search Users',
+                        onChange: (e) => setSearchTerm(e.target.value),}}
+                    filters={[ {key: 'team', label: 'Team', value: teamFilter, onChange: (e) => setTeamFilter(e.target.value),
+                            options: teams?.map((team) => ( { value: team.id, label: team.name } )) || [],} ]}
+                />
+
                 <RenderTable
-                    data={users}
+                    data={users || []}
                     columns={columns}
-                    loading={loading}
+                    loading={usersLoading}
                     page={page}
                     totalPages={totalPages}
-                    onPageChange={setPage}
+                    onPageChange={handlePageChange}
+                />
+
+                <EditUserDialog
+                    open={openEditUserDialog}
+                    onClose={() => {
+                        setOpenEditUserDialog(false);
+                        setSelectedUser(null)
+                    }}
+                    onSubmit={(userId: string, data: IUserCreateData) => updateUser({ pathParams: { id: userId }, body: data })}
+                    teams={teams || []}
+                    user={selectedUser}
+                    loading={updateLoading}
                 />
 
                 <CreateUserDialog
                     open={openCreateUserDialog}
                     onClose={() => setOpenCreateUserDialog(false)}
-                    onSubmit={handleCreate}
-                    teams={teams}
+                    onSubmit={(data: IUserCreateData) => createNewUser({ body: data })}
+                    teams={teams || []}
+                    loading={createNewUserLoading}
                 />
             </Paper>
         </Box>
     );
 }
+export default Users;
