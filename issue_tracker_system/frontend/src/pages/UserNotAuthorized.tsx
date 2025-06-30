@@ -18,13 +18,17 @@ export default function UserNotAuthorized() {
             }}
         >
             <Typography variant="h2" component="h1" gutterBottom>
-                User not authorized
+                403 - User not authorized
+            </Typography>
+
+            <Typography variant="body1" mb={3}>
+                You don’t have permission to view this page.
             </Typography>
 
             <Button
                 variant="contained"
                 color="primary"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/home')}
                 sx={{mt: 3}}
             >
                 Go Back Home
