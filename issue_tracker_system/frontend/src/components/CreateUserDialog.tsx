@@ -11,20 +11,20 @@ import {
     InputLabel,
     Select, type SelectChangeEvent
 } from '@mui/material';
-import type {IUserCreateData} from '../types/user.ts';
+import type {IUser, IUserCreateData} from '../types/user.ts';
 import type {ITeam} from '../types/team.ts';
 import {useState} from "react";
 import {useSnackbar} from "../hooks/useSnackBar.ts";
+import {useAPI} from "../hooks/useAPI.ts";
 
 interface CreateUserDialogProps {
     teams: ITeam[];
     open: boolean;
     onClose: () => void;
-    onSubmit: (data: IUserCreateData) => Promise<void>;
-    loading?: boolean;
+    onSubmit: () => Promise<void> | void;
 }
 
-export function CreateUserDialog({open, onClose, onSubmit, teams, loading = false}: CreateUserDialogProps) {
+export function CreateUserDialog({open, onClose, onSubmit, teams}: CreateUserDialogProps) {
     const [formData, setFormData] = useState<IUserCreateData>({
         name: '',
         email: '',
@@ -32,6 +32,17 @@ export function CreateUserDialog({open, onClose, onSubmit, teams, loading = fals
         role: 'MEMBER',
     });
     const {addSnackbar} = useSnackbar();
+
+    const { execute: addNewUser, isLoading : loading } = useAPI<IUser, IUserCreateData>('/api/users', {
+        method: 'POST',
+        onSuccess: () => {
+            addSnackbar( { severity : 'success', message : 'User created successfully!' } );
+            onSubmit();
+        },
+        onError: (err: unknown) => {
+            addSnackbar( { severity :'error', message : err instanceof Error ? err.message : 'Create operation failed'});
+        },
+    });
 
     const validateForm = (): string | null => {
         if (!formData.name.trim()) return 'Name is required';
@@ -47,7 +58,7 @@ export function CreateUserDialog({open, onClose, onSubmit, teams, loading = fals
             addSnackbar({severity: 'error', message: validationError})
             return;
         }
-        await onSubmit(formData);
+        await addNewUser({ body: formData })
         handleClose();
     };
 
