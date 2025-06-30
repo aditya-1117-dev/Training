@@ -13,20 +13,20 @@ import {
     Select,
     type SelectChangeEvent,
 } from '@mui/material';
-import type { IUser, IUserCreateData } from '../types/user.ts';
+import type {IUser, IUserCreateData, IUserUpdateData} from '../types/user.ts';
 import type { ITeam } from '../types/team.ts';
 import { useSnackbar } from '../hooks/useSnackBar.ts';
+import {useAPI} from "../hooks/useAPI.ts";
 
 interface IEditUserDialogProps {
     teams: ITeam[];
     open: boolean;
     onClose: () => void;
-    onSubmit: (userId: string, data: IUserCreateData) => Promise<void>;
+    onSubmit: () => Promise<void> | void;
     user: IUser | null;
-    loading? : boolean
 }
 
-export function EditUserDialog({ open, onClose, onSubmit, teams, user, loading }: IEditUserDialogProps) {
+export function EditUserDialog({ open, onClose, onSubmit, teams, user }: IEditUserDialogProps) {
     const [formData, setFormData] = useState<IUserCreateData>({
         name: user?.name || '',
         email: user?.email || '',
@@ -35,6 +35,17 @@ export function EditUserDialog({ open, onClose, onSubmit, teams, user, loading }
         team_id: user?.team_id || '',
     });
     const { addSnackbar } = useSnackbar();
+
+    const { execute: updateUser, isLoading: loading } = useAPI<IUser, IUserUpdateData>('/api/users/:id', {
+        method: 'PUT',
+        onSuccess: () => {
+            addSnackbar({ severity: 'success', message: 'User updated successfully' });
+            onSubmit();
+        },
+        onError: (err: unknown) => {
+            addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Update operation failed' });
+        },
+    });
 
     useEffect(() => {
         setFormData({
@@ -61,7 +72,7 @@ export function EditUserDialog({ open, onClose, onSubmit, teams, user, loading }
             return;
         }
         if (user?.id) {
-            await onSubmit(user.id, {...formData});
+            await updateUser({ pathParams: { id: user.id }, body: {...formData} });
         }
     };
 
