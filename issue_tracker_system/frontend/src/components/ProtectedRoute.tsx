@@ -1,32 +1,46 @@
-import {useEffect} from "react";
-import {useNavigate} from "react-router-dom";
+import React, {type JSX} from "react";
+import {Role} from "../utils/constants.ts";
+import {useAuth} from "../hooks/useAuth.ts";
+import {Navigate} from "react-router-dom";
+import Layout from "../pages/Layout.tsx";
 import UserNotAuthorized from "../pages/UserNotAuthorized.tsx";
-import {useAuth} from "../hooks/useAuth.tsx";
+import {Box, CircularProgress} from "@mui/material";
 
-function ProtectedRoute({ allowedRoles, children }: { children? : any ; allowedRoles: string[] }) {
-    const {user, token} = useAuth();
+interface PrivateRouteProps {
+    element: JSX.Element;
+    allowedRoles: Role[];
+}
 
-    const navigate = useNavigate();
-    useEffect(() => {
-        if (!token || !user?.role){
-            navigate('/login');
-            return ;
-        }
-    }, [token]);
-    if (token && allowedRoles.includes(user?.role as string) ) {
-        return children;
-    }else if (token && !allowedRoles.includes(user?.role as string)){
-        return <UserNotAuthorized /> ;
-    }else{
-        return null;
+export const ProtectedRoute: React.FC<PrivateRouteProps> = ({element, allowedRoles}) => {
+    const {token, user, loading} = useAuth();
+
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    height: '100vh',
+                    width: '100vw',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <CircularProgress/>
+            </Box>
+        );
     }
-}
 
-function ProtectedRouteWrapper({allowedRoles, component} : {allowedRoles : string[], component : any}) {
+    if (!token || !user) {
+        return <Navigate to="/" replace/>;
+    }
+
+    if (!allowedRoles.includes(user.role as Role)) {
+        return <UserNotAuthorized/>
+    }
+
     return (
-        <ProtectedRoute allowedRoles={allowedRoles}>
-            {component}
-        </ProtectedRoute>
-    )
-}
-export default ProtectedRouteWrapper;
+        <Layout>
+            {element}
+        </Layout>
+    );
+};
