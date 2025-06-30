@@ -6,14 +6,17 @@ import {BrowserRouter} from "react-router-dom";
 import {AuthProvider} from "./context/auth/AuthProvider.tsx";
 import {HTML5Backend} from "react-dnd-html5-backend";
 import {DndProvider} from "react-dnd";
+import {SnackbarProvider} from "./context/snackBar/SnackBarProvider.tsx";
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <DndProvider backend={HTML5Backend}>
             <AuthProvider>
-                <BrowserRouter>
-                    <App/>
-                </BrowserRouter>
+                <SnackbarProvider>
+                    <BrowserRouter>
+                        <App/>
+                    </BrowserRouter>
+                </SnackbarProvider>
             </AuthProvider>
         </DndProvider>
     </StrictMode>
