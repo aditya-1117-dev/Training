@@ -1,5 +1,5 @@
 import {postRequest, putRequest, deleteRequest, getRequest} from '../utils/apiClient';
-import type {IAPIResponse} from "../types/api";
+import type {IAPIResponse} from "../types/api.ts";
 import React, {useEffect, useState} from "react";
 import {useAuth} from "./useAuth.ts";
 
