@@ -23,4 +23,5 @@ export interface IUserUpdateData {
     role?: 'ADMIN' | 'TEAM_LEAD' | 'MEMBER';
     team_id?: string;
     team_name?: string,
+    is_active? : boolean
 }
