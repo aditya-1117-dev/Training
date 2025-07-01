@@ -1,103 +1,44 @@
-import { Button, Stack, Typography, Box, Paper, Chip, IconButton } from '@mui/material';
-import { Delete, Edit, PersonAdd } from '@mui/icons-material';
-import type {IUser} from '../types/user.ts';
-import { type IColumn, RenderTable } from '../components/table/RenderTable.tsx';
+import {Button, Stack, Typography, Box, Paper, Dialog, DialogContent, CircularProgress} from '@mui/material';
+import { PersonAdd } from '@mui/icons-material';
+import { RenderTable } from '../components/table/RenderTable.tsx';
 import { CreateUserDialog } from '../components/CreateUserDialog.tsx';
 import { EditUserDialog } from '../components/EditUserDialog.tsx';
-import {type FC, useEffect, useState} from "react";
+import {type FC} from "react";
 import {RenderFilters} from "../components/table/RenderFilters.tsx";
-import {useDebounce} from "../hooks/useDebounce.ts";
-import {usePagination} from "../hooks/usePagination.ts";
-import {useSnackbar} from "../hooks/useSnackBar.ts";
-import {useAPI} from "../hooks/useAPI.ts";
-import type {ITeam} from "../types/team.ts";
+import {useUsers} from "../hooks/componentHooks/useUsers.tsx";
 
 const Users : FC = () => {
-    const [openCreateUserDialog, setOpenCreateUserDialog] = useState<boolean>(false);
-    const [openEditUserDialog, setOpenEditUserDialog] = useState<boolean>(false);
-    const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
-    const [teamFilter, setTeamFilter] = useState<string>('');
-    const { value : searchTerm, setValue : setSearchTerm,debouncedValue: debouncedSearchTerm } = useDebounce<string>('', 500);
-    const { page, limit, totalPages, handlePageChange, setTotalItems } = usePagination({
-        initialPage: 1,
-        initialLimit: 1,
-    });
-    const { addSnackbar } = useSnackbar();
+    const {
+        openCreateUserDialog,
+        openEditUserDialog,
+        selectedUser,
+        teamFilter,
+        searchTerm,
+        users,
+        usersLoading,
+        teams,
+        page,
+        totalPages,
+        columns,
+        setSearchTerm,
+        setOpenEditUserDialog,
+        setSelectedUser,
+        setTeamFilter,
+        handlePageChange,
+        fetchUsers,
+        setOpenCreateUserDialog,
+        userUpdating
+    } = useUsers();
 
-    const { data: teams, execute: fetchTeams } = useAPI<ITeam[]>('/api/teams', {
-        method: 'GET',
-        callOnMount: false,
-    });
-
-    const { data: users, isLoading: usersLoading, execute: fetchUsers } = useAPI<IUser[]>('/api/users', {
-        method: 'GET',
-        callOnMount: false,
-        params: {
-            page: JSON.stringify(page),
-            limit: JSON.stringify(limit),
-            search: debouncedSearchTerm,
-            team_id: teamFilter,
-        },
-        onSuccess: (data) => setTotalItems(data.pagination?.total || 0),
-    });
-
-    const { execute: handleDeleteUser } = useAPI<IUser>('/api/users/:id', {
-        method: 'DELETE',
-        onSuccess: () => {
-            fetchUsers();
-            addSnackbar({ severity: 'success', message: 'User deleted successfully' });
-        },
-        onError: (err: unknown) => {
-            addSnackbar({ severity : 'error', message : err instanceof Error ? err.message : 'Delete operation failed',});
-        },
-    });
-
-    useEffect(() => {
-        fetchUsers();
-    }, [page, limit, debouncedSearchTerm, teamFilter]);
-
-    useEffect(() => {
-        if (users?.length) fetchTeams();
-    }, [users]);
-
-    const handleEditUser = (user: IUser | null) => {
-        setSelectedUser(user);
-        setOpenEditUserDialog((openEditUserDialog) => !openEditUserDialog);
-    };
-
-    const renderRowNumber = (index: number = 0, page: number, limit: number) => {
-        return (page - 1) * limit + index + 1;
-    };
-
-    const columns: IColumn<IUser>[] = [
-        {key: 'row_number', label: 'ID', width: '5%',
-            render: (_, index) => renderRowNumber(index, page, limit),
-        },
-        { key: 'name', label: 'Name', width: '10%' },
-        { key: 'email', label: 'Email', width: '15%' },
-        {key: 'role', label: 'Role', width: '15%', align : 'center',
-            render: (user: IUser) => {
-                const color = user.role === 'ADMIN' ? 'error' : user.role === 'TEAM_LEAD' ? 'primary' : 'success';
-                return <Chip label={user.role} color={color} size="small" sx={{ py: 2 }} />;
-            },
-        },
-        {key: 'team_name', label: 'Team', width: '15%',
-            render: (user: IUser) => user.team_name || '-',
-        },
-        {key: 'actions', label: 'Actions', width: '15%', align: 'center',
-            render: (user: IUser) => (
-                <Stack direction="row" spacing={1} justifyContent="center">
-                    <IconButton color="primary" onClick={() => handleEditUser(user)} aria-label={`Edit user ${user.name}`}>
-                        <Edit />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => handleDeleteUser({ pathParams: { id: user.id } })}>
-                        <Delete />
-                    </IconButton>
-                </Stack>
-            ),
-        },
-    ];
-
+    if (userUpdating){
+        return (
+            <Dialog open={openEditUserDialog}>
+                <DialogContent>
+                    <CircularProgress/>
+                </DialogContent>
+            </Dialog>
+        );
+    }
     return (
         <Box sx={{ width: '100%', py: 4, px: { xs: 2, sm: 4, md: 6 }, boxSizing: 'border-box' }}>
             <Paper sx={{ p: 3, overflowX: 'auto' }}>
@@ -110,9 +51,11 @@ const Users : FC = () => {
 
                 <RenderFilters
                     search={{value: searchTerm, label: 'Search Users',
-                        onChange: (e) => setSearchTerm(e.target.value),}}
-                    filters={[ {key: 'team', label: 'Team', value: teamFilter, onChange: (e) => setTeamFilter(e.target.value),
-                            options: teams?.map((team) => ( { value: team.id, label: team.name } )) || [],} ]}
+                        onChange: (e) => setSearchTerm(e.target.value)}}
+                    filters={[ {key: 'team', label: 'Team', value: teamFilter, onChange: (e) =>{
+                            handlePageChange(1);
+                            setTeamFilter(e.target.value)
+                        }, options: teams?.map((team) => ( { value: team.id, label: team.name } )) || [],} ]}
                 />
 
                 <RenderTable
