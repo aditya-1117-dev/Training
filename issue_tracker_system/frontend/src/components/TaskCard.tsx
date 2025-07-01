@@ -1,40 +1,21 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import {Box, CardContent, Chip, Typography} from '@mui/material';
 import Card from '@mui/material/Card';
-import type {ITask, TTaskStatus} from '../types/task.ts';
-import {useDrag, type DragSourceMonitor} from "react-dnd";
+import type {ITask} from '../types/task.ts';
 import {priorityColor} from "../utils/taskUtils.ts";
+import {useTaskCard} from "../hooks/componentHooks/useTaskCard.ts";
 
 interface TaskCardProps {
     task: ITask;
     onClick: () => void;
 }
 
-const getBorderColor = (status: TTaskStatus | undefined) => {
-    switch (status) {
-        case 'TODO':
-            return '#9e9e9e';
-        case 'IN_PROGRESS':
-            return '#2196f3';
-        case 'IN_REVIEW':
-            return '#ffc107';
-        case 'DONE':
-            return '#4caf50';
-        default:
-            return '#9e9e9e';
-    }
-};
-
 const TaskCard: React.FC<TaskCardProps> = ({task, onClick}) => {
-    const [{isDragging}, drag] = useDrag(() => ({
-        type: 'TASK',
-        item: {id: task.id, status: task.status as TTaskStatus},
-        collect: (monitor: DragSourceMonitor) => ({
-            isDragging: !!monitor.isDragging(),
-        }),
-    }));
-
-    const borderColor = useMemo(() => getBorderColor(task?.status), [task]);
+    const {
+        isDragging,
+        drag,
+        borderColor
+    } = useTaskCard({ task });
 
     return (
         <Card
@@ -57,7 +38,6 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onClick}) => {
             }}
         >
             <CardContent sx={{p: 2}}>
-                {/* Top Row - Task Title and Priority */}
                 <Box sx={{
                     display: 'flex',
                     flexDirection: {xs: 'column', sm: 'row'},

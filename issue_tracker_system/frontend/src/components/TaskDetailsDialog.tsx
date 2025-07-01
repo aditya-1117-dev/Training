@@ -1,4 +1,4 @@
-import React, {type ChangeEvent, useEffect} from 'react';
+import React from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -12,15 +12,14 @@ import {
     InputLabel,
     Select,
     Divider,
-    CircularProgress, type SelectChangeEvent
+    CircularProgress
 } from '@mui/material';
-import type {ITask, TPriority, TTaskStatus} from '../types/task.ts';
+import type {ITask} from '../types/task.ts';
 import type {IUser} from '../types/user.ts';
 import TaskActivityLog from './TaskActivityLog.tsx';
-import {useAuth} from "../hooks/useAuth.ts";
-import {useSnackbar} from "../hooks/useSnackBar.ts";
-import {useAPI} from "../hooks/useAPI.ts";
+import {useAuth} from "../hooks/customHooks/useAuth.ts";
 import {priorityColor} from "../utils/taskUtils.ts";
+import {useTaskDetails} from "../hooks/componentHooks/useTaskDetails.ts";
 
 interface ITaskDetailsModalProps {
     open: boolean;
@@ -31,93 +30,29 @@ interface ITaskDetailsModalProps {
 }
 
 const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClose, onSave, users}) => {
-    const {user} = useAuth();
-    const {addSnackbar} = useSnackbar();
-    const {data: editedTask, setData: setEditedTask, execute: fetchCurrentTask} = useAPI<ITask>('/api/tasks/:id', {
-        method: 'GET',
-        callOnMount: false,
-        onError: (err: unknown) => {
-            addSnackbar({severity: 'error', message: err instanceof Error ? err.message : 'Failed to load task'})
-        },
-    });
-
-    const {execute: saveTheTask, isLoading: loading} = useAPI<ITask, ITask>('/api/tasks/:id', {
-        method: 'PUT',
-        callOnMount: false,
-        onSuccess: () => {
-            addSnackbar({severity: 'success', message: 'Task updated successfully!'})
-            onSave();
-        },
-        onError: (err: unknown) => {
-            addSnackbar({severity: 'error', message: err instanceof Error ? err.message : 'Failed to update task'})
-        },
-    });
-
-    useEffect(() => {
-        if (task) {
-            fetchCurrentTask({pathParams: {id: task.id as string},});
-        }
-    }, [task]);
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
-        setEditedTask((prev: ITask | null) => ({...prev!, [name]: value}));
-    };
-
-    const handleAssigneeChange = (e: SelectChangeEvent) => {
-        const selectedUserId = e.target.value;
-        const selectedUser = users.find(user => user.id === selectedUserId);
-        setEditedTask((prev: ITask | null) => ({
-            ...prev!,
-            assignee_id: selectedUserId,
-            assignee_name: selectedUser ? `${selectedUser.name} (${selectedUser.email})` : '',
-        }));
-    };
-
-    const handleStatusChange = (e: SelectChangeEvent) => {
-        setEditedTask((prev: ITask | null) => ({...prev!, status: e.target.value as TTaskStatus}));
-    };
-
-    const handlePriorityChange = (e: SelectChangeEvent) => {
-        setEditedTask((prev: ITask | null) => ({...prev!, priority: e.target.value as TPriority}));
-    };
-
-    const validateForm = (): string | null => {
-        if (!editedTask?.title.trim()) return 'Task title is required';
-        if (!editedTask?.description.trim()) return 'Description is required';
-        if (!editedTask?.team_id) return 'Please select a team';
-        if (editedTask?.estimated_hours && editedTask?.estimated_hours < 0) return 'Estimated hours cannot be negative';
-        if (editedTask?.due_date) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const dueDate = new Date(editedTask?.due_date);
-            if (dueDate < today) return 'Due date cannot be in the past';
-        }
-        return null;
-    };
-
-    const handleSubmit = async () => {
-        const validationError = validateForm();
-        if (validationError) {
-            addSnackbar({severity: 'error', message: validationError})
-            return;
-        }
-        await saveTheTask({body: editedTask ?? {} as ITask, pathParams: {id: editedTask?.id as string}});
-    }
-
-    const filterActiveUsers = users.filter((user: IUser) => user.is_active)
+    const { user } = useAuth();
+    const {
+        editedTask,
+        loading,
+        handleChange,
+        handleAssigneeChange,
+        handleStatusChange,
+        handlePriorityChange,
+        handleSubmit,
+        filterActiveUsers,
+        today,
+        fetchCurrentTask,
+    } = useTaskDetails({ task, onSave, users });
 
     if (!editedTask) {
         return (
-            <Dialog open={open} onClose={onClose}>
+            <Dialog open={open}>
                 <DialogContent>
                     <CircularProgress/>
                 </DialogContent>
             </Dialog>
         );
     }
-
-    const today = new Date().toISOString().split('T')[0];
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -213,10 +148,10 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                         />
                     </Stack>
 
-                    {user?.role !== 'MEMBER' && (
                         <FormControl fullWidth>
                             <InputLabel>Assign to</InputLabel>
                             <Select label="Assign to" name="assignee_id" value={editedTask?.assignee_id || ''}
+                                    disabled={user?.role === 'MEMBER'}
                                     onChange={handleAssigneeChange}>
                                 <MenuItem value="">
                                     <em>Unassigned</em>
@@ -228,7 +163,6 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                                 ))}
                             </Select>
                         </FormControl>
-                    )}
 
                     <Divider sx={{my: 2}}/>
 
