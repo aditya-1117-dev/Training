@@ -1,6 +1,6 @@
-import {postRequest, putRequest, deleteRequest, getRequest} from '../utils/apiClient';
-import type {IAPIResponse} from "../types/api.ts";
-import React, {useEffect, useState} from "react";
+import {postRequest, putRequest, deleteRequest, getRequest} from '../../utils/apiClient.ts';
+import type {IAPIResponse} from "../../types/api.ts";
+import React, { useEffect, useState} from "react";
 import {useAuth} from "./useAuth.ts";
 
 type THttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' ;
@@ -90,7 +90,7 @@ export function useAPI<T, B = undefined>(
         } finally {
             setIsLoading(false);
         }
-    };
+    }
 
     useEffect(() => {
         if (!callOnMount || !url) return;
