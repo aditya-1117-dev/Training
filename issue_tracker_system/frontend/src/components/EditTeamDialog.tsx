@@ -12,10 +12,8 @@ import {
     MenuItem
 } from '@mui/material';
 import type { IUser } from '../types/user.ts';
-import type { ITeam, ITeamUpdateData } from '../types/team.ts';
-import { useSnackbar } from '../hooks/useSnackBar.ts';
-import {useEffect, useState} from "react";
-import {useAPI} from "../hooks/useAPI.ts";
+import type { ITeam } from '../types/team.ts';
+import {useEditTeam} from "../hooks/componentHooks/useEditTeam.ts";
 
 interface EditTeamDialogProps {
     users: IUser[];
@@ -26,64 +24,14 @@ interface EditTeamDialogProps {
 }
 
 export function EditTeamDialog({ open, onClose, onSubmit, users, team }: EditTeamDialogProps) {
-    const [formData, setFormData] = useState<ITeamUpdateData>({
-        name: team?.name || '',
-        description: team?.description || '',
-        team_lead_id: team?.team_lead_id || '',
-    });
-    const { addSnackbar } = useSnackbar();
-
-    const {execute: updateTeam, isLoading: loading} = useAPI<IUser, ITeamUpdateData>('/api/teams/:id', {
-        method: 'PUT',
-        onSuccess: () => {
-            addSnackbar( { severity : 'success', message : 'Team updated successfully!'})
-            onSubmit();
-        },
-        onError: (err: unknown) => {
-            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Team update failed'})
-        }
-    });
-
-    useEffect(() => {
-        if (team) {
-            setFormData({
-                name: team.name,
-                description: team.description || '',
-                team_lead_id: team.team_lead_id || '',
-            });
-        }
-    }, [team]);
-
-    const validateForm = (): string | null => {
-        if (!formData.name?.trim()) return 'Team name is required';
-        if (formData.name.length < 2) return 'Team name must be at least 2 characters';
-        return null;
-    };
-
-    const handleSubmit = async () => {
-        const validationError = validateForm();
-        if (validationError) {
-            addSnackbar({ severity : 'error', message : validationError })
-            return;
-        }
-        if (team?.id) {
-            await updateTeam({
-                pathParams: {id: team.id},
-                body: {...formData}
-            })
-        }
-    };
-
-    const handleClose = () => {
-        if (team) {
-            setFormData({
-                name: team.name,
-                description: team.description || '',
-                team_lead_id: '',
-            });
-        }
-        onClose();
-    };
+    const {
+        formData,
+        loading,
+        handleChange,
+        handleSelectChange,
+        handleSubmit,
+        handleClose,
+    } = useEditTeam({onClose, onSubmit, team})
 
     return (
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
@@ -95,7 +43,7 @@ export function EditTeamDialog({ open, onClose, onSubmit, users, team }: EditTea
                         fullWidth
                         name="name"
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onChange={handleChange}
                         required
                     />
 
@@ -106,7 +54,7 @@ export function EditTeamDialog({ open, onClose, onSubmit, users, team }: EditTea
                         rows={2}
                         name="description"
                         value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        onChange={handleChange}
                     />
 
                     <FormControl fullWidth>
@@ -114,7 +62,7 @@ export function EditTeamDialog({ open, onClose, onSubmit, users, team }: EditTea
                         <Select
                             label="Team Lead"
                             value={formData.team_lead_id || ''}
-                            onChange={(e) => setFormData({ ...formData, team_lead_id: e.target.value })}
+                            onChange={handleSelectChange}
                         >
                             {users.length === 0 && <MenuItem value="">No Team Lead Available</MenuItem>}
                             {users.map(user => (
