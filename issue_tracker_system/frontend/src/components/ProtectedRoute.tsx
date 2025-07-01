@@ -1,6 +1,6 @@
 import React, {type JSX} from "react";
 import {Role} from "../utils/constants.ts";
-import {useAuth} from "../hooks/useAuth.ts";
+import {useAuth} from "../hooks/customHooks/useAuth.ts";
 import {Navigate} from "react-router-dom";
 import Layout from "../pages/Layout.tsx";
 import UserNotAuthorized from "../pages/UserNotAuthorized.tsx";
@@ -12,7 +12,11 @@ interface PrivateRouteProps {
 }
 
 export const ProtectedRoute: React.FC<PrivateRouteProps> = ({element, allowedRoles}) => {
-    const {token, user, loading} = useAuth();
+    const {
+        token,
+        user,
+        loading
+    } = useAuth();
 
     if (loading) {
         return (
