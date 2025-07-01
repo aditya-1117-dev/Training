@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
     Box,
     TextField,
@@ -7,52 +7,10 @@ import {
     CircularProgress,
     Paper,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import {useAuth} from "../hooks/useAuth.ts";
-import {useSnackbar} from "../hooks/useSnackBar.ts";
+import {useLogin} from "../hooks/componentHooks/useLogin.ts";
 
 const Login: React.FC = () => {
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-    const { user, login, isAuthenticated, loading : authLoading } = useAuth()!;
-    const navigate = useNavigate();
-    const { addSnackbar} = useSnackbar();
-
-    const validateEmail = (email: string): boolean => {
-        return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
-    };
-
-    useEffect(() => {
-        if (isAuthenticated ) {
-            navigate('/home');
-        }
-    }, [user]);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!validateEmail(email)) {
-            addSnackbar({ severity : 'error', message : 'Please enter a valid email address' })
-            return;
-        }
-        if (!password.trim()){
-            addSnackbar({ severity : 'error', message : 'Password cannot be empty' })
-            return;
-        }
-        setLoading(true);
-
-        try {
-            const userRole = await login(email, password);
-            if (userRole) {
-                navigate('/home');
-            }
-        } catch (err : unknown) {
-            addSnackbar({ severity : 'error', message : err instanceof Error ? err.message : 'Invalid credentials' })
-        } finally {
-            setLoading(false);
-        }
-    };
+    const {email, password, loading, authLoading, setEmail, setPassword, handleSubmit} = useLogin();
 
     if (authLoading) {
         return (
@@ -65,7 +23,7 @@ const Login: React.FC = () => {
                     alignItems: 'center',
                 }}
             >
-                <CircularProgress />
+                <CircularProgress/>
             </Box>
         );
     }
@@ -90,13 +48,9 @@ const Login: React.FC = () => {
                     alignItems: 'center',
                 }}
             >
-                <Typography variant="h4" component="h1" gutterBottom>
-                    Issue Tracker
-                </Typography>
-                <Typography variant="h6" component="h2" gutterBottom>
-                    Sign In
-                </Typography>
-                <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+                <Typography variant="h4" component="h1" gutterBottom> Issue Tracker</Typography>
+                <Typography variant="h6" component="h2" gutterBottom> Sign In</Typography>
+                <Box component="form" onSubmit={handleSubmit} sx={{width: '100%'}}>
                     <TextField
                         fullWidth
                         label="Email"
@@ -118,10 +72,10 @@ const Login: React.FC = () => {
                         type="submit"
                         variant="contained"
                         fullWidth
-                        sx={{ mt: 2, mb: 2, py: 1.5 }}
+                        sx={{mt: 2, mb: 2, py: 1.5}}
                         disabled={loading}
                     >
-                        {loading ? <CircularProgress size={24} /> : 'Login'}
+                        {loading ? <CircularProgress size={24}/> : 'Login'}
                     </Button>
                 </Box>
             </Paper>
