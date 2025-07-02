@@ -13,18 +13,17 @@ function App() {
     return (
         <Routes>
             <Route path="/" element={<Login/>}/>
-            <Route
-                path="/users"
-                element={<ProtectedRoute element={<Users/>} allowedRoles={allowedRoles.users}/>}
-            />
-            <Route
-                path="/teams"
-                element={<ProtectedRoute element={<Teams/>} allowedRoles={allowedRoles.teams}/>}
-            />
-            <Route
-                path="/home"
-                element={<ProtectedRoute element={<KanbanBoard/>} allowedRoles={allowedRoles.home}/>}
-            />
+            <Route element={<ProtectedRoute allowedRoles={allowedRoles.users} />}>
+                <Route path="/users" element={<Users />} />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={allowedRoles.teams} />}>
+                <Route path="/teams" element={<Teams />} />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={allowedRoles.home} />}>
+                <Route path="/home" element={<KanbanBoard />} />
+            </Route>
             <Route path="*" element={<PageNotFound/>}/>
         </Routes>
     )
