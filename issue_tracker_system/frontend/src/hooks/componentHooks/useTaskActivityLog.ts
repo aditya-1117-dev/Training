@@ -4,7 +4,7 @@ import {useAuth} from "../customHooks/useAuth.ts";
 import {useSnackbar} from "../customHooks/useSnackBar.ts";
 import {useAPI} from "../customHooks/useAPI.ts";
 
-interface TaskActivityLogProps {
+interface ITaskActivityLogProps {
     task: ITask;
     onUpdate: () => void;
 }
@@ -25,7 +25,7 @@ const getCombinedActivities = (comments: IComment[], history: IHistory[]): TActi
     });
 };
 
-export const useTaskActivityLog = ({ task, onUpdate }: TaskActivityLogProps) => {
+export const useTaskActivityLog = ({ task, onUpdate }: ITaskActivityLogProps) => {
     const { user } = useAuth();
     const [newComment, setNewComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);

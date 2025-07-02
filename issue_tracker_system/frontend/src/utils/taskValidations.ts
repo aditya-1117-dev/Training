@@ -13,17 +13,12 @@ export interface IValidationRule {
     silent?: boolean;
 }
 
-export const createValidationRules = ({ oldStatus, newStatus, userRole} : IValidationConfig): IValidationRule[] => {
+export const createValidationRules = ({oldStatus, newStatus, userRole}: IValidationConfig): IValidationRule[] => {
 
-    return[
+    return [
         {
             condition: oldStatus === newStatus,
             silent: true
-        },
-        {
-            condition: oldStatus === 'DONE' && newStatus !== 'IN_PROGRESS' ||
-                Math.abs(workflowStatesValues[newStatus] - workflowStatesValues[oldStatus]) > 1,
-            message: 'Tasks can only be moved to adjacent statuses.'
         },
         {
             condition: oldStatus === 'DONE' && newStatus === 'IN_REVIEW',
@@ -36,6 +31,14 @@ export const createValidationRules = ({ oldStatus, newStatus, userRole} : IValid
         {
             condition: userRole === 'MEMBER' && newStatus === 'DONE',
             message: 'Members cannot move tasks to DONE status.'
-        }
+        },
+        {
+            condition: oldStatus === 'DONE' && newStatus !== 'IN_PROGRESS' && userRole !== 'MEMBER',
+            message: `You cannot move task from ${oldStatus} to ${newStatus}.`
+        },
+        {
+            condition : oldStatus !== 'DONE' && Math.abs(workflowStatesValues[newStatus] - workflowStatesValues[oldStatus]) > 1,
+            message: 'Tasks can only be moved to adjacent statuses.',
+        },
     ]
 };

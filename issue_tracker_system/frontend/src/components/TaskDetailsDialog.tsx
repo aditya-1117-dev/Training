@@ -1,11 +1,6 @@
 import React from 'react';
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     TextField,
-    Button,
     MenuItem,
     Stack,
     FormControl,
@@ -18,8 +13,8 @@ import type {ITask} from '../types/task.ts';
 import type {IUser} from '../types/user.ts';
 import TaskActivityLog from './TaskActivityLog.tsx';
 import {useAuth} from "../hooks/customHooks/useAuth.ts";
-import {priorityColor} from "../utils/taskUtils.ts";
 import {useTaskDetails} from "../hooks/componentHooks/useTaskDetails.ts";
+import DialogForm from "./DialogForm.tsx";
 
 interface ITaskDetailsModalProps {
     open: boolean;
@@ -30,7 +25,7 @@ interface ITaskDetailsModalProps {
 }
 
 const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClose, onSave, users}) => {
-    const { user } = useAuth();
+    const {user} = useAuth();
     const {
         editedTask,
         loading,
@@ -42,23 +37,21 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
         filterActiveUsers,
         today,
         fetchCurrentTask,
-    } = useTaskDetails({ task, onSave, users });
-
-    if (!editedTask) {
-        return (
-            <Dialog open={open}>
-                <DialogContent>
-                    <CircularProgress/>
-                </DialogContent>
-            </Dialog>
-        );
-    }
+    } = useTaskDetails({task, onSave, users});
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle>Task Details</DialogTitle>
-            <DialogContent dividers>
-                <Stack spacing={3} sx={{mt: 2}}>
+        <DialogForm
+            open={open}
+            onClose={onClose}
+            onSubmit={handleSubmit}
+            title="Task Details"
+            submitButtonText="Save Changes"
+            loading={loading}
+            maxWidth="md"
+        >
+            {!editedTask
+                ? <CircularProgress/>
+                : <Stack spacing={3} sx={{mt: 2}}>
                     <TextField
                         fullWidth
                         label="Title"
@@ -103,13 +96,12 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                                 labelId='priority'
                                 label="Priority"
                                 onChange={handlePriorityChange}
-                                sx={{color: priorityColor[editedTask?.priority || '']}}
                                 disabled={!!user && user?.role === 'MEMBER'}
                             >
-                                <MenuItem value="LOW" sx={{color: priorityColor.LOW}}> Low</MenuItem>
-                                <MenuItem value="MEDIUM" sx={{color: priorityColor.MEDIUM}}>Medium</MenuItem>
-                                <MenuItem value="HIGH" sx={{color: priorityColor.HIGH}}>High</MenuItem>
-                                <MenuItem value="CRITICAL" sx={{color: priorityColor.CRITICAL}}>Critical</MenuItem>
+                                <MenuItem value="LOW"> Low</MenuItem>
+                                <MenuItem value="MEDIUM">Medium</MenuItem>
+                                <MenuItem value="HIGH">High</MenuItem>
+                                <MenuItem value="CRITICAL">Critical</MenuItem>
                             </Select>
                         </FormControl>
 
@@ -122,7 +114,7 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                             fullWidth
                             disabled={!!user && user?.role === 'MEMBER'}
                             slotProps={{
-                                inputLabel : {shrink:true},
+                                inputLabel: {shrink: true},
                                 input: {inputProps: {min: today},}
                             }}
                         />
@@ -148,37 +140,29 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                         />
                     </Stack>
 
-                        <FormControl fullWidth>
-                            <InputLabel>Assign to</InputLabel>
-                            <Select label="Assign to" name="assignee_id" value={editedTask?.assignee_id || ''}
-                                    disabled={user?.role === 'MEMBER'}
-                                    onChange={handleAssigneeChange}>
-                                <MenuItem value="">
-                                    <em>Unassigned</em>
+                    <FormControl fullWidth>
+                        <InputLabel>Assign to</InputLabel>
+                        <Select label="Assign to" name="assignee_id" value={editedTask?.assignee_id || ''}
+                                disabled={user?.role === 'MEMBER'}
+                                onChange={handleAssigneeChange}>
+                            <MenuItem value="">
+                                <em>Unassigned</em>
+                            </MenuItem>
+                            {filterActiveUsers.map((user) => (
+                                <MenuItem key={user.id} value={user.id}>
+                                    {user.name} ({user.email})
                                 </MenuItem>
-                                {filterActiveUsers.map((user) => (
-                                    <MenuItem key={user.id} value={user.id}>
-                                        {user.name} ({user.email})
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                            ))}
+                        </Select>
+                    </FormControl>
 
                     <Divider sx={{my: 2}}/>
 
-                    {editedTask && <TaskActivityLog task={editedTask}
-                                                    onUpdate={() => fetchCurrentTask({pathParams: {id: task?.id as string}})}/>}
+                    <TaskActivityLog task={editedTask}
+                                     onUpdate={() => fetchCurrentTask({pathParams: {id: task?.id as string}})}/>
                 </Stack>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose} disabled={loading}>
-                    Cancel
-                </Button>
-                <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>
-                    Save Changes
-                </Button>
-            </DialogActions>
-        </Dialog>
+            }
+        </DialogForm>
     );
 };
 
