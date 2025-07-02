@@ -3,6 +3,7 @@ import type { SelectChangeEvent } from '@mui/material';
 import type { ITeam, ITeamUpdateData } from '../../types/team.ts';
 import {useSnackbar} from "../customHooks/useSnackBar.ts";
 import {useAPI} from "../customHooks/useAPI.ts";
+import type {IUser, IUserUpdateData} from "../../types/user.ts";
 
 interface EditTeamProps {
     onClose: () => void;
@@ -27,6 +28,13 @@ export const useEditTeam = ({ onClose, onSubmit, team }: EditTeamProps) => {
         },
         onError: (err: unknown) => {
             addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Failed to update team' });
+        },
+    });
+
+    const {execute: updateUser} = useAPI<IUser, IUserUpdateData>('/api/users/:id', {
+        method: 'PUT',
+        onError: (err: unknown) => {
+            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Update operation failed'})
         },
     });
 
@@ -61,13 +69,15 @@ export const useEditTeam = ({ onClose, onSubmit, team }: EditTeamProps) => {
             addSnackbar({ severity: 'error', message: error });
             return;
         }
-        if (team?.id) {
-
-            await updateTeam({
-                pathParams: { id: team.id },
-                body: { ...formData },
-            });
+        try {
+            if (team?.team_lead_id !== formData.team_lead_id) {
+                await updateUser({pathParams: { id: team.team_lead_id }, body: { role: 'MEMBER' },});
+                await updateUser({pathParams: { id: formData.team_lead_id }, body: { role: 'TEAM_LEAD' },});
+            }
+            await updateTeam({pathParams: { id: team.id }, body: { ...formData },});
             handleClose();
+        } catch (err: unknown) {
+            addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Failed to update team'})
         }
     };
 
