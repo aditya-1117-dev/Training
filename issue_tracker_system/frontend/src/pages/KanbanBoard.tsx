@@ -10,6 +10,7 @@ import {PageContainer} from "./PageContainer.tsx";
 
 const KanbanBoard: FC = () => {
     const {
+        user,
         columns,
         tasks,
         teams,
@@ -30,10 +31,10 @@ const KanbanBoard: FC = () => {
     return (
         <PageContainer
             title="Welcome to Issue Tracker System"
-            actionButton={{
+            actionButton={user?.role=== 'TEAM_LEAD' ? {
                 text: "Create New Task",
                 onClick: handleOpenCreateModal
-            }}
+            } : undefined}
         >
             <RenderFilters {...filterConfig} />
 
