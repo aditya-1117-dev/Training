@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Stack, IconButton, Chip} from '@mui/material';
+import {Stack, IconButton, Chip, Tooltip} from '@mui/material';
 import {Delete, Edit} from '@mui/icons-material';
 import type {ITeam, ITeamUpdateData} from '../../types/team.ts';
 import type {IUser} from '../../types/user.ts';
@@ -69,12 +69,26 @@ export const useTeams = () => {
 
     const columns: IColumn<ITeam>[] = [
         {key: 'row_number', label: 'ID', width: '5%', render: (_, index) => renderRowNumber(index)},
-        {key: 'name', label: 'Name'},
-        {key: 'description', label: 'Description'},
-        {key: 'team_lead_name', label: 'Team Lead'},
-        {key: 'member_count', label: 'Members', align: 'center'},
+        {key: 'name', label: 'Name', width : '15%'},
+        {key: 'description', label: 'Description', width : '25%',
+            render: (team: ITeam) => {
+                const maxLength = 40;
+                const description = team.description || '';
+                const shortened = description.length > maxLength
+                    ? description.slice(0, maxLength) + '...'
+                    : description;
+
+                return (
+                    <Tooltip title={description}>
+                        <span>{shortened}</span>
+                    </Tooltip>
+                );
+            }
+        },
+        {key: 'team_lead_name', label: 'Team Lead', width : '15%'},
+        {key: 'member_count', label: 'Members', align: 'center', width : '10%'},
         {
-            key: 'is_active', label: 'Active Status', width: '15%',
+            key: 'is_active', label: 'Status', width: '15%',
             render: (team: ITeam) => {
                 return team.is_active ? (
                     <Chip label="Active" size="small"

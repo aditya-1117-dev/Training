@@ -24,7 +24,7 @@ export function EditTeamDialog({open, onClose, onSubmit, users, team}: EditTeamD
         formData,
         loading,
         handleChange,
-        handleSelectChange,
+        handleTeamLeadChange,
         handleSubmit,
         handleClose,
     } = useEditTeam({onClose, onSubmit, team})
@@ -66,7 +66,7 @@ export function EditTeamDialog({open, onClose, onSubmit, users, team}: EditTeamD
                         <Select
                             label="Team Lead"
                             value={formData.team_lead_id || ''}
-                            onChange={handleSelectChange}
+                            onChange={handleTeamLeadChange}
                         >
                             {users.length === 0 && <MenuItem value="">No Team Lead Available</MenuItem>}
                             {users.map(user => (

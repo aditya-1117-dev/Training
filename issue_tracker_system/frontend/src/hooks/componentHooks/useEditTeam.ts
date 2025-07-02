@@ -53,7 +53,7 @@ export const useEditTeam = ({ onClose, onSubmit, team }: EditTeamProps) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSelectChange = (e: SelectChangeEvent) => {
+    const handleTeamLeadChange = (e: SelectChangeEvent) => {
         setFormData(prev => ({ ...prev, team_lead_id: e.target.value }));
     };
 
@@ -71,10 +71,10 @@ export const useEditTeam = ({ onClose, onSubmit, team }: EditTeamProps) => {
         }
         try {
             if (team?.team_lead_id !== formData.team_lead_id) {
-                await updateUser({pathParams: { id: team.team_lead_id }, body: { role: 'MEMBER' },});
-                await updateUser({pathParams: { id: formData.team_lead_id }, body: { role: 'TEAM_LEAD' },});
+                await updateUser({pathParams: { id: team?.team_lead_id as string}, body: { role: 'MEMBER' },});
+                await updateUser({pathParams: { id: formData.team_lead_id as string }, body: { role: 'TEAM_LEAD' },});
             }
-            await updateTeam({pathParams: { id: team.id }, body: { ...formData },});
+            await updateTeam({pathParams: { id: team?.id as string }, body: { ...formData },});
             handleClose();
         } catch (err: unknown) {
             addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Failed to update team'})
@@ -94,7 +94,7 @@ export const useEditTeam = ({ onClose, onSubmit, team }: EditTeamProps) => {
         formData,
         loading,
         handleChange,
-        handleSelectChange,
+        handleTeamLeadChange,
         handleSubmit,
         handleClose,
     };
