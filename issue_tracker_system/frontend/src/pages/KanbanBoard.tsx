@@ -18,9 +18,9 @@ const KanbanBoard: FC = () => {
         allTeamLeadsAndMembers,
         membersOfSelectedTaskTeam,
         handleTaskClick,
-        handleCreateModalOpen,
-        handleCreateModalClose,
-        handleTaskDialogClose,
+        handleOpenCreateModal,
+        handleCloseCreateModal,
+        handleCloseTaskDialog,
         handleTaskUpdate,
         handleCreateTask,
         handleOnTaskDrop,
@@ -32,7 +32,7 @@ const KanbanBoard: FC = () => {
             title="Welcome to Issue Tracker System"
             actionButton={{
                 text: "Create New Task",
-                onClick: handleCreateModalOpen
+                onClick: handleOpenCreateModal
             }}
         >
             <RenderFilters {...filterConfig} />
@@ -67,7 +67,7 @@ const KanbanBoard: FC = () => {
                 <TaskDetailsDialog
                     open={Boolean(selectedTask)}
                     task={selectedTask}
-                    onClose={handleTaskDialogClose}
+                    onClose={handleCloseTaskDialog}
                     onSave={handleTaskUpdate}
                     users={membersOfSelectedTaskTeam}
                 />
@@ -75,7 +75,7 @@ const KanbanBoard: FC = () => {
 
             <CreateTaskDialog
                 open={openCreateModal}
-                onClose={handleCreateModalClose}
+                onClose={handleCloseCreateModal}
                 onSave={handleCreateTask}
                 users={allTeamLeadsAndMembers}
                 teams={teams || []}

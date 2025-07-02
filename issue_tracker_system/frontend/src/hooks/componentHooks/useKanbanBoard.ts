@@ -34,25 +34,37 @@ export const useKanbanBoard = () => {
     });
 
     const allTeamLeadsAndMembers = users?.filter((user: IUser) => user.role === 'TEAM_LEAD' || user.role === 'MEMBER') || [];
+
     const membersOfSelectedTaskTeam = allTeamLeadsAndMembers.filter((user: IUser) => selectedTask?.team_id === user.team_id);
+
     const assigneeFilterOptions = allTeamLeadsAndMembers.map((user) => ({value: user.id, label: user.name}));
+
     const teamFilterOptions = teams?.map((team: ITeam) => ({value: team.id, label: team.name})) || []
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => setSearchTask(e.target.value);
+
     const handleAssigneeChange = (e: SelectChangeEvent) => setAssigneeFilter(e.target.value);
+
     const handleTeamChange = (e: SelectChangeEvent) => setTeamFilter(e.target.value);
+
     const handleTaskClick = (task: ITask) => setSelectedTask(task);
-    const handleCreateModalOpen = () => setOpenCreateModal(true);
-    const handleCreateModalClose = () => setOpenCreateModal(false);
-    const handleTaskDialogClose = () => setSelectedTask(null);
+
+    const handleOpenCreateModal = () => setOpenCreateModal(true);
+
+    const handleCloseCreateModal = () => setOpenCreateModal(false);
+
+    const handleCloseTaskDialog = () => setSelectedTask(null);
+
     const handleTaskUpdate = () => {
         setSelectedTask(null);
         fetchTasks();
     };
+
     const handleCreateTask = () => {
-        handleCreateModalClose();
+        handleCloseCreateModal();
         if (fetchTasks) fetchTasks();
     };
+
     const handleOnTaskDrop = () => {
         if (fetchTasks) fetchTasks();
     };
@@ -95,9 +107,9 @@ export const useKanbanBoard = () => {
         allTeamLeadsAndMembers,
         membersOfSelectedTaskTeam,
         handleTaskClick,
-        handleCreateModalOpen,
-        handleCreateModalClose,
-        handleTaskDialogClose,
+        handleOpenCreateModal,
+        handleCloseCreateModal,
+        handleCloseTaskDialog,
         handleTaskUpdate,
         handleCreateTask,
         handleOnTaskDrop,
