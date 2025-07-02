@@ -27,27 +27,32 @@ export const RenderFilters: React.FC<IRenderFiltersProps> = ({search, filters}) 
     return (
         <Box sx={{display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap'}}>
             <TextField
+                size={'small'}
                 label={search.label || 'Search'}
                 variant="outlined"
                 value={search.value}
                 onChange={search.onChange}
-                sx={{minWidth: 300, flex: '1 1 auto'}}
+                sx={{flex: '1 1 auto'}}
             />
             {filters.map((filter) => (
-                <FormControl key={filter.key} sx={{minWidth: 200, flex: '1 1 auto'}}>
+                <FormControl key={filter.key} size="small" sx={{flex: '1 1 auto'}}>
                     <InputLabel id={`${filter.key}-label`}>{filter.label}</InputLabel>
                     <Select
                         labelId={`${filter.key}-label`}
                         value={filter.value}
                         onChange={filter.onChange}
                         label={filter.label}
+                        variant={"outlined"}
                     >
-                        <MenuItem value="">All {filter.label}</MenuItem>
-                        {filter.options.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                            </MenuItem>
-                        ))}
+                        <MenuItem value="all">All {filter.label}</MenuItem>
+                        {Array.from(
+                                new Map(filter.options.map(opt => [opt.value, opt])).values()
+                            ).map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))
+                        }
                     </Select>
                 </FormControl>
             ))}
