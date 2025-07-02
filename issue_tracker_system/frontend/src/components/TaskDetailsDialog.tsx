@@ -12,7 +12,6 @@ import {
 import type {ITask} from '../types/task.ts';
 import type {IUser} from '../types/user.ts';
 import TaskActivityLog from './TaskActivityLog.tsx';
-import {useAuth} from "../hooks/customHooks/useAuth.ts";
 import {useTaskDetails} from "../hooks/componentHooks/useTaskDetails.ts";
 import DialogForm from "./DialogForm.tsx";
 
@@ -25,8 +24,8 @@ interface ITaskDetailsModalProps {
 }
 
 const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClose, onSave, users}) => {
-    const {user} = useAuth();
     const {
+        user,
         editedTask,
         loading,
         handleChange,

@@ -29,7 +29,6 @@ const TaskActivityLog: React.FC<ITaskActivityLog> = ({task, onUpdate}) => {
                 <TextField
                     fullWidth
                     multiline
-                    rows={2}
                     variant="outlined"
                     placeholder="Add a comment..."
                     value={newComment}

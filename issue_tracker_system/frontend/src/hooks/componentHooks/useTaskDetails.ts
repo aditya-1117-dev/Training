@@ -93,6 +93,7 @@ export const useTaskDetails = ({ task, onSave, users }: TaskDetailsProps) => {
     const today = new Date().toISOString().split('T')[0];
 
     return {
+        user,
         editedTask,
         loading,
         handleChange,

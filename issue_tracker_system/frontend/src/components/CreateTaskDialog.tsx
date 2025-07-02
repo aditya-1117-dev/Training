@@ -6,11 +6,9 @@ import {
     FormControl,
     InputLabel,
     Select,
-    CircularProgress
 } from '@mui/material';
 import type {IUser} from '../types/user.ts';
 import type {ITeam} from '../types/team.ts';
-import {priorityColor} from "../utils/taskUtils.ts";
 import {useCreateTask} from "../hooks/componentHooks/useCreateTask.ts";
 import DialogForm from "./DialogForm.tsx";
 
