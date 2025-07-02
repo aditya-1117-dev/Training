@@ -1,19 +1,15 @@
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     TextField,
-    Button,
     MenuItem,
     Stack,
     FormControl,
     InputLabel,
-    Select,
+    Select, CircularProgress,
 } from '@mui/material';
 import type {IUser} from '../types/user.ts';
-import type { ITeam } from '../types/team.ts';
+import type {ITeam} from '../types/team.ts';
 import {useEditUser} from "../hooks/componentHooks/useEditUser.ts";
+import DialogForm from "./DialogForm.tsx";
 
 interface IEditUserDialogProps {
     teams: ITeam[];
@@ -23,7 +19,7 @@ interface IEditUserDialogProps {
     user: IUser | null;
 }
 
-export function EditUserDialog({ open, onClose, onSubmit, teams, user }: IEditUserDialogProps) {
+export function EditUserDialog({open, onClose, onSubmit, teams, user}: IEditUserDialogProps) {
     const {
         formData,
         loading,
@@ -31,18 +27,26 @@ export function EditUserDialog({ open, onClose, onSubmit, teams, user }: IEditUs
         handleSubmit,
         handleClose,
         setFormData
-    } = useEditUser({onClose, onSubmit, user,});
+    } = useEditUser({onClose, onSubmit, user});
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogContent dividers>
-                <Stack spacing={2} sx={{ mt: 1 }}>
+        <DialogForm
+            open={open}
+            onClose={handleClose}
+            onSubmit={handleSubmit}
+            title="Edit User"
+            submitButtonText={loading ? 'Updating...' : 'Update User'}
+            loading={loading}
+            maxWidth="sm"
+        >
+            {!user
+                ? <CircularProgress/>
+                : <Stack spacing={2} sx={{mt: 1}}>
                     <TextField
                         label="Name"
                         fullWidth
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
                         required
                     />
                     <TextField
@@ -50,7 +54,7 @@ export function EditUserDialog({ open, onClose, onSubmit, teams, user }: IEditUs
                         type="email"
                         fullWidth
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
                         required
                     />
                     <TextField
@@ -58,26 +62,30 @@ export function EditUserDialog({ open, onClose, onSubmit, teams, user }: IEditUs
                         type="password"
                         fullWidth
                         value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        onChange={(e) => setFormData({...formData, password: e.target.value})}
                     />
-                    <FormControl fullWidth required>
-                        <InputLabel>Role</InputLabel>
-                        <Select
-                            value={formData.role!=='TEAM_LEAD'? formData.role : ''}
-                            label="Role"
-                            onChange={handleRoleChange}
-                        >
-                            <MenuItem value="ADMIN">Admin</MenuItem>
-                            <MenuItem value="MEMBER">Member</MenuItem>
-                        </Select>
-                    </FormControl>
+
+                    {user?.role !== 'TEAM_LEAD' && (
+                        <FormControl fullWidth>
+                            <InputLabel>Role</InputLabel>
+                            <Select
+                                value={formData.role !== 'TEAM_LEAD' ? formData.role : ''}
+                                label="Role"
+                                onChange={handleRoleChange}
+                            >
+                                <MenuItem value="ADMIN">Admin</MenuItem>
+                                <MenuItem value="MEMBER">Member</MenuItem>
+                            </Select>
+                        </FormControl>
+                    )}
+
                     {formData.role === 'MEMBER' && (
                         <FormControl fullWidth>
                             <InputLabel>Team Name</InputLabel>
                             <Select
                                 label="Team Name"
                                 value={formData.team_id || ''}
-                                onChange={(e) => setFormData({ ...formData, team_id: e.target.value })}
+                                onChange={(e) => setFormData({...formData, team_id: e.target.value})}
                             >
                                 {teams.length === 0 && (
                                     <MenuItem value="">No Team Available</MenuItem>
@@ -91,19 +99,7 @@ export function EditUserDialog({ open, onClose, onSubmit, teams, user }: IEditUs
                         </FormControl>
                     )}
                 </Stack>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose} disabled={loading}>
-                    Cancel
-                </Button>
-                <Button
-                    onClick={handleSubmit}
-                    variant="contained"
-                    disabled={loading}
-                >
-                    {loading ? 'Updating...' : 'Update User'}
-                </Button>
-            </DialogActions>
-        </Dialog>
+            }
+        </DialogForm>
     );
 }
