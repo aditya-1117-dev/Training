@@ -1,22 +1,21 @@
-import React, {type JSX} from "react";
+import React from "react";
 import {Role} from "../utils/constants.ts";
 import {useAuth} from "../hooks/customHooks/useAuth.ts";
-import {Navigate} from "react-router-dom";
+import {Navigate, Outlet, useNavigate} from "react-router-dom";
 import Layout from "../pages/Layout.tsx";
-import UserNotAuthorized from "../pages/UserNotAuthorized.tsx";
 import {Box, CircularProgress} from "@mui/material";
 
-interface PrivateRouteProps {
-    element: JSX.Element;
+interface IPrivateRouteProps {
     allowedRoles: Role[];
 }
 
-export const ProtectedRoute: React.FC<PrivateRouteProps> = ({element, allowedRoles}) => {
+export const ProtectedRoute: React.FC<IPrivateRouteProps> = ({allowedRoles}) => {
     const {
         token,
         user,
         loading
     } = useAuth();
+    const navigate = useNavigate();
 
     if (loading) {
         return (
@@ -39,12 +38,13 @@ export const ProtectedRoute: React.FC<PrivateRouteProps> = ({element, allowedRol
     }
 
     if (!allowedRoles.includes(user.role as Role)) {
-        return <UserNotAuthorized/>
+        navigate(-1);
+        return;
     }
 
     return (
         <Layout>
-            {element}
+            <Outlet />
         </Layout>
     );
 };
