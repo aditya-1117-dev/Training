@@ -1,19 +1,15 @@
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     TextField,
-    Button,
     Stack,
     FormControl,
     InputLabel,
     Select,
-    MenuItem
+    MenuItem, CircularProgress
 } from '@mui/material';
-import type { IUser } from '../types/user.ts';
-import type { ITeam } from '../types/team.ts';
+import type {IUser} from '../types/user.ts';
+import type {ITeam} from '../types/team.ts';
 import {useEditTeam} from "../hooks/componentHooks/useEditTeam.ts";
+import DialogForm from "./DialogForm.tsx";
 
 interface EditTeamDialogProps {
     users: IUser[];
@@ -23,7 +19,7 @@ interface EditTeamDialogProps {
     team: ITeam | null;
 }
 
-export function EditTeamDialog({ open, onClose, onSubmit, users, team }: EditTeamDialogProps) {
+export function EditTeamDialog({open, onClose, onSubmit, users, team}: EditTeamDialogProps) {
     const {
         formData,
         loading,
@@ -34,10 +30,18 @@ export function EditTeamDialog({ open, onClose, onSubmit, users, team }: EditTea
     } = useEditTeam({onClose, onSubmit, team})
 
     return (
-        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-            <DialogTitle>Edit Team</DialogTitle>
-            <DialogContent dividers>
-                <Stack spacing={2} sx={{ mt: 1 }}>
+        <DialogForm
+            open={open}
+            onClose={handleClose}
+            onSubmit={handleSubmit}
+            title="Edit Team"
+            submitButtonText={loading ? 'Updating...' : 'Update Team'}
+            loading={loading}
+            maxWidth="sm"
+        >
+            {!team
+                ? <CircularProgress/>
+                : <Stack spacing={2} sx={{mt: 1}}>
                     <TextField
                         label="Team Name"
                         fullWidth
@@ -73,15 +77,7 @@ export function EditTeamDialog({ open, onClose, onSubmit, users, team }: EditTea
                         </Select>
                     </FormControl>
                 </Stack>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose} disabled={loading}>
-                    Cancel
-                </Button>
-                <Button onClick={handleSubmit} disabled={loading} variant="contained">
-                    {loading ? 'Updating...' : 'Update Team'}
-                </Button>
-            </DialogActions>
-        </Dialog>
+            }
+        </DialogForm>
     );
 }
