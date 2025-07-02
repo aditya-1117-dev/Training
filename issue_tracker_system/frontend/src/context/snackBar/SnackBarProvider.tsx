@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {Alert, Snackbar} from "@mui/material";
 import {type IAddSnackbarArgs, SnackbarContext} from "./SnackBarContext";
 
@@ -13,10 +13,11 @@ interface ISnackbarMessage {
 }
 
 export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) => {
+    const counter = useRef(0);
     const [snackbars, setSnackbars] = useState<ISnackbarMessage[]>([]);
 
     const addSnackbar = ({ message, severity} : IAddSnackbarArgs ) => {
-        const id = Math.random();
+        const id = ++counter.current;
         setSnackbars((prev) => [...prev, { id, message, severity }]);
     };
 
