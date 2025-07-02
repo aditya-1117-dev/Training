@@ -1,4 +1,4 @@
-import {Button, Stack, Typography, Box, Paper, Dialog, DialogContent, CircularProgress} from '@mui/material';
+
 import { PersonAdd } from '@mui/icons-material';
 import { RenderTable } from '../components/table/RenderTable.tsx';
 import { CreateUserDialog } from '../components/CreateUserDialog.tsx';
@@ -6,90 +6,68 @@ import { EditUserDialog } from '../components/EditUserDialog.tsx';
 import {type FC} from "react";
 import {RenderFilters} from "../components/table/RenderFilters.tsx";
 import {useUsers} from "../hooks/componentHooks/useUsers.tsx";
+import {PageContainer} from "./PageContainer.tsx";
+import CircularLoading from "../components/CircularLoading.tsx";
 
 const Users : FC = () => {
     const {
+        page,
+        users,
+        teams,
+        columns,
+        totalPages,
+        selectedUser,
+        usersLoading,
+        userUpdating,
+        filterConfig,
         openCreateUserDialog,
         openEditUserDialog,
-        selectedUser,
-        teamFilter,
-        searchTerm,
-        users,
-        usersLoading,
-        teams,
-        page,
-        totalPages,
-        columns,
-        setSearchTerm,
-        setOpenEditUserDialog,
-        setSelectedUser,
-        setTeamFilter,
         handlePageChange,
-        fetchUsers,
-        setOpenCreateUserDialog,
-        userUpdating
+        handleUpdateUser,
+        handleCreateNewUser,
+        handleCloseCreateNewUserDialog,
+        handleOpenCreateNewUserDialog,
+        handleCloseEditUserDialog
     } = useUsers();
 
-    if (userUpdating){
-        return (
-            <Dialog open={openEditUserDialog}>
-                <DialogContent>
-                    <CircularProgress/>
-                </DialogContent>
-            </Dialog>
-        );
+    if (usersLoading || userUpdating){
+        return <CircularLoading />
     }
     return (
-        <Box sx={{ width: '100%', py: 4, px: { xs: 2, sm: 4, md: 6 }, boxSizing: 'border-box' }}>
-            <Paper sx={{ p: 3, overflowX: 'auto' }}>
-                <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
-                    <Typography variant="h5" component="h1">User Management</Typography>
-                    <Button variant="contained" startIcon={<PersonAdd />} onClick={() => setOpenCreateUserDialog(true)}>
-                        New User
-                    </Button>
-                </Stack>
+        <PageContainer
+            title="User Management"
+            actionButton={{
+                icon: <PersonAdd />,
+                text: "New User",
+                onClick: handleOpenCreateNewUserDialog
+            }}
+        >
+            <RenderFilters {...filterConfig}/>
 
-                <RenderFilters
-                    search={{value: searchTerm, label: 'Search Users',
-                        onChange: (e) => setSearchTerm(e.target.value)}}
-                    filters={[ {key: 'team', label: 'Team', value: teamFilter, onChange: (e) =>{
-                            handlePageChange(1);
-                            setTeamFilter(e.target.value)
-                        }, options: teams?.map((team) => ( { value: team.id, label: team.name } )) || [],} ]}
-                />
+            <RenderTable
+                data={users || []}
+                columns={columns}
+                loading={usersLoading}
+                page={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
 
-                <RenderTable
-                    data={users || []}
-                    columns={columns}
-                    loading={usersLoading}
-                    page={page}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                />
+            <EditUserDialog
+                open={openEditUserDialog}
+                onClose={handleCloseEditUserDialog}
+                onSubmit={handleUpdateUser}
+                teams={teams || []}
+                user={selectedUser}
+            />
 
-                <EditUserDialog
-                    open={openEditUserDialog}
-                    onClose={() => {
-                        setOpenEditUserDialog(false);
-                        setSelectedUser(null)
-                    }}
-                    onSubmit={() => {
-                        setOpenEditUserDialog(false);
-                        setSelectedUser(null);
-                        fetchUsers();
-                    }}
-                    teams={teams || []}
-                    user={selectedUser}
-                />
-
-                <CreateUserDialog
-                    open={openCreateUserDialog}
-                    onClose={() => setOpenCreateUserDialog(false)}
-                    onSubmit={() => fetchUsers()}
-                    teams={teams || []}
-                />
-            </Paper>
-        </Box>
+            <CreateUserDialog
+                open={openCreateUserDialog}
+                onClose={handleCloseCreateNewUserDialog}
+                onSubmit={handleCreateNewUser}
+                teams={teams || []}
+            />
+        </PageContainer>
     );
 }
 export default Users;

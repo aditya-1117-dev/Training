@@ -76,6 +76,23 @@ export const useUsers = () => {
         fetchUsers();
     }
 
+    const handleCloseEditUserDialog = () => {
+        setOpenEditUserDialog(false);
+        setSelectedUser(null)
+    }
+
+    const handleUpdateUser = () => {
+        setOpenEditUserDialog(false);
+        setSelectedUser(null);
+        fetchUsers();
+    }
+
+    const handleOpenCreateNewUserDialog = () => setOpenCreateUserDialog(true)
+
+    const handleCloseCreateNewUserDialog = () => setOpenCreateUserDialog(false)
+
+    const handleCreateNewUser = () => fetchUsers()
+
     const columns: IColumn<IUser>[] = [
         {
             key: 'row_number', label: 'ID', width: '5%',
@@ -127,26 +144,46 @@ export const useUsers = () => {
         },
     ];
 
+    const filterConfig = {
+        search: {
+            value: searchTerm,
+            label: 'Search Users',
+            onChange: (e) => setSearchTerm(e.target.value),
+        },
+        filters: [
+            {
+                key: 'team',
+                label: 'Team',
+                value: teamFilter,
+                onChange: (e) => {
+                    handlePageChange(1);
+                    setTeamFilter(e.target.value);
+                },
+                options: teams?.map((team) => ({
+                    value: team.id,
+                    label: team.name,
+                })) || [],
+            }
+        ]
+    };
+
     return {
+        page,
+        users,
+        teams,
+        columns,
+        totalPages,
+        selectedUser,
+        usersLoading,
+        userUpdating,
+        filterConfig,
         openCreateUserDialog,
         openEditUserDialog,
-        selectedUser,
-        teamFilter,
-        searchTerm,
-        users,
-        usersLoading,
-        teams,
-        page,
-        totalPages,
-        columns,
-        setSearchTerm,
-        userUpdating,
-        setSelectedUser,
-        setOpenEditUserDialog,
-        setTeamFilter,
         handlePageChange,
-        setOpenCreateUserDialog,
-        handleEditUser,
-        fetchUsers,
+        handleUpdateUser,
+        handleCreateNewUser,
+        handleCloseCreateNewUserDialog,
+        handleOpenCreateNewUserDialog,
+        handleCloseEditUserDialog
     };
 };
