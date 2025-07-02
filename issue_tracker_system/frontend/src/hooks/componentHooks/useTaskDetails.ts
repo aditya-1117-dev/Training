@@ -88,7 +88,7 @@ export const useTaskDetails = ({ task, onSave, users }: TaskDetailsProps) => {
         await saveTheTask({body: taskToSubmit as ITask, pathParams: {id: editedTask?.id as string}});
     }
 
-    const filterActiveUsers = users.filter((user: IUser) => user.is_active)
+    const filterActiveUsers = Array.from(new Set(users.filter((user: IUser) => user.is_active)));
 
     const today = new Date().toISOString().split('T')[0];
 
