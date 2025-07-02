@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import {Stack, IconButton, Chip} from '@mui/material';
 import {Delete, Edit} from '@mui/icons-material';
 import type {ITeam, ITeamUpdateData} from '../../types/team.ts';
-import type { IUser } from '../../types/user.ts';
-import type { IColumn } from '../../components/table/RenderTable.tsx';
+import type {IUser} from '../../types/user.ts';
+import type {IColumn} from '../../components/table/RenderTable.tsx';
 import {useAPI} from "../customHooks/useAPI.ts";
 import {useSnackbar} from "../customHooks/useSnackBar.ts";
 
@@ -13,16 +13,21 @@ export const useTeams = () => {
     const [selectedTeam, setSelectedTeam] = useState<ITeam | null>(null);
     const [openCreateTeamsDialog, setOpenCreateTeamsDialog] = useState(false);
     const {data: teams, isLoading: teamsLoading, execute: fetchTeams} = useAPI<ITeam[]>('/api/teams', {method: "GET"})
-    const {data: users, execute: fetchUsers} = useAPI<IUser[]>('/api/users', {method: "GET"})
+    const {data: users, execute: fetchUsers} = useAPI<IUser[]>('/api/users', {
+        method: "GET",
+        params: {
+            limit: '100'
+        }
+    })
 
-    const { execute: updateTeam, isLoading: updatingTeam } = useAPI<ITeam, ITeamUpdateData>('/api/teams/:id', {
+    const {execute: updateTeam, isLoading: teamUpdateLoading} = useAPI<ITeam, ITeamUpdateData>('/api/teams/:id', {
         method: 'PUT',
         callOnMount: false,
         onSuccess: () => {
-            addSnackbar({ severity: 'success', message: 'Team deleted successfully!' });
+            addSnackbar({severity: 'success', message: 'Team deleted successfully!'});
         },
         onError: (err: unknown) => {
-            addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Failed to delete team' });
+            addSnackbar({severity: 'error', message: err instanceof Error ? err.message : 'Failed to delete team'});
         },
     });
 
@@ -31,15 +36,35 @@ export const useTeams = () => {
         setOpenEditTeamDialog(openEditTeamDialog => !openEditTeamDialog);
     };
 
-    const activeSoloMembers = users?.filter((user: IUser) => user.role === 'MEMBER' && user.team_id == null && user.is_active ) || [];
+    const activeSoloMembers = users?.filter((user: IUser) => user.role === 'MEMBER' && user.team_id == null && user.is_active) || [];
 
     const soloMembersWithinCurrentTeam = [...activeSoloMembers, ...(selectedTeam ? users?.filter((user: IUser) => user.team_id === selectedTeam.id) || [] : [])];
 
     const renderRowNumber = (index: number = 0) => index + 1;
 
-    const handleDeleteTeam = async ( team : ITeam) => {
-        await updateTeam({ pathParams: { id: team.id }, body: {...team, is_active : false} });
+    const handleDeleteTeam = async (team: ITeam) => {
+        await updateTeam({pathParams: {id: team.id}, body: {...team, is_active: false}});
         fetchTeams();
+    }
+
+    const handleCloseEditTeamDialog = () => {
+        setOpenEditTeamDialog(false)
+        setSelectedTeam(null);
+    }
+
+    const handleUpdateTeam = () => {
+        setOpenEditTeamDialog(false);
+        setSelectedTeam(null);
+        if (fetchTeams) {
+            fetchTeams();
+        }
+    }
+
+    const handleCloseCreateTeamDialog = () => setOpenCreateTeamsDialog(false)
+    
+    const handleCreateNewTeam = () => {
+        if (fetchTeams) fetchTeams();
+        if (fetchUsers) fetchUsers();
     }
 
     const columns: IColumn<ITeam>[] = [
@@ -48,7 +73,8 @@ export const useTeams = () => {
         {key: 'description', label: 'Description'},
         {key: 'team_lead_name', label: 'Team Lead'},
         {key: 'member_count', label: 'Members', align: 'center'},
-        {key: 'is_active', label: 'Active Status', width: '15%',
+        {
+            key: 'is_active', label: 'Active Status', width: '15%',
             render: (team: ITeam) => {
                 return team.is_active ? (
                     <Chip label="Active" size="small"
@@ -64,10 +90,10 @@ export const useTeams = () => {
             render: (team: ITeam) => (
                 <Stack direction="row" spacing={1} justifyContent="center">
                     <IconButton color="primary" onClick={() => handleEditTeam(team)}
-                               disabled={!team.is_active} aria-label={`Edit user ${team.name}`}>
+                                disabled={!team.is_active} aria-label={`Edit user ${team.name}`}>
                         <Edit/>
                     </IconButton>
-                    <IconButton color="error" onClick={() => handleDeleteTeam( team)} disabled={!team.is_active}>
+                    <IconButton color="error" onClick={() => handleDeleteTeam(team)} disabled={!team.is_active}>
                         <Delete/>
                     </IconButton>
                 </Stack>
@@ -76,20 +102,19 @@ export const useTeams = () => {
     ];
 
     return {
-        openEditTeamDialog,
-        selectedTeam,
-        openCreateTeamsDialog,
         teams,
-        teamsLoading,
-        users,
-        soloMembers: activeSoloMembers,
-        soloMembersWithinCurrentTeam,
         columns,
-        updatingTeam,
+        selectedTeam,
+        activeSoloMembers,
+        teamsLoading,
+        openEditTeamDialog,
+        openCreateTeamsDialog,
+        soloMembersWithinCurrentTeam,
         setOpenCreateTeamsDialog,
-        setOpenEditTeamDialog,
-        setSelectedTeam,
-        fetchTeams,
-        fetchUsers,
+        handleCloseEditTeamDialog,
+        handleCloseCreateTeamDialog,
+        handleUpdateTeam,
+        handleCreateNewTeam,
+        teamUpdateLoading
     };
 };
