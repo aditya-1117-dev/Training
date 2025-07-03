@@ -1,4 +1,4 @@
-import {useState, type ChangeEvent} from 'react';
+import {useState, type ChangeEvent, useEffect} from 'react';
 import type {SelectChangeEvent} from '@mui/material';
 import type {ITask, TTaskStatus} from '../../types/task.ts';
 import type {ITeam} from '../../types/team.ts';
@@ -22,21 +22,34 @@ export const useKanbanBoard = () => {
     const [openCreateModal, setOpenCreateModal] = useState(false);
     const {value: searchTask, setValue: setSearchTask, debouncedValue} = useDebounce<string>('', 1000);
 
-    const {data: teams} = useAPI<ITeam[]>('/api/teams', {method: 'GET'});
-    const {data: users} = useAPI<IUser[]>('/api/users', {
+    const {data: teams, execute: fetchTeams} = useAPI<ITeam[]>('/api/teams', {
         method: 'GET',
-        params : {
-            limit : '100'
+        callOnMount: false,
+    });
+
+    const {data: users, execute: fetchUsers} = useAPI<IUser[]>('/api/users', {
+        method: 'GET',
+        callOnMount: false,
+        params: {
+            limit: '100'
         }
     });
+
     const {data: tasks, execute: fetchTasks} = useAPI<ITask[]>('/api/tasks', {
         method: 'GET',
         params: {
             search: debouncedValue,
-            assignee_id: assigneeFilter === 'all' ? '' : assigneeFilter,
-            team_id: (user?.role === 'MEMBER' ? user?.team_id : (teamFilter === 'all' ? '' : teamFilter)) || '',
+            assignee_id: (user?.role === 'MEMBER' ? user.id : (assigneeFilter === 'all' ? '' : assigneeFilter)),
+            team_id: (teamFilter === 'all' ? '' : teamFilter) || '',
         },
     });
+
+    useEffect(() => {
+        if (user?.role !== 'MEMBER') {
+            fetchTeams();
+            fetchUsers();
+        }
+    }, []);
 
     const allTeamLeadsAndMembers = users?.filter((user: IUser) => user.role === 'TEAM_LEAD' || user.role === 'MEMBER') || [];
 
@@ -80,26 +93,25 @@ export const useKanbanBoard = () => {
             label: 'Search Tasks',
             onChange: handleSearchChange
         },
-        filters: [
-            {
-                key: 'assignee',
-                label: 'Assignee',
-                value: assigneeFilter,
-                onChange: handleAssigneeChange,
-                options: assigneeFilterOptions,
-            },
-        ]
+        filters: user?.role === 'MEMBER'
+            ? []
+            : [
+                {
+                    key: 'assignee',
+                    label: 'Assignee',
+                    value: assigneeFilter,
+                    onChange: handleAssigneeChange,
+                    options: assigneeFilterOptions,
+                },
+                {
+                    key: 'team',
+                    label: 'Team',
+                    value: teamFilter,
+                    onChange: handleTeamChange,
+                    options: teamFilterOptions,
+                }
+            ]
     };
-
-    if (user?.role !== 'MEMBER') {
-        filterConfig.filters.push({
-            key: 'team',
-            label: 'Team',
-            value: teamFilter,
-            onChange: handleTeamChange,
-            options: teamFilterOptions,
-        });
-    }
 
     return {
         user,
