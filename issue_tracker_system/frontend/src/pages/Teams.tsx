@@ -5,13 +5,11 @@ import {type FC} from "react";
 import {EditTeamDialog} from "../components/EditTeamDialog.tsx";
 import {useTeams} from "../hooks/componentHooks/useTeams.tsx";
 import {PageContainer} from "./PageContainer.tsx";
-import CircularLoading from "../components/CircularLoading.tsx";
 
 const Teams: FC = () => {
     const {
         teams,
         columns,
-        activeSoloMembers,
         selectedTeam,
         teamsLoading,
         openEditTeamDialog,
@@ -25,9 +23,6 @@ const Teams: FC = () => {
         teamUpdateLoading
     } = useTeams();
 
-    if (teamsLoading || teamUpdateLoading){
-        return <CircularLoading />
-    }
 
     return (
         <PageContainer
@@ -38,7 +33,7 @@ const Teams: FC = () => {
                 onClick: () => setOpenCreateTeamsDialog(true)
             }}
         >
-            <RenderTable data={teams || []} columns={columns} loading={teamsLoading}/>
+            <RenderTable data={teams || []} columns={columns} loading={teamsLoading || teamUpdateLoading}/>
 
             <EditTeamDialog
                 open={openEditTeamDialog}
@@ -50,7 +45,6 @@ const Teams: FC = () => {
 
             <CreateTeamDialog
                 open={openCreateTeamsDialog}
-                users={activeSoloMembers}
                 onClose={handleCloseCreateTeamDialog}
                 onSubmit={handleCreateNewTeam}
             />

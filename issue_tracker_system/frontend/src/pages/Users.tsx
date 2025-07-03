@@ -7,7 +7,6 @@ import {type FC} from "react";
 import {RenderFilters} from "../components/table/RenderFilters.tsx";
 import {useUsers} from "../hooks/componentHooks/useUsers.tsx";
 import {PageContainer} from "./PageContainer.tsx";
-import CircularLoading from "../components/CircularLoading.tsx";
 
 const Users : FC = () => {
     const {
@@ -30,9 +29,6 @@ const Users : FC = () => {
         handleCloseEditUserDialog
     } = useUsers();
 
-    if (usersLoading || userUpdating){
-        return <CircularLoading />
-    }
     return (
         <PageContainer
             title="User Management"
@@ -47,7 +43,7 @@ const Users : FC = () => {
             <RenderTable
                 data={users || []}
                 columns={columns}
-                loading={usersLoading}
+                loading={usersLoading || userUpdating}
                 page={page}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
