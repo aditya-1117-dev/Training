@@ -71,7 +71,7 @@ export const useKanbanColumn = ({ status, onDrop, onTaskClick }: KanbanColumnPro
         collect: (monitor: DropTargetMonitor) => ({
             isOver: !!monitor.isOver(),
         }),
-    }));
+    }), [onDrop] );
 
     const colors = useMemo(() => getColumnColor(status), [status]);
 
