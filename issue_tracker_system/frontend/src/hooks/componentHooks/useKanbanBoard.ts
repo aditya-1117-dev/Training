@@ -23,7 +23,12 @@ export const useKanbanBoard = () => {
     const {value: searchTask, setValue: setSearchTask, debouncedValue} = useDebounce<string>('', 1000);
 
     const {data: teams} = useAPI<ITeam[]>('/api/teams', {method: 'GET'});
-    const {data: users} = useAPI<IUser[]>('/api/users', {method: 'GET'});
+    const {data: users} = useAPI<IUser[]>('/api/users', {
+        method: 'GET',
+        params : {
+            limit : '100'
+        }
+    });
     const {data: tasks, execute: fetchTasks} = useAPI<ITask[]>('/api/tasks', {
         method: 'GET',
         params: {
