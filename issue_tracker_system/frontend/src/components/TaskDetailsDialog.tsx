@@ -91,15 +91,14 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                             </Select>
                         </FormControl>
 
-                        <FormControl fullWidth>
-                            <InputLabel id='priority'>Priority</InputLabel>
+                        <FormControl fullWidth variant={!!user && user?.role === 'MEMBER' ? 'filled' : 'outlined'}>
+                            <InputLabel id='priority' >Priority</InputLabel>
                             <Select
                                 value={editedTask?.priority || ''}
                                 labelId='priority'
                                 label="Priority"
                                 onChange={handlePriorityChange}
                                 disabled={!!user && user?.role === 'MEMBER'}
-                                variant={(!!user && user?.role === 'MEMBER')? 'filled' : 'outlined'}
                             >
                                 <MenuItem value="LOW"> Low</MenuItem>
                                 <MenuItem value="MEDIUM">Medium</MenuItem>
@@ -150,11 +149,11 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                         />
                     </Stack>
 
-                    <FormControl fullWidth>
+                    <FormControl fullWidth variant={(user?.role === 'MEMBER')? 'filled' : 'outlined'} >
                         <InputLabel>Assign to</InputLabel>
-                        <Select label="Assign to" name="assignee_id" value={editedTask?.assignee_id || 'unassigned'}
+                        <Select label="Assign to" name="assignee_id"
+                                value={editedTask?.assignee_id || 'unassigned'}
                                 disabled={user?.role === 'MEMBER'}
-                                variant={(user?.role === 'MEMBER')? 'filled' : 'outlined'}
                                 onChange={handleAssigneeChange}>
                             <MenuItem value="unassigned">
                                 <em>Unassigned</em>

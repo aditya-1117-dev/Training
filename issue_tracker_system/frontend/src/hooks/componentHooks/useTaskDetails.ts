@@ -86,13 +86,32 @@ export const useTaskDetails = ({ task, onSave, users, onClose }: TaskDetailsProp
             return;
         }
 
-        let taskToSubmit = editedTask?.assignee_id === 'unassigned' ? {...editedTask, assignee_id : ''} : {...editedTask};
+        let taskToSubmit : Record<string, any>  = {}
 
-        if (user?.role === 'MEMBER') {
-            const { title, priority, due_date, assignee_id, ...rest } = taskToSubmit;
-            taskToSubmit = rest as ITask;
+        const keysToCheck : (keyof ITask)[] = [
+            "title",
+            "description",
+            "status",
+            "priority",
+            "due_date",
+            "estimated_hours",
+            "actual_hours",
+            "assignee_id",
+        ];
+
+        keysToCheck.forEach((key : keyof ITask) => {
+            if (key==='assignee_id' && editedTask?.assignee_id === 'unassigned'){
+                taskToSubmit[key] = '';
+            } else if (task?.[key] !== editedTask?.[key]) {
+                taskToSubmit[key] = editedTask?.[key];
+            }
+        });
+
+        if (Object.keys(taskToSubmit).length > 0){
+            await saveTheTask({body: taskToSubmit as ITask, pathParams: {id: editedTask?.id as string}});
+        }else {
+            onClose();
         }
-        await saveTheTask({body: taskToSubmit as ITask, pathParams: {id: editedTask?.id as string}});
     }
 
     const filterActiveUsers = Array.from(new Set(users.filter((user: IUser) => user.is_active)));
