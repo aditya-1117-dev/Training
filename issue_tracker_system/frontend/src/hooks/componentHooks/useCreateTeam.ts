@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import type { SelectChangeEvent } from '@mui/material';
 import type { ITeam, ITeamCreateData } from '../../types/team.ts';
 import type {IUser, IUserUpdateData} from '../../types/user.ts';
@@ -6,17 +6,27 @@ import {useAPI} from "../customHooks/useAPI.ts";
 import {useSnackbar} from "../customHooks/useSnackBar.ts";
 
 interface CreateTeamProps {
+    open : boolean,
     onClose: () => void;
     onSubmit: () => Promise<void> | void;
 }
 
-export const useCreateTeam = ({ onClose, onSubmit }: CreateTeamProps) => {
+export const useCreateTeam = ({open, onClose, onSubmit }: CreateTeamProps) => {
     const [formData, setFormData] = useState<ITeamCreateData>({
         name: '',
         description: '',
         team_lead_id: '',
     });
     const {addSnackbar} = useSnackbar();
+
+    const {data: members, execute : fetchMembers} = useAPI<IUser[]>('/api/users', {
+        method: "GET",
+        callOnMount: false,
+        params: {
+            limit: '100',
+            role: 'MEMBER'
+        }
+    })
 
     const {execute: updateUser, isLoading: userUpdateLoading} = useAPI<IUser, IUserUpdateData>('/api/users/:id', {
         method: 'PUT',
@@ -34,6 +44,12 @@ export const useCreateTeam = ({ onClose, onSubmit }: CreateTeamProps) => {
             addSnackbar( { severity : 'error', message : err instanceof Error ? err.message : 'Failed to create team'})
         },
     })
+
+    useEffect(() => {
+        if (open){
+            fetchMembers();
+        }
+    }, [open]);
 
     const validateForm = () => {
         if (!formData.name.trim()) return 'Team name is required';
@@ -76,7 +92,10 @@ export const useCreateTeam = ({ onClose, onSubmit }: CreateTeamProps) => {
 
     const loading = userUpdateLoading || postNewTeamLoading;
 
+    const activeSoloMembers = members?.filter((member: IUser) => member.team_id == null && member.is_active) || [];
+
     return {
+        activeSoloMembers,
         formData,
         loading,
         handleFormDataChange,

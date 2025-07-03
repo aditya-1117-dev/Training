@@ -119,7 +119,6 @@ export const useTeams = () => {
         teams,
         columns,
         selectedTeam,
-        activeSoloMembers,
         teamsLoading,
         openEditTeamDialog,
         openCreateTeamsDialog,

@@ -6,26 +6,25 @@ import {
     Select,
     MenuItem
 } from '@mui/material';
-import type {IUser} from '../types/user.ts';
 import {useCreateTeam} from "../hooks/componentHooks/useCreateTeam.ts";
 import DialogForm from "./DialogForm.tsx";
 
 interface ICreateTeamDialog {
-    users: IUser[];
     open: boolean;
     onClose: () => void;
     onSubmit: () => Promise<void> | void;
 }
 
-export function CreateTeamDialog({open, onClose, onSubmit, users}: ICreateTeamDialog) {
+export function CreateTeamDialog({open, onClose, onSubmit}: ICreateTeamDialog) {
     const {
+        activeSoloMembers,
         formData,
         loading,
         handleFormDataChange,
         handleSelectChange,
         createNewTeam,
         handleClose
-    } = useCreateTeam({onClose, onSubmit,});
+    } = useCreateTeam({open, onClose, onSubmit,});
 
     return (
         <DialogForm
@@ -60,10 +59,10 @@ export function CreateTeamDialog({open, onClose, onSubmit, users}: ICreateTeamDi
                 <FormControl fullWidth required>
                     <InputLabel>Team Lead</InputLabel>
                     <Select label="Team Lead" value={formData.team_lead_id} onChange={handleSelectChange}>
-                        {users.length === 0 && <MenuItem value="">No Team Lead Available</MenuItem>}
-                        {users.map(user => (
-                            <MenuItem key={user.id} value={user.id}>
-                                {user.name} ({user.email})
+                        {(!activeSoloMembers || activeSoloMembers.length === 0) && <MenuItem value="">No Team Lead Available</MenuItem>}
+                        {activeSoloMembers?.map(member => (
+                            <MenuItem key={member.id} value={member.id}>
+                                {member.name} ({member.email})
                             </MenuItem>
                         ))}
                     </Select>
