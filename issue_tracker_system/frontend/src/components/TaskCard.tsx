@@ -14,7 +14,8 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onClick}) => {
     const {
         isDragging,
         drag,
-        borderColor
+        borderColor,
+        dueDateInfo
     } = useTaskCard({ task });
 
     return (
@@ -75,7 +76,24 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onClick}) => {
                     )}
                 </Box>
 
-                {/* Bottom Row - Assignee and Hours */}
+                {dueDateInfo && (
+                    <Box sx={{ mb: 1 }}>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                color: dueDateInfo.color,
+                                fontWeight: '600',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                maxWidth: '100%',
+                            }}
+                        >
+                            {dueDateInfo.label}
+                        </Typography>
+                    </Box>
+                )}
+
                 <Box sx={{
                     display: 'flex',
                     flexDirection: {xs: 'column', sm: 'row'},
