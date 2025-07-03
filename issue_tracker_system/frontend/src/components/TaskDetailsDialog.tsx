@@ -36,12 +36,13 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
         filterActiveUsers,
         today,
         fetchCurrentTask,
-    } = useTaskDetails({task, onSave, users});
+        handleCloseTaskDetailsDialog
+    } = useTaskDetails({task, onSave, users, onClose});
 
     return (
         <DialogForm
             open={open}
-            onClose={onClose}
+            onClose={handleCloseTaskDetailsDialog}
             onSubmit={handleSubmit}
             title="Task Details"
             submitButtonText="Save Changes"
@@ -58,6 +59,7 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                         value={editedTask?.title || ''}
                         onChange={handleChange}
                         disabled={!!user && user?.role === 'MEMBER'}
+                        variant={(!!user && user?.role === 'MEMBER')? 'filled' : 'outlined'}
                     />
 
                     <TextField
@@ -77,6 +79,7 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                                 label="Status"
                                 labelId='status'
                                 disabled={!!user && user?.role === 'MEMBER' && task?.status === 'DONE'}
+                                variant={(!!user && user?.role === 'MEMBER' && task?.status === 'DONE')? 'filled' : 'outlined'}
                                 value={editedTask?.status || ''}
                                 onChange={handleStatusChange}
                             >
@@ -96,6 +99,7 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                                 label="Priority"
                                 onChange={handlePriorityChange}
                                 disabled={!!user && user?.role === 'MEMBER'}
+                                variant={(!!user && user?.role === 'MEMBER')? 'filled' : 'outlined'}
                             >
                                 <MenuItem value="LOW"> Low</MenuItem>
                                 <MenuItem value="MEDIUM">Medium</MenuItem>
@@ -112,6 +116,7 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                             onChange={handleChange}
                             fullWidth
                             disabled={!!user && user?.role === 'MEMBER'}
+                            variant={(!!user && user?.role === 'MEMBER')? 'filled' : 'outlined'}
                             slotProps={{
                                 inputLabel: {shrink: true},
                                 input: {inputProps: {min: today},}
@@ -127,6 +132,9 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                             type="number"
                             value={editedTask?.estimated_hours || ''}
                             onChange={handleChange}
+                            slotProps={{
+                                input: {inputProps: {min: 0},}
+                            }}
                         />
 
                         <TextField
@@ -136,15 +144,19 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                             type="number"
                             value={editedTask?.actual_hours || ''}
                             onChange={handleChange}
+                            slotProps={{
+                                input: {inputProps: {min: 0},}
+                            }}
                         />
                     </Stack>
 
                     <FormControl fullWidth>
                         <InputLabel>Assign to</InputLabel>
-                        <Select label="Assign to" name="assignee_id" value={editedTask?.assignee_id || ''}
+                        <Select label="Assign to" name="assignee_id" value={editedTask?.assignee_id || 'unassigned'}
                                 disabled={user?.role === 'MEMBER'}
+                                variant={(user?.role === 'MEMBER')? 'filled' : 'outlined'}
                                 onChange={handleAssigneeChange}>
-                            <MenuItem value="">
+                            <MenuItem value="unassigned">
                                 <em>Unassigned</em>
                             </MenuItem>
                             {filterActiveUsers.map((user) => (

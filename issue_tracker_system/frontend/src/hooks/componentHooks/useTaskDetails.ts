@@ -10,9 +10,10 @@ interface TaskDetailsProps {
     task: ITask | null;
     onSave: () => void;
     users: IUser[];
+    onClose: () => void;
 }
 
-export const useTaskDetails = ({ task, onSave, users }: TaskDetailsProps) => {
+export const useTaskDetails = ({ task, onSave, users, onClose }: TaskDetailsProps) => {
     const {user} = useAuth();
     const {addSnackbar} = useSnackbar();
     const {data: editedTask, setData: setEditedTask, execute: fetchCurrentTask} = useAPI<ITask>('/api/tasks/:id', {
@@ -28,6 +29,7 @@ export const useTaskDetails = ({ task, onSave, users }: TaskDetailsProps) => {
         callOnMount: false,
         onSuccess: () => {
             addSnackbar({severity: 'success', message: 'Task updated successfully!'})
+            setEditedTask(null);
             onSave();
         },
         onError: (err: unknown) => {
@@ -64,6 +66,11 @@ export const useTaskDetails = ({ task, onSave, users }: TaskDetailsProps) => {
         setEditedTask((prev: ITask | null) => ({...prev!, priority: e.target.value as TPriority}));
     };
 
+    const handleCloseTaskDetailsDialog = () => {
+        setEditedTask(null);
+        onClose();
+    }
+
     const validateForm = (): string | null => {
         if (!editedTask?.title.trim()) return 'Task title is required';
         if (!editedTask?.description.trim()) return 'Description is required';
@@ -79,10 +86,10 @@ export const useTaskDetails = ({ task, onSave, users }: TaskDetailsProps) => {
             return;
         }
 
-        let taskToSubmit = { ...editedTask };
+        let taskToSubmit = editedTask?.assignee_id === 'unassigned' ? {...editedTask, assignee_id : ''} : {...editedTask};
 
         if (user?.role === 'MEMBER') {
-            const { title, priority, due_date, ...rest } = taskToSubmit;
+            const { title, priority, due_date, assignee_id, ...rest } = taskToSubmit;
             taskToSubmit = rest as ITask;
         }
         await saveTheTask({body: taskToSubmit as ITask, pathParams: {id: editedTask?.id as string}});
@@ -104,5 +111,6 @@ export const useTaskDetails = ({ task, onSave, users }: TaskDetailsProps) => {
         filterActiveUsers,
         today,
         fetchCurrentTask,
+        handleCloseTaskDetailsDialog
     };
 };
