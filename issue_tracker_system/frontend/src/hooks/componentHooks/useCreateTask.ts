@@ -1,6 +1,6 @@
-import { useState, type ChangeEvent } from 'react';
-import type { SelectChangeEvent } from '@mui/material';
-import type { ITask } from '../../types/task.ts';
+import {useState, type ChangeEvent} from 'react';
+import type {SelectChangeEvent} from '@mui/material';
+import type {ITask} from '../../types/task.ts';
 import {useSnackbar} from "../customHooks/useSnackBar.ts";
 import {useAPI} from "../customHooks/useAPI.ts";
 import type {IUser} from "../../types/user.ts";
@@ -8,16 +8,16 @@ import type {IUser} from "../../types/user.ts";
 interface CreateTaskProps {
     onClose: () => void;
     onSave: () => Promise<void> | void;
-    users : IUser[]
+    users: IUser[]
 }
 
-export const useCreateTask = ({ onClose, onSave, users }: CreateTaskProps) => {
+export const useCreateTask = ({onClose, onSave, users}: CreateTaskProps) => {
     const [taskData, setTaskData] = useState<ITask>({
         title: '',
         description: '',
         priority: 'MEDIUM',
         team_id: '',
-        assignee_id: '',
+        assignee_id: 'unassigned',
         estimated_hours: 0,
         due_date: '',
     });
@@ -45,7 +45,7 @@ export const useCreateTask = ({ onClose, onSave, users }: CreateTaskProps) => {
         setTaskData(prev => ({
             ...prev,
             [name]: value,
-            ...(name === 'team_id' && {assignee_id: ''}),
+            ...(name === 'team_id' && {assignee_id: 'unassigned'}),
         }));
     };
 
@@ -56,7 +56,7 @@ export const useCreateTask = ({ onClose, onSave, users }: CreateTaskProps) => {
             description: '',
             priority: 'MEDIUM',
             team_id: '',
-            assignee_id: '',
+            assignee_id: 'unassigned',
             estimated_hours: 0,
             due_date: '',
         });
@@ -82,16 +82,23 @@ export const useCreateTask = ({ onClose, onSave, users }: CreateTaskProps) => {
             addSnackbar({severity: 'error', message: validationError})
             return;
         }
-        await createNewTask({body: taskData})
+        await createNewTask({
+            body: (taskData.assignee_id === 'unassigned' ? {
+                ...taskData,
+                assignee_id: ''
+            } : taskData)
+        });
         handleCancel();
     };
 
-    const filterActiveUsersBySelectedTeamId = users.filter((user: IUser) => {
-        if (taskData.team_id) {
-            return user.is_active && user.team_id === taskData.team_id;
-        }
-        return user.is_active;
-    });
+    const filterActiveUsersBySelectedTeamId = (taskData.team_id == '')
+        ? []
+        : users.filter((user: IUser) => {
+            if (taskData.team_id) {
+                return user.is_active && user.team_id === taskData.team_id;
+            }
+            return user.is_active;
+        });
 
     const today = new Date().toISOString().split('T')[0];
 

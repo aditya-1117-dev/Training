@@ -99,12 +99,12 @@ const CreateTaskDialog: React.FC<ITaskModal> = ({open, onClose, onSave, users, t
                     <InputLabel id="assignee">Assignee</InputLabel>
                     <Select
                         name="assignee_id"
-                        value={taskData.assignee_id || ''}
+                        value={taskData.assignee_id || 'unassigned'}
                         label="Assignee"
                         labelId="assignee"
                         onChange={handleSelectChange}
                     >
-                        <MenuItem value="">
+                        <MenuItem value="unassigned">
                             <em>Unassigned</em>
                         </MenuItem>
                         {filterActiveUsersBySelectedTeamId.map((user) => (
