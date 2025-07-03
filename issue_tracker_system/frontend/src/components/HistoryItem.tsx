@@ -3,11 +3,11 @@ import { Typography, Box } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import type { IHistory } from '../types/task.ts';
 
-interface HistoryItemProps {
+interface IHistoryItem {
     history: IHistory;
 }
 
-const HistoryItem: React.FC<HistoryItemProps> = ({ history }) => {
+const HistoryItem: React.FC<IHistoryItem> = ({ history }) => {
     return (
         <Box
             sx={{

@@ -6,12 +6,12 @@ import CommentIcon from '@mui/icons-material/Comment';
 import type {IComment, ITask} from '../types/task.ts';
 import { useTaskActivityLog } from '../hooks/componentHooks/useTaskActivityLog.ts';
 
-interface CommentItemProps {
+interface ICommentItem {
     comment: IComment;
     onUpdate: () => void;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, onUpdate }) => {
+const CommentItem: React.FC<ICommentItem> = ({ comment, onUpdate }) => {
     const {
         editingCommentId,
         setEditingCommentId,
@@ -38,7 +38,12 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onUpdate }) => {
                 <Stack direction="row" alignItems="center" spacing={1}>
                     <CommentIcon fontSize="small" color="primary" />
                     <Typography variant="subtitle2">
-                        {comment.user_name} commented {comment.is_edited && '(edited)'}
+                        {comment.user_name} commented{' '}
+                        {comment.is_edited && (
+                            <Typography component="span" variant="subtitle2" sx={{ color: '#888', fontStyle: 'italic' }} >
+                                (edited)
+                            </Typography>
+                        )}
                     </Typography>
                 </Stack>
                 {user?.id === comment.user_id && (
