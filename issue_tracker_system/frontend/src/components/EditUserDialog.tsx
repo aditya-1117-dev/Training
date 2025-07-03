@@ -92,7 +92,7 @@ export function EditUserDialog({open, onClose, onSubmit, teams, user}: IEditUser
                                 )}
                                 {teams.map((team: ITeam) => (
                                     <MenuItem key={team.id} value={team.id}>
-                                        {team.name} ({team.member_count})
+                                        {team.name}
                                     </MenuItem>
                                 ))}
                             </Select>

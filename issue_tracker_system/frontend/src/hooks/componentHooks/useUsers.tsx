@@ -59,8 +59,8 @@ export const useUsers = () => {
     }, [page, limit, debouncedSearchTerm, teamFilter]);
 
     useEffect(() => {
-        if (users?.length) fetchTeams();
-    }, [users]);
+        fetchTeams();
+    }, []);
 
     const handleEditUser = (user: IUser | null) => {
         setSelectedUser(user);

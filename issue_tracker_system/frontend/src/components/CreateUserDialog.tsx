@@ -84,7 +84,7 @@ export function CreateUserDialog({open, onClose, onSubmit, teams}: CreateUserDia
                             {teams.length === 0 && <MenuItem value="">No Team Available</MenuItem>}
                             {teams.map((team: ITeam) => (
                                 <MenuItem key={team.id} value={team.id}>
-                                    {team.name} ({team.member_count})
+                                    {team.name}
                                 </MenuItem>
                             ))}
                         </Select>
