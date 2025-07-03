@@ -15,7 +15,7 @@ interface IFilterConfig {
 }
 
 interface IRenderFiltersProps {
-    search: {
+    search ? : {
         value: string;
         onChange: (e: ChangeEvent<HTMLInputElement>) => void;
         label?: string;
@@ -26,16 +26,20 @@ interface IRenderFiltersProps {
 export const RenderFilters: React.FC<IRenderFiltersProps> = ({search, filters}) => {
     return (
         <Box sx={{display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap'}}>
-            <TextField
-                size={'small'}
-                label={search.label || 'Search'}
-                variant="outlined"
-                value={search.value}
-                onChange={search.onChange}
-                sx={{flex: '1 1 auto'}}
-            />
+            {search &&
+                (
+                    <TextField
+                        size={'small'}
+                        label={search.label || 'Search'}
+                        variant="outlined"
+                        value={search.value}
+                        onChange={search.onChange}
+                        sx={{flex: '1 1 auto', maxWidth : '50%'}}
+                    />
+                )
+            }
             {filters.map((filter) => (
-                <FormControl key={filter.key} size="small" sx={{flex: '1 1 auto'}}>
+                <FormControl key={filter.key} size="small" sx={{flex: '1 1 auto', maxWidth : '50%'}}>
                     <InputLabel id={`${filter.key}-label`}>{filter.label}</InputLabel>
                     <Select
                         labelId={`${filter.key}-label`}

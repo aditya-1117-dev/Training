@@ -55,21 +55,30 @@ export function RenderTable<T>({
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.map((item: T, index: number) => (
-                        <TableRow key={index}>
-                            {columns.map((column: IColumn<T>) => (
-                                <TableCell
-                                    key={`${index}-${column.key}`}
-                                    align={column.align}
-                                    sx={{width: column.width}}
-                                >
-                                    {column.render
-                                        ? column.render(item, index)
-                                        : (item as Record<string, any>)[column.key]}
+                    {data.length > 0 ? (
+                            data.map((item: T, index: number) => (
+                                <TableRow key={index}>
+                                    {columns.map((column: IColumn<T>) => (
+                                        <TableCell
+                                            key={`${index}-${column.key}`}
+                                            align={column.align}
+                                            sx={{width: column.width}}
+                                        >
+                                            {column.render
+                                                ? column.render(item, index)
+                                                : (item as Record<string, any>)[column.key]}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>)
+                            )
+                        )
+                        : (<TableRow>
+                                <TableCell colSpan={columns.length} align="center">
+                                    No data available
                                 </TableCell>
-                            ))}
-                        </TableRow>
-                    ))}
+                            </TableRow>
+                        )
+                    }
                 </TableBody>
             </Table>
 
