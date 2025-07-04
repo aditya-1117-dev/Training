@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ITask, IComment, IHistory } from '../../types/task.ts';
-import {useAuth} from "../customHooks/useAuth.ts";
-import {useSnackbar} from "../customHooks/useSnackBar.ts";
-import {useAPI} from "../customHooks/useAPI.ts";
+import { useAuth } from "../customHooks/useAuth.ts";
+import { useSnackbar } from "../customHooks/useSnackBar.ts";
+import { useAPI } from "../customHooks/useAPI.ts";
 
 interface ITaskActivityLogProps {
     task: ITask;
@@ -31,14 +31,27 @@ export const useTaskActivityLog = ({ task, onUpdate }: ITaskActivityLogProps) =>
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
     const [editCommentContent, setEditCommentContent] = useState('');
     const { addSnackbar } = useSnackbar();
+    const [combinedActivities, setCombinedActivities] = useState<TActivityItem[]>([]);
+
+    const taskDeps = useMemo(() => ({comments: task.comments, history: task.history,}),
+        [task.comments, task.history] );
+
+    useEffect(() => {
+        setCombinedActivities(() => getCombinedActivities(task.comments || [], task.history || []));
+    }, [taskDeps]);
 
     const { execute: postNewComment } = useAPI<IComment, { content: string }>('/api/tasks/:id/comments', {
         method: 'POST',
         callOnMount: false,
-        onSuccess: () => {
+        onSuccess: (response) => {
             setNewComment('');
             addSnackbar({ severity: 'success', message: 'Comment added successfully!' });
-            onUpdate();
+            if (response.data) {
+                setCombinedActivities((prev) => [
+                    { ...response.data, type: 'comment' as const },
+                    ...prev
+                ] as TActivityItem[]);
+            }
         },
         onError: (err: unknown) => {
             addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Failed to add comment' });
@@ -91,8 +104,6 @@ export const useTaskActivityLog = ({ task, onUpdate }: ITaskActivityLogProps) =>
         setEditingCommentId(comment.id);
         setEditCommentContent(comment.content);
     };
-
-    const combinedActivities = useMemo(() => getCombinedActivities(task.comments || [], task.history || []), [task]);
 
     return {
         newComment,
