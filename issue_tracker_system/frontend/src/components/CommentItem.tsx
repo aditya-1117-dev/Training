@@ -4,7 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CommentIcon from '@mui/icons-material/Comment';
 import type { IComment } from '../types/task.ts';
-import {useCommentItem} from "../hooks/componentHooks/useCommentItem.tsx";
+import {useCommentItem} from "../hooks/componentHooks/useCommentItem.ts";
 import type {TActivityItem} from "../hooks/componentHooks/useTaskActivityLog.ts";
 
 interface ICommentItem {
