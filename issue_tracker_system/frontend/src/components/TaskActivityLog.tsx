@@ -7,18 +7,18 @@ import HistoryItem from './HistoryItem.tsx';
 
 interface ITaskActivityLog {
     task: ITask;
-    onUpdate: () => void;
 }
 
 type TActivityItem = IComment | IHistory;
 
-const TaskActivityLog: React.FC<ITaskActivityLog> = ({task, onUpdate}) => {
+const TaskActivityLog: React.FC<ITaskActivityLog> = ({task}) => {
     const {
         newComment,
         setNewComment,
         handleAddComment,
         combinedActivities,
-    } = useTaskActivityLog({task, onUpdate});
+        setCombinedActivities
+    } = useTaskActivityLog({task});
 
     return (
         <Box sx={{mt: 3, position: 'relative'}}>
@@ -63,7 +63,7 @@ const TaskActivityLog: React.FC<ITaskActivityLog> = ({task, onUpdate}) => {
                          }}
                     >
                         {'type' in activity && activity.type === 'comment' ? (
-                            <CommentItem comment={activity as IComment} onUpdate={onUpdate}/>
+                            <CommentItem comment={activity as IComment} setCombinedActivities={setCombinedActivities}/>
                         ) : (
                             <HistoryItem history={activity as IHistory}/>
                         )}

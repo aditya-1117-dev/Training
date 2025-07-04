@@ -34,7 +34,6 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
         handleSubmit,
         filterActiveUsers,
         today,
-        handleTaskUpdate,
         handleCloseTaskDetailsDialog
     } = useTaskDetails({task, onSave, users, onClose});
 
@@ -181,7 +180,7 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
 
                     <Divider sx={{my: 2}}/>
 
-                    <TaskActivityLog task={editedTask} onUpdate={handleTaskUpdate}/>
+                    <TaskActivityLog task={editedTask} />
                 </Stack>
             }
         </DialogForm>

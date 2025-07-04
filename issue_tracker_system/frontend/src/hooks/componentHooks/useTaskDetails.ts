@@ -88,8 +88,6 @@ export const useTaskDetails = ({ task, onSave, users, onClose }: TaskDetailsProp
         onClose();
     }
 
-    const handleTaskUpdate = () => fetchCurrentTask({pathParams: {id: task?.id as string}})
-
     const validateForm = (): string | null => {
         if (!editedTask?.title.trim()) return 'Task title is required';
         if (!editedTask?.description.trim()) return 'Description is required';
@@ -147,7 +145,6 @@ export const useTaskDetails = ({ task, onSave, users, onClose }: TaskDetailsProp
         handleSubmit,
         filterActiveUsers,
         today,
-        handleTaskUpdate,
         handleStatusChange,
         handleCloseTaskDetailsDialog
     };

@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ITask, IComment, IHistory } from '../../types/task.ts';
-import { useAuth } from "../customHooks/useAuth.ts";
 import { useSnackbar } from "../customHooks/useSnackBar.ts";
 import { useAPI } from "../customHooks/useAPI.ts";
 
 interface ITaskActivityLogProps {
     task: ITask;
-    onUpdate: () => void;
 }
 
-type TActivityItem = IComment | IHistory;
+export type TActivityItem = IComment | IHistory;
 
 const getCombinedActivities = (comments: IComment[], history: IHistory[]): TActivityItem[] => {
     const commentItems: TActivityItem[] = (comments || []).map(item => ({
@@ -25,16 +23,13 @@ const getCombinedActivities = (comments: IComment[], history: IHistory[]): TActi
     });
 };
 
-export const useTaskActivityLog = ({ task, onUpdate }: ITaskActivityLogProps) => {
-    const { user } = useAuth();
+export const useTaskActivityLog = ({ task }: ITaskActivityLogProps) => {
     const [newComment, setNewComment] = useState('');
-    const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
-    const [editCommentContent, setEditCommentContent] = useState('');
-    const { addSnackbar } = useSnackbar();
     const [combinedActivities, setCombinedActivities] = useState<TActivityItem[]>([]);
+    const { addSnackbar } = useSnackbar();
 
-    const taskDeps = useMemo(() => ({comments: task.comments, history: task.history,}),
-        [task.comments, task.history] );
+    const taskDeps = useMemo(() => ({comments: task.comments, history: task.history}),
+        [task.comments, task.history]);
 
     useEffect(() => {
         setCombinedActivities(() => getCombinedActivities(task.comments || [], task.history || []));
@@ -58,32 +53,6 @@ export const useTaskActivityLog = ({ task, onUpdate }: ITaskActivityLogProps) =>
         },
     });
 
-    const { execute: editComment } = useAPI<IComment, { content: string }>('/api/comments/:id', {
-        method: 'PUT',
-        callOnMount: false,
-        onSuccess: () => {
-            setEditingCommentId(null);
-            setEditCommentContent('');
-            addSnackbar({ severity: 'success', message: 'Comment updated successfully!' });
-            onUpdate();
-        },
-        onError: (err: unknown) => {
-            addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Failed to update comment' });
-        },
-    });
-
-    const { execute: deleteComment } = useAPI<IComment>('/api/comments/:id', {
-        method: 'DELETE',
-        callOnMount: false,
-        onSuccess: () => {
-            addSnackbar({ severity: 'success', message: 'Comment deleted successfully!' });
-            onUpdate();
-        },
-        onError: (err: unknown) => {
-            addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Failed to delete comment' });
-        },
-    });
-
     const handleAddComment = async () => {
         if (!newComment.trim()) {
             addSnackbar({ severity: 'error', message: 'Comment cannot be empty' });
@@ -92,31 +61,11 @@ export const useTaskActivityLog = ({ task, onUpdate }: ITaskActivityLogProps) =>
         await postNewComment({ body: { content: newComment }, pathParams: { id: task.id as string } });
     };
 
-    const handleUpdateComment = async () => {
-        if (!editCommentContent.trim()) {
-            addSnackbar({ severity: 'error', message: 'Comment cannot be empty' });
-            return;
-        }
-        await editComment({ body: { content: editCommentContent }, pathParams: { id: editingCommentId as string } });
-    };
-
-    const handleEditComment = (comment: IComment) => {
-        setEditingCommentId(comment.id);
-        setEditCommentContent(comment.content);
-    };
-
     return {
         newComment,
         setNewComment,
-        editingCommentId,
-        setEditingCommentId,
-        editCommentContent,
-        setEditCommentContent,
         combinedActivities,
         handleAddComment,
-        handleUpdateComment,
-        handleEditComment,
-        deleteComment,
-        user,
+        setCombinedActivities
     };
 };

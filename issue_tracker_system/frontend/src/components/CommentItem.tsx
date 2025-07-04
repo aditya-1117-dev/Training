@@ -3,25 +3,26 @@ import { Typography, TextField, Button, Stack, IconButton, Box } from '@mui/mate
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CommentIcon from '@mui/icons-material/Comment';
-import type {IComment, ITask} from '../types/task.ts';
-import { useTaskActivityLog } from '../hooks/componentHooks/useTaskActivityLog.ts';
+import type { IComment } from '../types/task.ts';
+import {useCommentItem} from "../hooks/componentHooks/useCommentItem.tsx";
+import type {TActivityItem} from "../hooks/componentHooks/useTaskActivityLog.ts";
 
 interface ICommentItem {
     comment: IComment;
-    onUpdate: () => void;
+    setCombinedActivities: React.Dispatch<React.SetStateAction<TActivityItem[]>>;
 }
 
-const CommentItem: React.FC<ICommentItem> = ({ comment, onUpdate }) => {
+const CommentItem: React.FC<ICommentItem> = ({ comment, setCombinedActivities }) => {
     const {
+        user,
         editingCommentId,
         setEditingCommentId,
         editCommentContent,
         setEditCommentContent,
         handleUpdateComment,
         handleEditComment,
-        deleteComment,
-        user,
-    } = useTaskActivityLog({ task: { id: comment.task_id } as ITask, onUpdate });
+        handleDeleteComment,
+    } = useCommentItem({ setCombinedActivities });
 
     return (
         <Box
@@ -56,7 +57,7 @@ const CommentItem: React.FC<ICommentItem> = ({ comment, onUpdate }) => {
                         </IconButton>
                         <IconButton
                             size="small"
-                            onClick={() => deleteComment({ pathParams: { id: comment.id } })}
+                            onClick={() => handleDeleteComment(comment.id) }
                         >
                             <DeleteIcon fontSize="small" />
                         </IconButton>
