@@ -1,10 +1,11 @@
 import { useEffect, type ChangeEvent } from 'react';
 import type { SelectChangeEvent } from '@mui/material';
-import type { ITask, TPriority, TTaskStatus } from '../../types/task.ts';
+import type {ITask, TTaskStatus} from '../../types/task.ts';
 import type { IUser } from '../../types/user.ts';
 import {useAPI} from "../customHooks/useAPI.ts";
 import {useSnackbar} from "../customHooks/useSnackBar.ts";
 import {useAuth} from "../customHooks/useAuth.ts";
+import {createValidationRules, type IValidationRule} from "../../utils/taskValidations.ts";
 
 interface TaskDetailsProps {
     task: ITask | null;
@@ -58,18 +59,36 @@ export const useTaskDetails = ({ task, onSave, users, onClose }: TaskDetailsProp
         }));
     };
 
-    const handleStatusChange = (e: SelectChangeEvent) => {
-        setEditedTask((prev: ITask | null) => ({...prev!, status: e.target.value as TTaskStatus}));
+    const handleSelectChange = (e: SelectChangeEvent) => {
+        const {name, value} = e.target;
+        console.log(name)
+        setEditedTask((prev: ITask | null) => ({...prev!, [name]: value}));
     };
 
-    const handlePriorityChange = (e: SelectChangeEvent) => {
-        setEditedTask((prev: ITask | null) => ({...prev!, priority: e.target.value as TPriority}));
+    const handleStatusChange = (e: SelectChangeEvent) => {
+        const { value} = e.target;
+        const newStatus = value;
+        const oldStatus = task?.status;
+
+        const rules: IValidationRule[] = createValidationRules({
+            oldStatus : oldStatus as TTaskStatus,
+            newStatus : newStatus as TTaskStatus,
+            userRole: user?.role });
+        const failedRule: IValidationRule | undefined = rules.find(rule => rule.condition);
+
+        if (failedRule && !failedRule.silent) {
+            failedRule.message ? addSnackbar({ severity: 'error', message: failedRule.message }) : '';
+            return;
+        }
+        setEditedTask((prev: ITask | null) => ({...prev!, status: newStatus as TTaskStatus}));
     };
 
     const handleCloseTaskDetailsDialog = () => {
         setEditedTask(null);
         onClose();
     }
+
+    const handleTaskUpdate = () => fetchCurrentTask({pathParams: {id: task?.id as string}})
 
     const validateForm = (): string | null => {
         if (!editedTask?.title.trim()) return 'Task title is required';
@@ -124,12 +143,12 @@ export const useTaskDetails = ({ task, onSave, users, onClose }: TaskDetailsProp
         loading,
         handleChange,
         handleAssigneeChange,
-        handleStatusChange,
-        handlePriorityChange,
+        handleSelectChange,
         handleSubmit,
         filterActiveUsers,
         today,
-        fetchCurrentTask,
+        handleTaskUpdate,
+        handleStatusChange,
         handleCloseTaskDetailsDialog
     };
 };

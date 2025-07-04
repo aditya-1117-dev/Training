@@ -7,7 +7,7 @@ import {
     InputLabel,
     Select,
     Divider,
-    CircularProgress
+    CircularProgress, Box
 } from '@mui/material';
 import type {ITask} from '../types/task.ts';
 import type {IUser} from '../types/user.ts';
@@ -29,13 +29,12 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
         editedTask,
         loading,
         handleChange,
-        handleAssigneeChange,
         handleStatusChange,
-        handlePriorityChange,
+        handleSelectChange,
         handleSubmit,
         filterActiveUsers,
         today,
-        fetchCurrentTask,
+        handleTaskUpdate,
         handleCloseTaskDetailsDialog
     } = useTaskDetails({task, onSave, users, onClose});
 
@@ -50,7 +49,19 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
             maxWidth="md"
         >
             {!editedTask
-                ? <CircularProgress/>
+                ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            minHeight: 300,
+                            borderRadius: 2,
+                        }}
+                    >
+                        <CircularProgress size={60} thickness={5} />
+                    </Box>
+                )
                 : <Stack spacing={3} sx={{mt: 2}}>
                     <TextField
                         fullWidth
@@ -76,6 +87,7 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                         <FormControl fullWidth>
                             <InputLabel id='status'>Status</InputLabel>
                             <Select
+                                name="status"
                                 label="Status"
                                 labelId='status'
                                 disabled={!!user && user?.role === 'MEMBER' && task?.status === 'DONE'}
@@ -86,18 +98,18 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                                 <MenuItem value="TODO">To Do</MenuItem>
                                 <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
                                 <MenuItem value="IN_REVIEW">In Review</MenuItem>
-                                <MenuItem value="DONE">DONE</MenuItem>
-                                {user?.role === 'ADMIN' && <MenuItem value="DONE">Done</MenuItem>}
+                                {user?.role !== 'MEMBER' && <MenuItem value="DONE">DONE</MenuItem>}
                             </Select>
                         </FormControl>
 
                         <FormControl fullWidth variant={!!user && user?.role === 'MEMBER' ? 'filled' : 'outlined'}>
                             <InputLabel id='priority' >Priority</InputLabel>
                             <Select
+                                name="priority"
                                 value={editedTask?.priority || ''}
                                 labelId='priority'
                                 label="Priority"
-                                onChange={handlePriorityChange}
+                                onChange={handleSelectChange}
                                 disabled={!!user && user?.role === 'MEMBER'}
                             >
                                 <MenuItem value="LOW"> Low</MenuItem>
@@ -149,27 +161,27 @@ const TaskDetailsDialog: React.FC<ITaskDetailsModalProps> = ({open, task, onClos
                         />
                     </Stack>
 
-                    <FormControl fullWidth variant={(user?.role === 'MEMBER')? 'filled' : 'outlined'} >
-                        <InputLabel>Assign to</InputLabel>
-                        <Select label="Assign to" name="assignee_id"
-                                value={editedTask?.assignee_id || 'unassigned'}
-                                disabled={user?.role === 'MEMBER'}
-                                onChange={handleAssigneeChange}>
-                            <MenuItem value="unassigned">
-                                <em>Unassigned</em>
-                            </MenuItem>
-                            {filterActiveUsers.map((user) => (
-                                <MenuItem key={user.id} value={user.id}>
-                                    {user.name} ({user.email})
+                    {user?.role !== 'MEMBER' && (
+                        <FormControl fullWidth >
+                            <InputLabel>Assign to</InputLabel>
+                            <Select label="Assign to" name="assignee_id"
+                                    value={editedTask?.assignee_id || 'unassigned'}
+                                    onChange={handleSelectChange}>
+                                <MenuItem value="unassigned">
+                                    <em>Unassigned</em>
                                 </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                                {filterActiveUsers.map((user) => (
+                                    <MenuItem key={user.id} value={user.id}>
+                                        {user.name} ({user.email})
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    )}
 
                     <Divider sx={{my: 2}}/>
 
-                    <TaskActivityLog task={editedTask}
-                                     onUpdate={() => fetchCurrentTask({pathParams: {id: task?.id as string}})}/>
+                    <TaskActivityLog task={editedTask} onUpdate={handleTaskUpdate}/>
                 </Stack>
             }
         </DialogForm>
