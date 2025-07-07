@@ -29,7 +29,7 @@ export interface IRendertable<T> {
     onPageChange?: (newPage: number) => void;
 }
 
-export function RenderTable<T>({
+export function RenderTable<T extends Record<string, undefined>>({
                                    data,
                                    columns,
                                    loading,
@@ -66,7 +66,7 @@ export function RenderTable<T>({
                                         >
                                             {column.render
                                                 ? column.render(item, index)
-                                                : (item as Record<string, any>)[column.key]}
+                                                : item[column.key] ?? ' - '}
                                         </TableCell>
                                     ))}
                                 </TableRow>)

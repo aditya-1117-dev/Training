@@ -1,15 +1,20 @@
 import {postRequest, putRequest, deleteRequest, getRequest} from '../../utils/apiClient.ts';
 import type {IAPIResponse} from "../../types/api.ts";
-import React, { useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {useAuth} from "./useAuth.ts";
 
 type THttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' ;
 
+interface IExecuteFunction<B> {
+    body?: B,
+    pathParams?: Record<string, string>,
+    context?: unknown;
+}
 interface IAPIHookOptions<T> {
     method?: THttpMethod;
     callOnMount?: boolean;
     delay?: number;
-    onSuccess?: (response: IAPIResponse<T>, context?: any ) => void;
+    onSuccess?: (response: IAPIResponse<T>, context?: unknown ) => void;
     onError?: (error: unknown) => void;
     params? : Record<string, string>
 }
@@ -19,7 +24,7 @@ interface IAPIHookResult<T, B> {
     setData :  React.Dispatch<React.SetStateAction<T | null>>;
     isLoading: boolean;
     error: string | null;
-    execute: (args?: { body?: B; pathParams?: Record<string, string>, context?: any; }) => Promise<void>;
+    execute: (args?: IExecuteFunction<B>) => Promise<void>;
 }
 
 export function useAPI<T, B = undefined>(
@@ -40,57 +45,44 @@ export function useAPI<T, B = undefined>(
     const [error, setError] = useState<string | null>(null);
     const { token } = useAuth();
 
-    const executeRequest = async ( args? : {
-        body?: B,
-        pathParams? : Record<string, string>,
-        context?: any;
-    }) => {
+    const executeRequest = useCallback(async (args?: IExecuteFunction<B>) => {
         try {
             const { body = {}, pathParams = {}, context } = args || {};
             setIsLoading(true);
             setError(null);
 
             let response: IAPIResponse<T>;
+            const headers = { Authorization: `Bearer ${token}`, ...(method !== 'GET' && { 'Content-Type': 'application/json' }) };
 
             switch (method) {
                 case 'POST':
-                    response = await postRequest<T, B>(url, body as B, {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }, pathParams);
+                    response = await postRequest<T, B>(url, body as B, headers, pathParams);
                     break;
                 case 'PUT':
-                    response = await putRequest<T>(url, body, {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }, pathParams);
+                    response = await putRequest<T, B>(url, body as B, headers, pathParams);
                     break;
                 case 'DELETE':
-                    response = await deleteRequest<T>(url, {
-                        Authorization: `Bearer ${token}`
-                    }, pathParams);
+                    response = await deleteRequest<T>(url, headers, pathParams);
                     break;
                 default:
-                    response = await getRequest<T>(url, {
-                        Authorization: `Bearer ${token}`
-                    }, params, pathParams);
+                    response = await getRequest<T>(url, headers, params, pathParams);
             }
             if (!response.success) {
-                throw new Error(response.error?.message || `Request failed with status`);
-            }else {
+                const errorMessage = response.error?.message || 'Request failed';
+                setError(errorMessage);
+                if (onError) onError(new Error(errorMessage));
+            } else {
                 setData(response.data || null);
                 if (onSuccess) onSuccess(response, context);
             }
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'An unexpected error occurred';
             setError(message);
-            if (onError) {
-                onError(err);
-            }
+            if (onError) onError(err);
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [method, url, token, onSuccess, onError, JSON.stringify(params)]);
 
     useEffect(() => {
         if (!callOnMount || !url) return;
@@ -101,7 +93,7 @@ export function useAPI<T, B = undefined>(
         } else {
             executeRequest();
         }
-    }, [url, JSON.stringify(params)]);
+    }, [ executeRequest , callOnMount, delay ]);
 
     return {
         data,

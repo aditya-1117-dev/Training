@@ -1,7 +1,7 @@
 import type {IAPIResponse} from "../types/api.ts";
 import {BASE_URL} from "./constants.ts";
 
-export async function getRequest<T = any>(
+export async function getRequest<T >(
     url: string,
     headers: Record<string, string> = {},
     queryParams: Record<string, string> = {},
@@ -43,7 +43,7 @@ export async function getRequest<T = any>(
     }
 }
 
-export async function postRequest<T = any, B = any>(
+export async function postRequest<T , B >(
     url: string,
     body: B,
     headers: Record<string, string> = {},
@@ -79,7 +79,7 @@ export async function postRequest<T = any, B = any>(
     }
 }
 
-export async function putRequest<T = any, B = any>(
+export async function putRequest<T , B >(
     url: string,
     body: B,
     headers: Record<string, string> = {},
@@ -136,13 +136,14 @@ export async function deleteRequest<T>(
             ...options,
         });
 
-        if (!response.ok) {
-            throw new Error(`DELETE request failed: ${response.statusText}`);
-        }
-
         const data = await response.json() as IAPIResponse<T>;
+
+        if (!response.ok) {
+            return data
+        }
+        
         return data;
-    } catch (e: unknown) {
+    } catch (e:  unknown) {
         return {
             success: false,
             message: e instanceof Error ? e.message : 'An error occurred during the DELETE request'

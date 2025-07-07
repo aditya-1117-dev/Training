@@ -35,9 +35,12 @@ export const useKanbanColumn = ({ status, onDrop, onTaskClick }: KanbanColumnPro
     const { execute: moveTaskToNewState } = useAPI<ITask, { status: TTaskStatus }>('/api/tasks/:id', {
         method: 'PUT',
         callOnMount: false,
-        onSuccess: (_res, context: { oldStatus: string; newStatus: string }) => {
+        onSuccess: (_res, context: unknown) => {
             onDrop();
-            addSnackbar({ severity: 'success', message: `Task moved from ${context.oldStatus} to ${context.newStatus}` });
+            if (context && typeof context === 'object' && 'oldStatus' in context && 'newStatus' in context) {
+                addSnackbar({ severity: 'success',
+                    message: `Task moved from ${context.oldStatus} to ${context.newStatus}` });
+            }
         },
         onError: (err: unknown) => {
             addSnackbar({ severity: 'error', message: err instanceof Error ? err.message : 'Failed to update task' });
