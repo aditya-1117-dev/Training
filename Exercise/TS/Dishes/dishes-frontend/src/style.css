@@ -1,0 +1,24 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: silver;
+  padding: 0 20%;
+}
+h1{
+  text-align: center;
+}
+li {
+  background-color: aliceblue;
+  padding: 1%;
+  margin: 1% 5%;
+  border-radius: 5px;
+  text-align: center;
+  list-style: none;
+}
+li li{
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6)
+}
+#missing-dish-dropdown{
+  align-items: center;
+  margin: 5% 10%;
+}

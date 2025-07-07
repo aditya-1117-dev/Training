@@ -24,19 +24,17 @@ async function fetchData(): Promise<[Dish[],Ingredient]> {
 }
 
 fetchData().then(([dishes, ingredients])=> {
-
     const creatableDishes: Dish[] = findCreatableDishes(dishes, ingredients);
-    console.log("Creatable Dishes Are : ", creatableDishes);
+    updateCreatableDishesUI(creatableDishes);
 
     const dishIdAndIngredientsQuantity: Record<number, number> = findDishIdAndIngredientsQuantity(creatableDishes);
-    const topDishes: Dish[] = creatableDishes.filter( (dish) => dish.id in dishIdAndIngredientsQuantity);
-    console.log("Top 3 easiest dishes are : ", topDishes);
+    updateTopDishesUI(creatableDishes, dishIdAndIngredientsQuantity);
 
     const totalIngredients: Ingredient = findTotalQuantityRequiredPerIngredient(creatableDishes);
-    console.log("Total amount of each ingredients used : ", totalIngredients);
+    updateTotalIngredientsUI(totalIngredients);
 
-    const  missingIngredients : Dish[] = findMissingIngredients(dishes, ingredients);
-    console.log("Dishes with missing ingredients are : ", missingIngredients);
+    const  dishesWithMissingIngredients : Dish[] = findMissingIngredients(dishes, ingredients);
+    updateMissingIngredientsUI(dishesWithMissingIngredients);
 });
 
 function findCreatableDishes(dishes : Dish[], ingredients: Ingredient): Dish[]{
@@ -64,7 +62,6 @@ function findDishIdAndIngredientsQuantity(creatableDishes : Dish[]):  Ingredient
     let dishIdAndIngredientsQuantity : Record<number, number> = {};
     for (let i=0; i < creatableDishes.length; i++) {
         const dish : Dish = creatableDishes[i];
-        let flag : boolean = true;
         let totalIngredientSum = 0;
         for (const ingredient in dish.ingredients) {
             const requiredQuantity : number = dish.ingredients[ingredient];
@@ -97,7 +94,6 @@ function findMissingIngredients(dishes : Dish[], ingredients: Ingredient): Dish[
     for (let i=0; i < dishes.length; i++) {
         const dish : Dish = dishes[i];
         let flag : boolean = true;
-
         for (const ingredient in dish.ingredients) {
             const requiredQuantity : number = dish.ingredients[ingredient];
             const availableQuantity : number = ingredients[ingredient] || 0;
@@ -124,4 +120,64 @@ function findMissingIngredients(dishes : Dish[], ingredients: Ingredient): Dish[
         }
     }
     return missingIngredients;
+}
+
+function updateCreatableDishesUI(dishes : Dish[]): void {
+    const list = document.getElementById("creatable-dishes-list") as HTMLUListElement;
+    list.innerHTML = '';
+    dishes.forEach(dish => {
+        const li = document.createElement("li");
+        const subList = document.createElement("li");
+        subList.style.listStyle = 'none';
+        const ingredients = Object.entries(dish.ingredients).map(([ingredient, quantity]) => `${ingredient}: ${quantity}` );
+        li.textContent = `${dish.name}  (Time: ${dish.time} mins)`;
+        subList.textContent = ` - Ingredients : ${ingredients}`;
+        li.appendChild(subList);
+        list.appendChild(li);
+    });
+}
+
+function updateTopDishesUI(dishes : Dish[], dishIdAndIngredientsQuantity : Record<number, number>): void {
+    const list = document.getElementById("top-dishes-list") as HTMLUListElement;
+    list.innerHTML = '';
+    dishes.forEach(dish => {
+        if (dishIdAndIngredientsQuantity[dish.id]) {
+            const li = document.createElement("li");
+            li.textContent = `${dish.name} (Total Ingredients Required : ${dishIdAndIngredientsQuantity[dish.id]})`;
+            list.appendChild(li);
+        }
+    });
+}
+
+function updateTotalIngredientsUI(ingredients : Ingredient): void {
+    const list = document.getElementById("total-ingredients-list") as HTMLUListElement;
+    list.innerHTML = '';
+    for(const ingredient in ingredients) {
+        const li : HTMLElement = document.createElement("li");
+        li.innerHTML = `${ingredient}: ${ingredients[ingredient]}`;
+        list.appendChild(li);
+    }
+}
+
+function updateMissingIngredientsUI(dishesWithMissingIngredients : Dish[]) : void {
+    const dropdown: HTMLSelectElement = document.getElementById("missing-dish-dropdown") as HTMLSelectElement;
+    dropdown.innerHTML = '<option value="">  Select a Dish  </option>';
+
+    dishesWithMissingIngredients.forEach((dish) => {
+        const option : HTMLOptionElement = document.createElement("option");
+        option.value = dish.id.toString();
+        option.textContent = dish.name;
+        dropdown.appendChild(option);
+    });
+
+    dropdown.addEventListener('change', function () {
+        const selectedDishId : number = parseInt(dropdown.value);
+        const selectedDish : Dish = dishesWithMissingIngredients.find(dish => dish.id === selectedDishId) as Dish;
+        const displayMissingIngredient = document.getElementById("missing-ingredients") as HTMLDivElement;
+        displayMissingIngredient.innerHTML = '';
+        if (selectedDish) {
+            const ingredientsList : string[] = Object.entries(selectedDish.ingredients).map(([ingredient, quantity]) => `${ingredient}: ${quantity}`);
+            displayMissingIngredient.innerHTML = `<h3>Missing Ingredients for ${selectedDish.name}:</h3> <li>${ingredientsList}</li>`;
+        }
+    });
 }

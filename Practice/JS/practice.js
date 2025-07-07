@@ -1,10 +1,10 @@
 //
-let a = async () => {
-    let res = await fetch("https://dummyjson.com/products")
-    let data = await res.json();
-    console.log(data)
-}
-a();
+// let a = async () => {
+//     let res = await fetch("https://dummyjson.com/products")
+//     let data = await res.json();
+//     console.log(data)
+// }
+// a();
 //
 // console.log('kk')
 
@@ -32,4 +32,9 @@ a();
 // console.log(obj2.name)
 // console.log(obj.address.country)
 // console.log(obj2.address.country)
-
+const value = 5;
+let obj = {
+    name : "asdd",
+    value // Object Property Shorthand
+}
+console.log(obj);
