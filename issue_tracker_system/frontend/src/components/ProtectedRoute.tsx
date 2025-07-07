@@ -1,7 +1,7 @@
 import React from "react";
 import {Role} from "../utils/constants.ts";
 import {useAuth} from "../hooks/customHooks/useAuth.ts";
-import {Navigate, Outlet, useNavigate} from "react-router-dom";
+import {Navigate, useNavigate} from "react-router-dom";
 import Layout from "../pages/Layout.tsx";
 import {Box, CircularProgress} from "@mui/material";
 
@@ -42,9 +42,5 @@ export const ProtectedRoute: React.FC<IPrivateRouteProps> = ({allowedRoles}) => 
         return;
     }
 
-    return (
-        <Layout>
-            <Outlet />
-        </Layout>
-    );
+    return <Layout />;
 };
