@@ -1,0 +1,6 @@
+version: '1.0'
+services :
+  mobx-exercise-frontend :
+    build: ./
+    ports:
+      - "5173:5173"
