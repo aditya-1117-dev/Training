@@ -1,0 +1,588 @@
+<?php
+
+namespace App\Livewire\Dashboard;
+
+use App\Models\Category;
+use App\Models\Direction as modelsDirection;
+use App\Models\Ingredient;
+use App\Models\Recipe as ModelsRecipe;
+use Livewire\Component;
+use Livewire\Attributes\Layout;
+use Livewire\WithFileUploads;
+
+class Recipe extends Component
+{
+    use WithFileUploads;
+    #[Layout('layouts.master')]
+
+    public $recipes, $recipeId;
+    public $categories, $category, $status=1, $titleHindi, $titleMarathi, $introHindi, $introMarathi, $descHindi, $descMarathi;
+    public $smImage, $bigImage,$thumbnail, $video;
+    public $popular = 0,$trending = 0, $entertaining = 0, $favourite = 0, $veg= 0;
+
+    public $ingredientId, $ingredents, $ingredents_hn, $ingredentCount, $directionId, $directions, $directions_hn, $directionCount;
+
+    public $alertIcon, $alertText, $modalName, $steps, $limit=10;
+
+    public function mount()
+    {
+        $this->steps =0;
+        $this->ingredents = [];
+        $this->directions =[];
+        $this->ingredents_hn = [];
+        $this->directions_hn =[];
+        $this->ingredientId =[];
+        $this->directionId =[];
+        $this->ingredentCount =['1'];
+        $this->directionCount = ['1'];
+        $this->recipes = ModelsRecipe::orderBy('id', 'desc')->limit($this->limit)->get();
+        $this->categories = Category::where('status',1)->get();
+    }
+
+    public function save()
+    {
+
+            $smImageName = $this->smImage->getClientOriginalName();
+            $this->smImage->storeAs('public/recipe/', $smImageName);
+
+            $bgImageName = $this->bigImage->getClientOriginalName();
+            $this->bigImage->storeAs('public/recipe/', $bgImageName);
+
+            $thumbName = $this->thumbnail->getClientOriginalName();
+            $this->thumbnail->storeAs('public/recipe/', $thumbName);
+
+        // dd( $this->smImage, $this->bigImage, $this->thumbnail );
+
+            $recipe =   ModelsRecipe::create([
+                            'category_id'       => $this->category,
+                            'mr_title'          => $this->titleMarathi,
+                            'hn_title'          => $this->titleHindi,
+                            'mr_intro'          => $this->introMarathi,
+                            'hn_intro'          => $this->introHindi,
+                            'mr_description'    => $this->descMarathi,
+                            'hn_description'    => $this->descHindi,
+                            'sm_image'          => $smImageName,
+                            'big_image'         => $bgImageName,
+                            'thumbnail'         => $thumbName,
+                            'video'             => $this->video,
+                            'veg'               => $this->veg,
+                            'popular'           => $this->popular,
+                            'entertain'         => $this->entertaining,
+                            'trending'         => $this->trending,
+                            'status'           => $this->status,
+                            'favourite'         => $this->favourite,
+                        ]);
+            $recipeId = $recipe->id;
+            // $recipeId = 1;
+
+
+            if(count($this->ingredents) > 0)
+            {
+                $i = 0;
+                foreach($this->ingredents as $item){
+                    Ingredient::create([
+                        'recipe_id' => $recipeId,
+                        'mr_name' => $item,
+                        'hn_name' =>  $this->ingredents_hn[$i],
+
+                    ]);
+                    $i++;
+                }
+            }
+            if (count($this->directions) > 0)
+            {
+
+                $i = 0;
+                foreach($this->directions as $item){
+
+                    modelsDirection::create([
+                        'recipe_id' => $recipeId,
+                        'mr_description' => $item,
+                        'hn_description' => $this->directions_hn[$i],
+                    ]);
+                    $i++;
+                }
+            }
+
+
+            $this->alertIcon = 'success';
+            $this->alertText = 'Recipe created';
+
+            $this->modalName = 'addrecipe';
+
+            $this->recipes = ModelsRecipe::all();
+
+            $this->closeModal();
+            $this->notify();
+    }
+
+    public function edit($id)
+    {
+
+
+        $this->recipeId = $id;
+        $this->ingredentCount = [];
+        $this->directionCount = [];
+
+        $recp = ModelsRecipe::with(['category','ingredient','direction'])->find($this->recipeId);
+        // dd($recp);
+
+        $this->category = $recp->category_id;
+        $this->titleMarathi = $recp->mr_title;
+        $this->titleHindi = $recp->hn_title;
+        $this->introMarathi = $recp->mr_intro;
+        $this->introHindi = $recp->hn_intro;
+        $this->descMarathi = $recp->mr_description;
+        $this->descHindi = $recp->hn_description;
+        $this->video = $recp->video;
+
+        if($recp->veg){
+
+            $this->veg = $recp->veg;
+        }
+
+        if($recp->favourite){
+
+            $this->favourite = $recp->favourite;
+        }
+
+        if( $recp->popular){
+
+            $this->popular = $recp->popular;
+        }
+        if($recp->entertain){
+
+            $this->entertaining = $recp->entertain;
+        }
+        if($recp->trending){
+
+            $this->trending = $recp->trending;
+        }
+        $this->status = $recp->status;
+
+        // dd($this->veg);
+
+        // $this->ingredents = $recp->ingredient;
+
+        foreach( $recp->ingredient as $item){
+            array_push($this->ingredentCount, 1);
+
+            array_push($this->ingredents, $item->mr_name);
+            array_push($this->ingredents_hn, $item->hn_name);
+            array_push($this->ingredientId, $item->id);
+
+
+
+        }
+
+        foreach($recp->direction as $item){
+
+            array_push($this->directions, $item->mr_description);
+            array_push($this->directions_hn, $item->hn_description);
+            array_push($this->directionId, $item->id);
+
+            array_push($this->directionCount, 1);
+
+        }
+
+        // dd($this->ingredents_hn[1]);
+
+
+
+        $this->modalName = 'editrecipe';
+        $this->openModal();
+    }
+
+    public function update()
+    {
+
+            // dd(count($this->ingredientId), $this->directionId);
+            // dd($this->ingredents);
+
+        if($this->smImage){
+            
+            // dd($this->smImage);
+            $smImageName = $this->smImage->getClientOriginalName();
+            $this->smImage->storeAs('public/recipe/', $smImageName);
+
+            ModelsRecipe::where('id', $this->recipeId)->update([
+                'sm_image'          => $smImageName,
+            ]);
+
+        }
+        if($this->bigImage){
+            $bgImageName = $this->bigImage->getClientOriginalName();
+            $this->bigImage->storeAs('public/recipe/', $bgImageName);
+
+            ModelsRecipe::where('id', $this->recipeId)->update([
+                'big_image'         => $bgImageName,
+            ]);
+
+        }
+        if($this->thumbnail){
+            $thumbName = $this->thumbnail->getClientOriginalName();
+            $this->thumbnail->storeAs('public/recipe/', $thumbName);
+
+            ModelsRecipe::where('id', $this->recipeId)->update([
+                'thumbnail'         => $thumbName,
+            ]);
+
+        }
+
+
+        ModelsRecipe::where('id', $this->recipeId)->update([
+            'category_id'       => $this->category,
+            'mr_title'          => $this->titleMarathi,
+            'hn_title'          => $this->titleHindi,
+            'mr_intro'          => $this->introMarathi,
+            'hn_intro'          => $this->introHindi,
+            'mr_description'    => $this->descMarathi,
+            'hn_description'    => $this->descHindi,
+            'video'             => $this->video,
+            'status'            => $this->status,
+            
+        ]);
+        
+        
+         if($this->veg){
+
+            ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'veg' => 1,
+              
+            ]);
+        }
+        else{
+            
+            ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'veg' => 0,
+              
+            ]);
+        }
+
+        if($this->favourite){
+
+            ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'favourite' => 1,
+              
+            ]);
+        }
+        else{
+             ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'favourite' => 0,
+              
+            ]);
+        }
+
+        if( $this->popular){
+
+           ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'popular' => 1,
+              
+            ]);
+        }
+        else{
+             ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'popular' => 0,
+              
+            ]);
+        }
+        if( $this->entertaining){
+
+            ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'entertain' =>1,
+              
+            ]);
+        }
+        else{
+             ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'entertain' =>0,
+              
+            ]);
+        }
+        
+        if($this->trending){
+ 
+             ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'trending' =>1,
+              
+            ]);
+            
+        }
+        else{
+            ModelsRecipe::where('id', $this->recipeId)->update([
+            
+                'trending' =>0,
+              
+            ]);
+        }
+ 
+
+
+        if(count($this->ingredents) > 0)
+        {
+            $i = 0;
+            $a = 1;
+
+            // dd($this->ingredents);
+
+            foreach($this->ingredents as $item){
+
+                // $ingredents_old = Ingredient::where('mr_name', $item)->where('hn_name' ,  $this->ingredents_hn[$i] )->get(); 
+                $ingredents_old = Ingredient::where('id',  $item )->get();
+                
+                // dd($ingredents_old);
+
+                if($a <= count($this->ingredientId)){
+                 
+                    Ingredient::where('id', $this->ingredientId[$i])->update([
+                        'mr_name' =>$this->ingredents[$i],
+                        'hn_name' =>  $this->ingredents_hn[$i],
+                    ]);
+                }
+                else{
+                   
+                    Ingredient::create([
+                        'recipe_id' => $this->recipeId,
+                        'mr_name' => $this->ingredents[$i],
+                        'hn_name' =>  $this->ingredents_hn[$i],
+                    ]);
+                }
+
+                $i++;
+                $a++;
+            }
+        } 
+        
+        
+        // directions
+        
+        if (count($this->directions) > 0)
+        {
+
+            $i = 0;
+            $a =1;
+            foreach( $this->directions as $item){
+                // $old_direction = modelsDirection::where('recipe_id' , $this->recipeId)->where('mr_description' , $item)->get();
+                
+                $old_direction = modelsDirection::where('id' , $item)->get();
+
+                if($a <= count($this->directionId) )
+                {
+                    modelsDirection::where('id',$this->directionId[$i])->update([
+                         'mr_description' => $this->directions[$i],
+                         'hn_description' => $this->directions_hn[$i],
+                     ]);
+                }
+                else{
+                    modelsDirection::create([
+                        'recipe_id' => $this->recipeId,
+                         'mr_description' => $this->directions[$i],
+                         'hn_description' => $this->directions_hn[$i],
+                     ]);
+                }
+
+                $i++;
+                $a++;
+            }
+        }
+
+
+
+        $this->modalName = 'editrecipe';
+        $this->closeModal();
+        $this->alertIcon = 'success';
+        $this->alertText = 'Recipe updated';
+        $this->notify();
+
+    }
+
+    public function notify()
+    {
+        $this->dispatch('alert', text: $this->alertText, icon: $this->alertIcon);
+    }
+
+    public function closeModal($name = '')
+    {
+        if($name != '')
+        {
+            $this->dispatch('close_modal', modalName:$name);
+        }
+        else{
+            $this->dispatch('close_modal', modalName:$this->modalName);
+        }
+        
+        $this->recipes = ModelsRecipe::all();
+        $this->resetfeilds();
+    }
+
+    public function openModal()
+    {
+
+        $this->dispatch('open_modal', modalName:$this->modalName);
+
+    }
+    public function resetfeilds()
+    {
+        
+        $this->category = '';
+        $this->recipeId = '';
+        $this->titleMarathi = '';
+        $this->titleHindi = '';
+        $this->introMarathi = '';
+        $this->introHindi = '';
+        $this->descMarathi = '';
+        $this->descHindi = '';
+        $this->video = '';
+
+        $this->ingredents =[];
+          $this->ingredents_hn =[];
+        $this->directions = [];
+         $this->directions_hn = [];
+        $this->ingredientId =[];
+        $this->directionId = [];
+
+        $this->favourite = '';
+        $this->entertaining = '';
+        $this->veg = '';
+        $this->trending = '';
+        $this->popular = '';
+        
+    }
+
+    public function increment()
+    {
+        if ($this->steps < 2) {
+           $this->steps++;
+        }
+
+    }
+    public function decrement()
+    {
+        if ($this->steps > 0) {
+            $this->steps--;
+         }
+    }
+
+
+    public function addingredent()
+    {
+        if($this->ingredentCount > 1)
+        {
+            array_push($this->ingredentCount, 1);
+        }
+    }
+
+    public function removeingredent($index)
+    {
+        unset($this->ingredents[$index]);
+        unset($this->ingredents_hn[$index]);
+        unset($this->ingredentCount[$index]);
+    }
+
+    public function adddirection()
+    {
+        if($this->directionCount > 1)
+        {
+            array_push($this->directionCount, 1);
+        }
+    }
+
+    public function removedirection($index)
+    {
+        unset($this->directions[$index]);
+        unset($this->directions_hn[$index]);
+        unset($this->directionCount[$index]);
+    }
+
+    public function validatefeilds()
+    {
+       $data = $this->validate([
+            'category'      => 'required',
+            'status'        => 'required',
+            'titleHindi'    => 'required',
+            'titleMarathi'  => 'required',
+            'introHindi'    => 'required',
+            'introMarathi'  => 'required',
+            'descHindi'     => 'required',
+            'descMarathi'   => 'required',
+            'smImage'       => 'required',
+            'bigImage'      => 'required',
+            'thumbnail'     => 'required',
+            'video'         => 'required',
+        ],[
+            'category.required'      => 'Category required',
+            'status.required'        => 'Status required',
+            'titleHindi.required'    => 'Hindi title required',
+            'titleMarathi.required'  => 'Marathi title required',
+            'introHindi.required'    => 'Hindi Intro required',
+            'introMarathi.required'  => 'Marathi Intro required',
+            'descHindi.required'     => 'Hindi description required',
+            'descMarathi.required'   => 'Marathi description required',
+            'smImage.required'       => 'Small Image required',
+            'bigImage.required'      => ' Big image required',
+            'thumbnail.required'     => 'Thumbnail required',
+            'video.required'         => 'Video required',
+        ]);
+        
+        
+        return $data;
+
+    }
+
+    public function deleteIngredent($index , $id)
+    {
+        // dd($index, $id);
+        Ingredient::where('id',$id)->delete();
+        unset($this->ingredents[$index]);
+        unset($this->ingredents_hn[$index]);
+        unset($this->ingredentCount[$index]);
+
+        $this->alertText = 'Ingredent Deleted';
+        $this->alertIcon = 'success';
+
+        $this->notify();
+
+
+    }
+      public function deleteDirection($index , $id)
+    {
+        // dd($index, $id);
+        modelsDirection::where('id',$id)->delete();
+        unset($this->directions[$index]);
+        unset($this->directions_hn[$index]);
+        unset($this->directionCount[$index]);
+
+        $this->alertText = 'Direction Deleted';
+        $this->alertIcon = 'success';
+
+        $this->notify();
+
+
+    }
+
+    public function loadmore()
+    {
+        if($this->limit > 0){
+
+            $this->recipes = ModelsRecipe::orderBy('id', 'desc')->limit($this->limit)->get();
+        }
+        else{
+            $this->recipes = ModelsRecipe::orderBy('id', 'desc')->get();
+        }
+    }
+
+
+    public function render()
+    {
+        return view('livewire.dashboard.recipe');
+    }
+}
