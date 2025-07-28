@@ -78,6 +78,7 @@ export function CreateUserDialog({open, onClose, onSubmit, teams}: CreateUserDia
                         <InputLabel>Team Name</InputLabel>
                         <Select
                             label="Team Name"
+                            name="team_id"
                             value={formData.team_id || ''}
                             onChange={handleSelectChange}
                         >
