@@ -1,0 +1,27 @@
+services:
+  issue-tracker-backend-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: issue-tracker-system-backend-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+
+  issue-tracker-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: issue-tracker-system-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - issue_tracker_frontend:/app/node_modules
+    restart: unless-stopped
+
+volumes:
+  issue_tracker_frontend:

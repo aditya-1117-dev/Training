@@ -47,6 +47,7 @@ const Login: React.FC = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                 }}
+                elevation={24}
             >
                 <Typography variant="h4" component="h1" gutterBottom> Issue Tracker</Typography>
                 <Typography variant="h6" component="h2" gutterBottom> Sign In</Typography>

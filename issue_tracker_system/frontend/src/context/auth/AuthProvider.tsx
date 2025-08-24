@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import type {IUser} from "../../types/user.ts";
 import {getRequest, postRequest} from "../../utils/apiClient.ts";
 import { AuthContext } from "./AuthContext.tsx";
@@ -8,34 +8,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
 
-    async function getCurrentUser(token: string): Promise<IUser | null> {
-        const currentUser = await getRequest<IUser>(`/api/auth/me`, {
-            Authorization: `Bearer ${token}`,
-        });
-        if (!currentUser) {
-            throw new Error('Failed to fetch current user');
-        }
-        return currentUser?.data ? currentUser.data : null;
-    }
+    const getCurrentUser = useCallback(
+        async (token: string): Promise<IUser | null> => {
+            const currentUser = await getRequest<IUser>(`/api/auth/me`, {
+                Authorization: `Bearer ${token}`,
+            });
+            if (!currentUser) {
+                throw new Error('Failed to fetch current user');
+            }
+            return currentUser?.data ? currentUser.data : null;
+        },
+        []
+    )
 
-    const login = async (email: string, password: string): Promise<void | string> => {
-        setLoading(true);
-        const response = await postRequest<{ token: string, user: IUser }, { email: string, password: string }>(
-            '/api/auth/login',
-            { email, password }
-        );
+    const login = useCallback(
+        async (email: string, password: string): Promise<void | string> => {
+            setLoading(true);
+            const response = await postRequest<{ token: string, user: IUser }, { email: string, password: string }>(
+                '/api/auth/login',
+                { email, password }
+            );
 
-        if (response.success && response.data) {
-            const { token } = response.data;
-            localStorage.setItem('token', token);
-            setToken(token);
-            return response.data.user.role === 'ADMIN' ? 'ADMIN' : 'USER';
-        } else {
-            setLoading(false);
-            const errorMessage = response.error?.message || 'Login failed. Please try again.';
-            throw new Error(errorMessage);
-        }
-    };
+            if (response.success && response.data) {
+                const { token } = response.data;
+                localStorage.setItem('token', token);
+                setToken(token);
+                return response.data.user.role === 'ADMIN' ? 'ADMIN' : 'USER';
+            } else {
+                setLoading(false);
+                const errorMessage = response.error?.message || 'Login failed. Please try again.';
+                throw new Error(errorMessage);
+            }
+        },
+        []
+    )
+
+    const logout = useCallback(
+        () => {
+            localStorage.removeItem('token');
+            setToken(null);
+            setUser(null);
+        },
+        []
+    )
 
     useEffect(() => {
         const loadUser = async () => {
@@ -55,22 +70,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setLoading(false);
         };
         loadUser();
-    }, [token]);
+    }, [token, getCurrentUser, logout]);
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        setToken(null);
-        setUser(null);
-    };
-
-    const value = {
-        user,
-        token,
-        login,
-        logout,
-        isAuthenticated: !!user,
-        loading,
-    };
+    const value = useMemo(
+        () => (
+            {
+                user,
+                token,
+                login,
+                logout,
+                isAuthenticated: !!user,
+                loading,
+            }
+        ),
+        [user, token, login, logout, loading]
+    )
 
     return (
         <AuthContext.Provider value={value}>

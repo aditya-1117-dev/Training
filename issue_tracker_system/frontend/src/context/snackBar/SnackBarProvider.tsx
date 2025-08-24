@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useCallback, useMemo, useRef, useState} from "react";
 import {Alert, Snackbar} from "@mui/material";
 import {type IAddSnackbarArgs, SnackbarContext} from "./SnackBarContext";
 
@@ -16,17 +16,30 @@ export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) 
     const counter = useRef(0);
     const [snackbars, setSnackbars] = useState<ISnackbarMessage[]>([]);
 
-    const addSnackbar = ({ message, severity} : IAddSnackbarArgs ) => {
-        const id = ++counter.current;
-        setSnackbars((prev) => [...prev, { id, message, severity }]);
-    };
+    const addSnackbar = useCallback(
+        ({ message, severity} : IAddSnackbarArgs ) => {
+            const id = ++counter.current;
+            setSnackbars((prev) => [...prev, { id, message, severity }]);
+        },
+        []
+    );
 
-    const handleClose = (id: number) => {
-        setSnackbars((prev) => prev.filter((snackbar) => snackbar.id !== id));
-    };
+    const handleClose = useCallback(
+        (id: number) => {
+            setSnackbars((prev) => prev.filter((snackbar) => snackbar.id !== id));
+        },
+        []
+    );
+
+    const contextValue = useMemo(
+        () => ({
+            addSnackbar,
+        }),
+        [addSnackbar]
+    );
 
     return (
-        <SnackbarContext.Provider value={{ addSnackbar }}>
+        <SnackbarContext.Provider value={contextValue}>
             {children}
             {snackbars.map((snackbar : ISnackbarMessage) => (
                 <Snackbar
